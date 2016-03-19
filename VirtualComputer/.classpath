@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="D:/Z - Norbi cucca/0 Projektek/TheButtonMCAutoFlairProto/Spigot server (build)/spigot-1.8.7.jar"/>
+	<classpathentry kind="lib" path="D:/Downloads/jni4net-0.8.8.0-bin/lib/jni4net.j-0.8.8.0.jar"/>
+	<classpathentry kind="lib" path="D:/Z - Norbi cucca/0 Projektek/TheButtonMCAutoFlairProto/Spigot server/plugins/VirtualComputer/VirtualComputerSender.j4n.jar"/>
+	<classpathentry kind="lib" path="D:/Z - Norbi cucca/0 Projektek/TheButtonMCAutoFlairProto/Spigot server/plugins/_/Movecraft.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
