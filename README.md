@@ -35,6 +35,7 @@ I plan on making a series where I show the whole process of creating this projec
 **Warning:** The first loaded world on the server (the one specified in server.properties) will **lose** the first 20 maps, though it might be only a temporary effect, it might restore after the server starts up without the plugin. *(Untested.)*
 
 * Install all the requirements
+* Add a virtual PC if you don't have any (the first one will be started)
 * Put the jar file into <server>/plugins directory
 * Put the dll file into <server>/plugins/VirtualComputer directory - if it doesn't exist, create it
 * Make sure your server is set to a world that you don't mind your maps deleted from
