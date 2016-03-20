@@ -69,3 +69,5 @@ Due to the way it works, it automatically plays every sound from the virtual mac
 * The creators of VirtualBox for making it open-source and easy to use (though I had minor issues but those was because .NET had a few marshaling errors with booleans and that I needed to learn how machines work - especially keyboards)
 * The creators of jni4net, after I figured it out, it was quite easy to use
 * Minecraft player iie for testing and suggesting the Movecraft mouse and other ideas not related to this project
+* The creator(s) of SketchMap, a plugin which I edited to create the display
+* 
