@@ -70,4 +70,3 @@ Due to the way it works, it automatically plays every sound from the virtual mac
 * The creators of jni4net, after I figured it out, it was quite easy to use
 * Minecraft player iie for testing and suggesting the Movecraft mouse and other ideas not related to this project
 * The creator(s) of SketchMap, a plugin which I edited to create the display
-* 
