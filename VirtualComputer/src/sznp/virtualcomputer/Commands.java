@@ -162,11 +162,16 @@ public class Commands implements CommandExecutor
 											+ " [\"\",{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlLeft\"}},{\"text\":\" [Alt]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltLeft\"}},{\"text\":\" [Space]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Space\"}},{\"text\":\" [AltGr]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltRight\"}},{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlRight\"}}]");
 				} else if (args[1].equalsIgnoreCase("mouse"))
 				{
-					MouseLockerPlayerListener.MouseLocked = !MouseLockerPlayerListener.MouseLocked;
-					if (MouseLockerPlayerListener.MouseLocked)
+					if (!MouseLockerPlayerListener.LockedPlayers.contains(e.getPlayer()))
+					{
+						MouseLockerPlayerListener.LockedPlayers.add(e.getPlayer());
 						sender.sendMessage("§aMouse locked.");
+					}
 					else
+					{
+						MouseLockedPlayerListener.LockedPlayers.remove(e.getPlayer());
 						sender.sendMessage("§bMouse unlocked.");
+					}
 				}
 				break;
 			}
