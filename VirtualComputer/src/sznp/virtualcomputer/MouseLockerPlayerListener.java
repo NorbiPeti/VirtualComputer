@@ -6,12 +6,12 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class MouseLockerPlayerListener implements Listener
 {
-	public static boolean MouseLocked = false;
+	public static List<Player> LockedPlayers = new List<Player>();
 
 	@EventHandler
 	public void onPlayerMoveMouse(PlayerMoveEvent e)
 	{
-		if (!MouseLocked)
+		if (!LockedPlayers.contains(e.getPlayer())
 			return;
 		float yaw1 = e.getFrom().getYaw();
 		float pitch1 = e.getFrom().getPitch();
