@@ -7,6 +7,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 public class MouseLockerPlayerListener implements Listener
 {
 	public static List<Player> LockedPlayers = new List<Player>();
+	public static int LockedSpeed=1;
 
 	@EventHandler
 	public void onPlayerMoveMouse(PlayerMoveEvent e)
@@ -18,8 +19,8 @@ public class MouseLockerPlayerListener implements Listener
 		float yaw2 = e.getTo().getYaw();
 		float pitch2 = e.getTo().getPitch();
 
-		PluginMain.Instance.UpdateMouse(null, (int) (yaw2 - yaw1),
-				(int) (pitch2 - pitch1), 0, 0, "");
+		PluginMain.Instance.UpdateMouse(null, (int) ((yaw2 - yaw1)*LockedSpeed),
+				(int) ((pitch2 - pitch1)*LockedSpeed), 0, 0, "");
 
 		e.setTo(e.getFrom());
 	}
