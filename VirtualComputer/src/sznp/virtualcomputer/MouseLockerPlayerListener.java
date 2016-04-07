@@ -18,11 +18,6 @@ public class MouseLockerPlayerListener implements Listener
 		float yaw2 = e.getTo().getYaw();
 		float pitch2 = e.getTo().getPitch();
 
-		/*
-		 * System.out.println("yaw: " + (yaw2 - yaw1) + " pitch: "
-		 * + (pitch2 - pitch1));
-		 */
-
 		PluginMain.Instance.UpdateMouse(null, (int) (yaw2 - yaw1),
 				(int) (pitch2 - pitch1), 0, 0, "");
 
