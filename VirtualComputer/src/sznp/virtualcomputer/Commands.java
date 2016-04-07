@@ -172,6 +172,15 @@ public class Commands implements CommandExecutor
 						MouseLockedPlayerListener.LockedPlayers.remove(e.getPlayer());
 						sender.sendMessage("§bMouse unlocked.");
 					}
+				} else if (args[1].equalsIgnoreCase("mspeed"))
+				{
+					if(args.length<3)
+					{
+						sender.sendMessage("§cUsage: /computer input mspeed <integer>");
+						return;
+					}
+					MouseLockerPlayerListener.LockedSpeed=Integer.parseInt(args[2]);
+					sender.sendMessage("§aMouse speed set to "+MouseLockerPlayerListener.LockedSpeed);
 				}
 				break;
 			}
