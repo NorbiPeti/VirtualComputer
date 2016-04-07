@@ -60,7 +60,7 @@ You can either open the chat keyboard using /computer input key, or you can use 
 #### Mouse
 You can "lock" the physical mouse to the virtual one with /computer input mouse, or you can move the mouse (including scrolling) with /computer mouse \<dx\> \<dy\> \<dz\> \<dw\>, where dx specifies the amount of pixels to move right, and dy specifies the amount of pixels to move down, while dz and dw specify the scrolling vertically (positive values scroll down) and horizontally.
 
-To set the locked mouse speed, use /computer input mspeed <integer>. The difference in look position will be multiplied with this number. Recommended values are between 1 and 10 (inclusive). Default: 1.
+To set the locked mouse speed, use /computer input mspeed \<integer\>. The difference in look position will be multiplied with this number. Recommended values are between 1 and 10 (inclusive). Default: 1.
 
 You can also use the "mouse" Movecraft craft type to move the mouse, though it's a bit unreliable.
 
