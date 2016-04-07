@@ -40,7 +40,7 @@ public class PluginMain extends JavaPlugin
 		{
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
-			ccs.sendMessage("§bExtracting necessary libraries...");
+			ccs.sendMessage("Â§bExtracting necessary libraries...");
 			final File[] libs = new File[] { // added to class path
 			new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
 					new File(getDataFolder(), "VirtualComputerSender.j4n.jar") };
@@ -75,17 +75,17 @@ public class PluginMain extends JavaPlugin
 				}
 				addClassPath(JarUtils.getJarUrl(lib));
 			}
-			ccs.sendMessage("§bInitializing bridge...");
+			ccs.sendMessage("Â§bInitializing bridge...");
 			// Bridge.setVerbose(true);
 			// Bridge.setDebug(true);
 			Bridge.init(new File(getDataFolder(),
 					"jni4net.n.w64.v40-0.8.8.0.dll").getAbsoluteFile());
 			Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(),
 					"VirtualComputerSender.j4n.dll"));
-			ccs.sendMessage("§bInititalizing VirtualBox interface...");
+			ccs.sendMessage("Â§bInititalizing VirtualBox interface...");
 			computer = new Computer();
-			//ccs.sendMessage("§bLoading ArmorStands...");
-			ccs.sendMessage("§bLoading SketchMap...");
+			//ccs.sendMessage("Â§bLoading ArmorStands...");
+			ccs.sendMessage("Â§bLoading SketchMap...");
 			/*
 			 * for (ArmorStand as : Bukkit.getWorlds().get(0)
 			 * .getEntitiesByClass(ArmorStand.class))
@@ -127,7 +127,7 @@ public class PluginMain extends JavaPlugin
 				for (int j = 0; j < 4; j++)
 					map.put((short) (i * 4 + j), new RelativeLocation(i, j));
 			smap = new SketchMap(img, "Screen", 5, 4, false, map);
-			ccs.sendMessage("§bLoaded!");
+			ccs.sendMessage("Â§bLoaded!");
 			DoStart();
 		} catch (final Exception e)
 		{
@@ -140,8 +140,8 @@ public class PluginMain extends JavaPlugin
 	public void onDisable()
 	{
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
-		//ccs.sendMessage("§aSaving ArmorStands...");
-		//ccs.sendMessage("§aSaving Maps...");
+		//ccs.sendMessage("Â§aSaving ArmorStands...");
+		//ccs.sendMessage("Â§aSaving Maps...");
 		/*
 		 * for (int i = 0; i < iframes.length; i++)
 		 * {
@@ -154,7 +154,7 @@ public class PluginMain extends JavaPlugin
 		 * }
 		 * }
 		 */
-		ccs.sendMessage("§aHuh.");
+		ccs.sendMessage("Â§aHuh.");
 		saveConfig();
 	}
 
@@ -169,9 +169,9 @@ public class PluginMain extends JavaPlugin
 
 	public void Start(CommandSender sender)
 	{
-		sender.sendMessage("§eStarting computer...");
+		sender.sendMessage("Â§eStarting computer...");
 		computer.Start();
-		sender.sendMessage("§eComputer started.");
+		sender.sendMessage("Â§eComputer started.");
 		DoStart();
 		/*
 		 * this.getServer().getScheduler()
@@ -284,46 +284,48 @@ public class PluginMain extends JavaPlugin
 							 */
 						}
 					}, 1, 10);
-		this.getServer().getScheduler()
-				.scheduleSyncRepeatingTask(this, new Runnable()
-				{
-					public void run()
+		if (getServer().getPluginManager().isPluginEnabled("Movecraft")) {
+			this.getServer().getScheduler()
+					.scheduleSyncRepeatingTask(this, new Runnable()
 					{
-						Craft[] crafts = CraftManager.getInstance()
-								.getCraftsInWorld(Bukkit.getWorlds().get(0));
-						if (crafts == null)
-							return;
-						for (Craft c : crafts)
+						public void run()
 						{
-							if (c.getType().getCraftName()
-									.equalsIgnoreCase("mouse"))
+							Craft[] crafts = CraftManager.getInstance()
+									.getCraftsInWorld(Bukkit.getWorlds().get(0));
+							if (crafts == null)
+								return;
+							for (Craft c : crafts)
 							{
-								int dx = c.getLastDX();
-								/*
-								 * if (dx != 0)
-								 * System.out.println(dx);
-								 */
-								//int dy = c.getLastDY();
-								int dz = c.getLastDZ();
-								if (Bukkit
-										.getWorlds()
-										.get(0)
-										.getBlockAt(c.getMinX(),
-												c.getMinY() - 1, c.getMinZ())
-										.getType() != Material.AIR
-										&& (dx != 0 || dz != 0))
-									UpdateMouse(null, dx * MouseSpeed, dz
-											* MouseSpeed, 0, 0, "");
-								c.setLastDX(0);
-								/*
-								 * if (dz != 0)
-								 * System.out.println(dz);
-								 */
-								c.setLastDZ(0);
+								if (c.getType().getCraftName()
+										.equalsIgnoreCase("mouse"))
+								{
+									int dx = c.getLastDX();
+									/*
+									 * if (dx != 0)
+									 * System.out.println(dx);
+									 */
+									//int dy = c.getLastDY();
+									int dz = c.getLastDZ();
+									if (Bukkit
+											.getWorlds()
+											.get(0)
+											.getBlockAt(c.getMinX(),
+													c.getMinY() - 1, c.getMinZ())
+											.getType() != Material.AIR
+											&& (dx != 0 || dz != 0))
+										UpdateMouse(null, dx * MouseSpeed, dz
+												* MouseSpeed, 0, 0, "");
+									c.setLastDX(0);
+									/*
+									 * if (dz != 0)
+									 * System.out.println(dz);
+									 */
+									c.setLastDZ(0);
+								}
 							}
 						}
-					}
-				}, 1, 1);
+					}, 1, 1);
+        	}
 
 		getServer().getPluginManager().registerEvents(
 				new MouseLockerPlayerListener(), this);
@@ -331,7 +333,7 @@ public class PluginMain extends JavaPlugin
 
 	public void Stop(CommandSender sender)
 	{
-		sender.sendMessage("§eStopping computer...");
+		sender.sendMessage("Â§eStopping computer...");
 		computer.PowerOff();
 		/*
 		 * if (taskid != -1)
@@ -341,13 +343,13 @@ public class PluginMain extends JavaPlugin
 		 * taskid = -1;
 		 * }
 		 */
-		sender.sendMessage("§eComputer stopped.");
+		sender.sendMessage("Â§eComputer stopped.");
 	}
 
 	@SuppressWarnings("deprecation")
 	public void PowerButton(CommandSender sender)
 	{
-		sender.sendMessage("§eStarting/stoppping computer...");
+		sender.sendMessage("Â§eStarting/stoppping computer...");
 		final CommandSender s = sender;
 		getServer().getScheduler().scheduleAsyncDelayedTask(this,
 				new Runnable()
@@ -358,25 +360,25 @@ public class PluginMain extends JavaPlugin
 						if (computer.PowerButton())
 						{
 							DoStart();
-							s.sendMessage("§eComputer started.");
+							s.sendMessage("Â§eComputer started.");
 						} else
-							s.sendMessage("§ePowerbutton pressed.");
+							s.sendMessage("Â§ePowerbutton pressed.");
 					}
 				});
 	}
 
 	public void Reset(CommandSender sender)
 	{
-		sender.sendMessage("§eResetting computer...");
+		sender.sendMessage("Â§eResetting computer...");
 		computer.Reset();
-		sender.sendMessage("§eComputer reset.");
+		sender.sendMessage("Â§eComputer reset.");
 	}
 
 	public void FixScreen(CommandSender sender)
 	{
-		sender.sendMessage("§eFixing screen...");
+		sender.sendMessage("Â§eFixing screen...");
 		computer.FixScreen();
-		sender.sendMessage("§eScreen fixed.");
+		sender.sendMessage("Â§eScreen fixed.");
 	}
 
 	public void PressKey(CommandSender sender, String key,
