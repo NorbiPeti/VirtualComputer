@@ -16,7 +16,7 @@ I plan on making a series where I show the whole process of creating this projec
 
 * Windows 7 64-bit
 * VirtualBox 5
-* Spgiot/Bukkit 1.8/1.9 with Movecraft installed
+* Spgiot/Bukkit 1.8/1.9 (with Movecraft for the mouse craft type)
 * Microsoft .NET Framework 4.5
 * Java 8
 
@@ -28,8 +28,6 @@ I plan on making a series where I show the whole process of creating this projec
 * Other Java versions
 
 *Due to jni4net support limitations the plugin does not support other operating systems.*
-
-*I was too lazy to make Movecraft a soft-dependency, so currently you will need to install Movecraft for it to work.*
 
 ## Installation
 **Warning:** The first loaded world on the server (the one specified in server.properties) will **lose** the first 20 maps, though it might be only a temporary effect, it might restore after the server starts up without the plugin. *(Untested.)*
@@ -57,8 +55,6 @@ It is also recommended to start the virtual machine first so you can distinguish
 
 #### Keyboard
 You can either open the chat keyboard using /computer input key, or you can use /computer key \<keyname\>. You can find key names [here](https://github.com/NorbiPeti/VirtualComputer/blob/master/VirtualComputerSender/VirtualKeys.cs). Note that not all keys are currently supported.
-
-*I'd highly appreciate if someone could make a portable keyboard for it. :P*
 
 #### Mouse
 You can "lock" the physical mouse to the virtual one with /computer input mouse, or you can move the mouse (including scrolling) with /computer mouse \<dx\> \<dy\> \<dz\> \<dw\>, where dx specifies the amount of pixels to move right, and dy specifies the amount of pixels to move down, while dz and dw specify the scrolling vertically (positive values scroll down) and horizontally. You can also use the "mouse" Movecraft craft type to move the mouse, though it's a bit unreliable.You can press a mouse button with /computer mouse <buttonname>. For example: /computer mouse leftbutton. You can find all the button names [here](https://github.com/NorbiPeti/VirtualComputer/blob/master/VirtualComputerSender/MouseBS.cs).
