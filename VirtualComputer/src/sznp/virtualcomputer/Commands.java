@@ -32,18 +32,6 @@ public class Commands implements CommandExecutor
 				PluginMain.getPlugin(PluginMain.class).Stop(sender);
 				break;
 			case "debug":
-				/*
-				 * sender.sendMessage("Screen length1: "
-				 * + PluginMain.Instance.Screen.length);
-				 * sender.sendMessage("Screen length2: "
-				 * + PluginMain.Instance.Screen[0].length);
-				 * sender.sendMessage("Screen length3: "
-				 * + PluginMain.Instance.Screen[0][0].length);
-				 */
-				/*
-				 * sender.sendMessage("UpdatePixels: "
-				 * + ImageRenderer.updatepixels);
-				 */
 				World w = Bukkit.getWorlds().get(0);
 				Craft[] crafts = CraftManager.getInstance().getCraftsInWorld(w);
 				sender.sendMessage("World: " + w);
@@ -73,7 +61,7 @@ public class Commands implements CommandExecutor
 			case "key":
 				if (args.length < 2)
 				{
-					sender.sendMessage("§cUsage: /computer key <key> [down/up|interval]");
+					sender.sendMessage("Â§cUsage: /computer key <key> [down/up|interval]");
 					return true;
 				}
 				if (args.length < 3)
@@ -102,14 +90,12 @@ public class Commands implements CommandExecutor
 						{
 							PluginMain.getPlugin(PluginMain.class).UpdateMouse(
 									sender, 0, 0, 0, 0,
-									//MouseButtonState.valueOf(args[1]),
 									args[1], (args[2].equals("down")));
 							showusage = false;
 						} else if (args.length == 2)
 						{
 							PluginMain.getPlugin(PluginMain.class).UpdateMouse(
 									sender, 0, 0, 0, 0,
-									//MouseButtonState.valueOf(args[1]));
 									args[1]);
 							showusage = false;
 						}
@@ -117,14 +103,14 @@ public class Commands implements CommandExecutor
 				}
 				if (showusage)
 				{
-					sender.sendMessage("§cUsage: /computer mouse <relx> <rely> <relz> <relw>");
-					sender.sendMessage("§cOr: /computer mouse <button> [up/down]");
+					sender.sendMessage("Â§cUsage: /computer mouse <relx> <rely> <relz> <relw>");
+					sender.sendMessage("Â§cOr: /computer mouse <button> [up/down]");
 				}
 				break;
 			case "mspeed":
 				if (args.length < 2)
 				{
-					sender.sendMessage("§cUsage: /computer mspeed <speed>");
+					sender.sendMessage("Â§cUsage: /computer mspeed <speed>");
 					return true;
 				}
 				PluginMain.MouseSpeed = Integer.parseInt(args[1]);
@@ -134,12 +120,12 @@ public class Commands implements CommandExecutor
 			{
 				if (!(sender instanceof Player))
 				{
-					sender.sendMessage("§cError: Only players can use this command.");
+					sender.sendMessage("Â§cError: Only players can use this command.");
 					return true;
 				}
 				if (args.length < 2)
 				{
-					sender.sendMessage("§cUsage: /computer input <key|mouse>");
+					sender.sendMessage("Â§cUsage: /computer input <key|mouse>");
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("key"))
@@ -178,9 +164,9 @@ public class Commands implements CommandExecutor
 				{
 					MouseLockerPlayerListener.MouseLocked = !MouseLockerPlayerListener.MouseLocked;
 					if (MouseLockerPlayerListener.MouseLocked)
-						sender.sendMessage("§aMouse locked.");
+						sender.sendMessage("Â§aMouse locked.");
 					else
-						sender.sendMessage("§bMouse unlocked.");
+						sender.sendMessage("Â§bMouse unlocked.");
 				}
 				break;
 			}
