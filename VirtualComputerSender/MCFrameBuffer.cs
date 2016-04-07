@@ -23,7 +23,7 @@ namespace VirtualComputerSender //Copyright © NorbiPeti 2015-2016
         {
             Display = display;
             LastFullUpdateTimer = new Timer();
-            LastFullUpdateTimer.Interval = 5000; //60s --> 5s: 2016.02.20.
+            LastFullUpdateTimer.Interval = 5000;
             LastFullUpdateTimer.Elapsed += UpdateScreen;
             Client = new UdpClient();
             Client.Connect(new IPEndPoint(IPAddress.Loopback, 5896));
@@ -144,27 +144,19 @@ namespace VirtualComputerSender //Copyright © NorbiPeti 2015-2016
         public const int ScreenWidth = 640;
         public const int ScreenHeight = 480;
 
-        //public byte[][][] Screen = CreateJaggedArray<byte[][][]>(640, 480, 3);
-        public volatile int[] Screen = new int[640 * 480]; //volatile: 2016.02.20.
+        public volatile int[] Screen = new int[640 * 480];
         public void NotifyUpdateImage(uint aX, uint aY, uint aWidth, uint aHeight, Array aImage)
         {
-            //var img = aImage.Cast<byte>().ToArray();
-            Task.Run(() => //<-- 2016.02.20.
+            Task.Run(() =>
             {
                 var img = (byte[])aImage;
                 int x = 0;
-                /*if (aWidth > 600)
-                    Console.WriteLine("Updating screen..."); //2016.02.15.*/
                 for (int j = (int)aY; j < aHeight && j < ScreenHeight; j++)
                 {
                     for (int i = (int)aX; i < aWidth && i < ScreenWidth; i++)
                     {
                         if (x + 4 > aImage.Length)
                             return;
-                        //Screen[i][j] = Color.FromArgb(img[x + 2], img[x + 1], img[x]);
-                        //Screen[i][j][0] = img[x + 2];
-                        //Screen[i][j][1] = img[x + 1];
-                        //Screen[i][j][2] = img[x];
                         Screen[640 * j + i] = Color.FromArgb(img[x + 2], img[x + 1], img[x]).ToArgb();
                         x += 4;
                     }
@@ -173,8 +165,6 @@ namespace VirtualComputerSender //Copyright © NorbiPeti 2015-2016
                     if (add > 0)
                         x += add * 4;
                 }
-                /*if (aWidth > 600)
-                    Console.WriteLine("Updated screen."); //2016.02.15.*/
             });
         }
 
@@ -184,29 +174,6 @@ namespace VirtualComputerSender //Copyright © NorbiPeti 2015-2016
 
         public void Notify3DEvent(uint aType, Array aData)
         {
-        }
-
-        static T CreateJaggedArray<T>(params int[] lengths)
-        {
-            return (T)InitializeJaggedArray(typeof(T).GetElementType(), 0, lengths);
-        }
-
-        static object InitializeJaggedArray(Type type, int index, int[] lengths)
-        {
-            Array array = Array.CreateInstance(type, lengths[index]);
-            Type elementType = type.GetElementType();
-
-            if (elementType != null)
-            {
-                for (int i = 0; i < lengths[index]; i++)
-                {
-                    array.SetValue(
-                        InitializeJaggedArray(elementType, index + 1, lengths), i);
-                }
-                //Console.WriteLine("Screen array sizes: " + array.Length + " " + ((Array)array.GetValue(0)).Length);
-            }
-
-            return array;
         }
     }
 }
