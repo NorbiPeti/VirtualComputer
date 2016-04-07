@@ -65,43 +65,7 @@ public class PluginMain extends JavaPlugin
 					"VirtualComputerSender.j4n.dll"));
 			ccs.sendMessage("§bInititalizing VirtualBox interface...");
 			computer = new Computer();
-			//ccs.sendMessage("§bLoading ArmorStands...");
 			ccs.sendMessage("§bLoading SketchMap...");
-			/*
-			 * for (ArmorStand as : Bukkit.getWorlds().get(0)
-			 * .getEntitiesByClass(ArmorStand.class))
-			 * as.remove();
-			 */
-			/*
-			 * World world = Bukkit.getWorlds().get(0);
-			 * //armorstands = new ArmorStand[640][];
-			 * iframes = new ItemFrame[640][];
-			 * for (int i = 0; i < 640; i++)
-			 * {
-			 * //armorstands[i] = new ArmorStand[480];
-			 * iframes[i] = new ItemFrame[480];
-			 * for (int j = 0; j < 480; j++)
-			 * {
-			 * String id = getConfig().getString(i + "." + j);
-			 * if (id == null)
-			 * {
-			 * //armorstands[i][j] = null;
-			 * iframes[i][j] = null;
-			 * break;
-			 * }
-			 * UUID uuid = UUID.fromString(id);
-			 * for (Entity entity : world.getEntities())
-			 * {
-			 * if (entity.getUniqueId().equals(uuid))
-			 * {
-			 * //armorstands[i][j] = (ArmorStand) entity;
-			 * iframes[i][j] = (ItemFrame) entity;
-			 * break;
-			 * }
-			 * }
-			 * }
-			 * }
-			 */
 			img = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
 			HashMap<Short, RelativeLocation> map = new HashMap<>();
 			for (int i = 0; i < 5; i++)
@@ -121,32 +85,12 @@ public class PluginMain extends JavaPlugin
 	public void onDisable()
 	{
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
-		//ccs.sendMessage("§aSaving ArmorStands...");
-		//ccs.sendMessage("§aSaving Maps...");
-		/*
-		 * for (int i = 0; i < iframes.length; i++)
-		 * {
-		 * for (int j = 0; j < iframes[i].length; j++)
-		 * {
-		 * if (iframes[i][j] == null)
-		 * break;
-		 * //getConfig().set(i + "." + j, armorstands[i][j].getUniqueId());
-		 * getConfig().set(i + "." + j, iframes[i][j].getUniqueId());
-		 * }
-		 * }
-		 */
 		ccs.sendMessage("§aHuh.");
 		saveConfig();
 	}
 
-	//private volatile ArmorStand[][] armorstands;
-	//private volatile int ProgressX = 0;
-	//private volatile int ProgressY = 0;
-	//private volatile ItemFrame[][] iframes;
 	private volatile BufferedImage img;
 	private volatile int taskid = -1;
-
-	//public volatile byte[][][] Screen;
 
 	public void Start(CommandSender sender)
 	{
@@ -154,81 +98,6 @@ public class PluginMain extends JavaPlugin
 		computer.Start();
 		sender.sendMessage("§eComputer started.");
 		DoStart();
-		/*
-		 * this.getServer().getScheduler()
-		 * .scheduleSyncRepeatingTask(this, new Runnable()
-		 * {
-		 * public void run()
-		 * {
-		 * long worktime = TimeUnit.NANOSECONDS.toMillis(System
-		 * .nanoTime());
-		 * 
-		 * if (ProgressX == 0 && ProgressY == 0)
-		 * Screen = computer.GetScreen();
-		 * if (Screen == null)
-		 * return;
-		 * 
-		 * for (int i = ProgressX; i < 640; i++)
-		 * {
-		 * for (int j = ProgressY; j < 480; j++)
-		 * {
-		 * if (TimeUnit.NANOSECONDS.toMillis(System
-		 * .nanoTime()) - worktime > 40)
-		 * {
-		 * ProgressX = i;
-		 * ProgressY = j;
-		 * return;
-		 * }
-		 * 
-		 * if (armorstands[i][j] == null)
-		 * armorstands[i][j] = (ArmorStand) Bukkit
-		 * .getWorlds()
-		 * .get(0)
-		 * .spawnEntity(
-		 * new Location(
-		 * Bukkit.getWorlds()
-		 * .get(0),
-		 * i * 0.1,
-		 * 80f - j * 0.1, 0f),
-		 * EntityType.ARMOR_STAND);
-		 * 
-		 * 
-		 * World world = Bukkit.getWorlds().get(0);
-		 * Location loc = new
-		 * Location(Bukkit.getWorlds()
-		 * .get(0), i * 0.1, 80f - j * 0.1, 0f);
-		 * if (iframes[i][j] == null)
-		 * iframes[i][j] = (ItemFrame) world
-		 * .spawnEntity(loc,
-		 * EntityType.ITEM_FRAME);
-		 * 
-		 * 
-		 * ItemStack stack = new ItemStack(
-		 * Material.LEATHER_CHESTPLATE, 1);
-		 * ((LeatherArmorMeta) stack.getItemMeta())
-		 * .setColor(Color.fromRGB(Byte
-		 * .toUnsignedInt(computer
-		 * .GetScreenPixelColor(i,
-		 * j, 0)), Byte
-		 * .toUnsignedInt(computer
-		 * .GetScreenPixelColor(i,
-		 * j, 1)), Byte
-		 * .toUnsignedInt(computer
-		 * .GetScreenPixelColor(i,
-		 * j, 2))));
-		 * armorstands[i][j].setChestplate(stack);
-		 * armorstands[i][j].setVisible(false);
-		 * 
-		 * //iframes[i][j].setItem(); //TO!DO: Copy int array to BufferedImage
-		 * in
-		 * background thread while rendering
-		 * }
-		 * }
-		 * ProgressX = 0;
-		 * ProgressY = 0;
-		 * }
-		 * }, 1, 1);
-		 */
 	}
 
 	public static int MouseSpeed = 1;
@@ -242,27 +111,10 @@ public class PluginMain extends JavaPlugin
 					{
 						public void run()
 						{
-							//long time = System.nanoTime();
-
 							final int[] a = ((DataBufferInt) smap.image
 									.getRaster().getDataBuffer()).getData();
 							final int[] data = computer.GetScreenPixelColors();
-							/*
-							 * if (data.length > 600)
-							 * System.out.println("Updating screen...");
-							 */
 							System.arraycopy(data, 0, a, 0, data.length);
-							/*
-							 * if (data.length > 600)
-							 * System.out.println("Updated screen.");
-							 */
-
-							/*
-							 * long diff = System.nanoTime() - time;
-							 * if (TimeUnit.NANOSECONDS.toMillis(diff) > 50)
-							 * System.out.println("Data copy took "
-							 * + TimeUnit.NANOSECONDS.toMillis(diff) + " ms");
-							 */
 						}
 					}, 1, 10);
 		if (getServer().getPluginManager().isPluginEnabled("Movecraft")) {
@@ -281,10 +133,6 @@ public class PluginMain extends JavaPlugin
 										.equalsIgnoreCase("mouse"))
 								{
 									int dx = c.getLastDX();
-									/*
-									 * if (dx != 0)
-									 * System.out.println(dx);
-									 */
 									//int dy = c.getLastDY();
 									int dz = c.getLastDZ();
 									if (Bukkit
@@ -297,10 +145,6 @@ public class PluginMain extends JavaPlugin
 										UpdateMouse(null, dx * MouseSpeed, dz
 												* MouseSpeed, 0, 0, "");
 									c.setLastDX(0);
-									/*
-									 * if (dz != 0)
-									 * System.out.println(dz);
-									 */
 									c.setLastDZ(0);
 								}
 							}
@@ -316,14 +160,6 @@ public class PluginMain extends JavaPlugin
 	{
 		sender.sendMessage("§eStopping computer...");
 		computer.PowerOff();
-		/*
-		 * if (taskid != -1)
-		 * {
-		 * this.getServer().getScheduler().cancelTask(taskid); run task
-		 * constantly
-		 * taskid = -1;
-		 * }
-		 */
 		sender.sendMessage("§eComputer stopped.");
 	}
 
@@ -365,7 +201,6 @@ public class PluginMain extends JavaPlugin
 	public void PressKey(CommandSender sender, String key,
 			String stateorduration)
 	{
-		//sender.sendMessage("Pressing key...");
 		if (stateorduration.length() == 0)
 			computer.PressKey(key, (short) 0);
 		else if (stateorduration.equalsIgnoreCase("down"))
@@ -374,24 +209,15 @@ public class PluginMain extends JavaPlugin
 			computer.PressKey(key, (short) -2);
 		else
 			computer.PressKey(key, Short.parseShort(stateorduration));
-		//sender.sendMessage("Key pressed.");
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w,
 			String mbs, boolean down)
 	{
-		/*
-		 * if (sender != null)
-		 * sender.sendMessage("Updating mouse...");
-		 */
 		if (down)
 			computer.UpdateMouse(x, y, z, w, mbs);
 		else
 			computer.UpdateMouse(x, y, z, w, "");
-		/*
-		 * if (sender != null)
-		 * sender.sendMessage("Updated mouse.");
-		 */
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w,
@@ -400,29 +226,6 @@ public class PluginMain extends JavaPlugin
 		UpdateMouse(sender, x, y, z, w, mbs, true);
 		UpdateMouse(sender, x, y, z, w, mbs, false);
 	}
-
-	/*
-	 * public void run() { int aX = wrapped.getInt(); int aY = wrapped.getInt();
-	 * int aWidth = wrapped.getInt(); int aHeight = wrapped.getInt(); int asi =
-	 * 0;
-	 * 
-	 * // ByteBuffer dbuf = ByteBuffer.allocate(2); //
-	 * dbuf.putShort(num); // byte[] bytes = dbuf.array(); // { 0, 1 } for (int
-	 * j = (int) aY; j < aHeight && j < 480; j++) { for (int i = (int) aX; i <
-	 * aWidth && i < 640; i++) { int x = wrapped.getInt(); if
-	 * (wrapped.remaining() < 4) { runningtask = false; return; } //
-	 * FromArgb(255, x2, x1,x) ArmorStand as; if (armorstands[asi] == null) as =
-	 * (ArmorStand) Bukkit .getWorlds() .get(0) .spawnEntity( new
-	 * Location(Bukkit.getWorlds().get(0), j * 0.1, 80f - i * 0.1, 0f),
-	 * EntityType.ARMOR_STAND); else as = armorstands[asi]; ItemStack stack =
-	 * new ItemStack(Material.LEATHER_CHESTPLATE, 1); ((LeatherArmorMeta)
-	 * stack.getItemMeta()).setColor(Color .fromBGR(x));
-	 * as.setChestplate(stack); armorstands[asi++] = as; // x += 4;
-	 * wrapped.get(); wrapped.get(); wrapped.get(); wrapped.get(); } for (int k
-	 * = 0; k < aX * 4; k++) wrapped.get(); int add = aX + aWidth - 640; if (add
-	 * > 0) for (int k = 0; k < add * 4; k++) wrapped.get(); } runningtask =
-	 * false; }
-	 */
 
 	private void addClassPath(final URL url) throws IOException
 	{
