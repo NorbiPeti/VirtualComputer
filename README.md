@@ -34,6 +34,7 @@ I plan on making a series where I show the whole process of creating this projec
 
 * Install all the requirements
 * Add a virtual PC if you don't have any (the first one will be started)
+    * Install an OS and Guest Additions, if you haven't already
 * Put the jar file into <server>/plugins directory
 * Put the dll file into <server>/plugins/VirtualComputer directory - if it doesn't exist, create it
 * Make sure your server is set to a world that you don't mind your maps deleted from
@@ -57,7 +58,13 @@ It is also recommended to start the virtual machine first so you can distinguish
 You can either open the chat keyboard using /computer input key, or you can use /computer key \<keyname\>. You can find key names [here](https://github.com/NorbiPeti/VirtualComputer/blob/master/VirtualComputerSender/VirtualKeys.cs). Note that not all keys are currently supported.
 
 #### Mouse
-You can "lock" the physical mouse to the virtual one with /computer input mouse, or you can move the mouse (including scrolling) with /computer mouse \<dx\> \<dy\> \<dz\> \<dw\>, where dx specifies the amount of pixels to move right, and dy specifies the amount of pixels to move down, while dz and dw specify the scrolling vertically (positive values scroll down) and horizontally. You can also use the "mouse" Movecraft craft type to move the mouse, though it's a bit unreliable.You can press a mouse button with /computer mouse <buttonname>. For example: /computer mouse leftbutton. You can find all the button names [here](https://github.com/NorbiPeti/VirtualComputer/blob/master/VirtualComputerSender/MouseBS.cs).
+You can "lock" the physical mouse to the virtual one with /computer input mouse, or you can move the mouse (including scrolling) with /computer mouse \<dx\> \<dy\> \<dz\> \<dw\>, where dx specifies the amount of pixels to move right, and dy specifies the amount of pixels to move down, while dz and dw specify the scrolling vertically (positive values scroll down) and horizontally.
+
+To set the locked mouse speed, use /computer input mspeed <integer>. The difference in look position will be multiplied with this number. Recommended values are between 1 and 10 (inclusive). Default: 1.
+
+You can also use the "mouse" Movecraft craft type to move the mouse, though it's a bit unreliable.
+
+You can press a mouse button with /computer mouse <buttonname>. For example: /computer mouse leftbutton. You can find all the button names [here](https://github.com/NorbiPeti/VirtualComputer/blob/master/VirtualComputerSender/MouseBS.cs).
 
 #### Sounds
 Due to the way it works, it automatically plays every sound from the virtual machine **on the host computer**. This is built into VBoxHeadless, it seems. In order to make the sounds play for every connected player, we'd need a clientside mod.
