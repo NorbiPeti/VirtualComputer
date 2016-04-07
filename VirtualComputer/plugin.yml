@@ -5,4 +5,4 @@ commands:
     computer:
         usage: Use /computer start|stop
         alias: c
-depend: [Movecraft]
+softdepend: [Movecraft]
