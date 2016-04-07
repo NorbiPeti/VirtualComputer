@@ -42,8 +42,21 @@ public class PluginMain extends JavaPlugin
 			this.getCommand("computer").setExecutor(new Commands());
 			ccs.sendMessage("§bExtracting necessary libraries...");
 			final File[] libs = new File[] { // added to class path
-			new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
+					new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
 					new File(getDataFolder(), "VirtualComputerSender.j4n.jar") };
+ -			final File[] libs2 = new File[] {
+					new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
+ -					new File(getDataFolder(), "jni4net.n-0.8.8.0.dll"),
+ -					new File(getDataFolder(), "jni4net.n.w64.v40-0.8.8.0.dll") };
+
+ -			for (final File lib : libs2)
+ -			{
+ -				if (!lib.exists())
+ -				{
+ -					JarUtils.extractFromJar(lib.getName(),
+ -							lib.getAbsolutePath());
+ -				}
+ -			}
 			for (final File lib : libs)
 			{
 				if (!lib.exists())
