@@ -40,23 +40,23 @@ public class PluginMain extends JavaPlugin
 		{
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
-			ccs.sendMessage("Â§bExtracting necessary libraries...");
+			ccs.sendMessage("§bExtracting necessary libraries...");
 			final File[] libs = new File[] { // added to class path
-					new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
+			new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
 					new File(getDataFolder(), "VirtualComputerSender.j4n.jar") };
- -			final File[] libs2 = new File[] {
+			final File[] libs2 = new File[] {
 					new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
- -					new File(getDataFolder(), "jni4net.n-0.8.8.0.dll"),
- -					new File(getDataFolder(), "jni4net.n.w64.v40-0.8.8.0.dll") };
+					new File(getDataFolder(), "jni4net.n-0.8.8.0.dll"),
+					new File(getDataFolder(), "jni4net.n.w64.v40-0.8.8.0.dll") };
 
- -			for (final File lib : libs2)
- -			{
- -				if (!lib.exists())
- -				{
- -					JarUtils.extractFromJar(lib.getName(),
- -							lib.getAbsolutePath());
- -				}
- -			}
+			for (final File lib : libs2)
+			{
+				if (!lib.exists())
+				{
+					JarUtils.extractFromJar(lib.getName(),
+							lib.getAbsolutePath());
+				}
+			}
 			for (final File lib : libs)
 			{
 				if (!lib.exists())
@@ -69,23 +69,23 @@ public class PluginMain extends JavaPlugin
 				}
 				addClassPath(JarUtils.getJarUrl(lib));
 			}
-			ccs.sendMessage("Â§bInitializing bridge...");
+			ccs.sendMessage("§bInitializing bridge...");
 			// Bridge.setVerbose(true);
 			// Bridge.setDebug(true);
 			Bridge.init(new File(getDataFolder(),
 					"jni4net.n.w64.v40-0.8.8.0.dll").getAbsoluteFile());
 			Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(),
 					"VirtualComputerSender.j4n.dll"));
-			ccs.sendMessage("Â§bInititalizing VirtualBox interface...");
+			ccs.sendMessage("§bInititalizing VirtualBox interface...");
 			computer = new Computer();
-			ccs.sendMessage("Â§bLoading SketchMap...");
+			ccs.sendMessage("§bLoading SketchMap...");
 			img = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
 			HashMap<Short, RelativeLocation> map = new HashMap<>();
 			for (int i = 0; i < 5; i++)
 				for (int j = 0; j < 4; j++)
 					map.put((short) (i * 4 + j), new RelativeLocation(i, j));
 			smap = new SketchMap(img, "Screen", 5, 4, false, map);
-			ccs.sendMessage("Â§bLoaded!");
+			ccs.sendMessage("§bLoaded!");
 			DoStart();
 		} catch (final Exception e)
 		{
@@ -98,7 +98,7 @@ public class PluginMain extends JavaPlugin
 	public void onDisable()
 	{
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
-		ccs.sendMessage("Â§aHuh.");
+		ccs.sendMessage("§aHuh.");
 		saveConfig();
 	}
 
@@ -107,9 +107,9 @@ public class PluginMain extends JavaPlugin
 
 	public void Start(CommandSender sender)
 	{
-		sender.sendMessage("Â§eStarting computer...");
+		sender.sendMessage("§eStarting computer...");
 		computer.Start();
-		sender.sendMessage("Â§eComputer started.");
+		sender.sendMessage("§eComputer started.");
 		DoStart();
 	}
 
@@ -130,13 +130,15 @@ public class PluginMain extends JavaPlugin
 							System.arraycopy(data, 0, a, 0, data.length);
 						}
 					}, 1, 10);
-		if (getServer().getPluginManager().isPluginEnabled("Movecraft")) {
+		if (getServer().getPluginManager().isPluginEnabled("Movecraft"))
+		{
 			this.getServer().getScheduler()
 					.scheduleSyncRepeatingTask(this, new Runnable()
 					{
 						public void run()
 						{
-							Craft[] crafts = CraftManager.getInstance()
+							Craft[] crafts = CraftManager
+									.getInstance()
 									.getCraftsInWorld(Bukkit.getWorlds().get(0));
 							if (crafts == null)
 								return;
@@ -146,14 +148,14 @@ public class PluginMain extends JavaPlugin
 										.equalsIgnoreCase("mouse"))
 								{
 									int dx = c.getLastDX();
-									//int dy = c.getLastDY();
+									// int dy = c.getLastDY();
 									int dz = c.getLastDZ();
 									if (Bukkit
 											.getWorlds()
 											.get(0)
 											.getBlockAt(c.getMinX(),
-													c.getMinY() - 1, c.getMinZ())
-											.getType() != Material.AIR
+													c.getMinY() - 1,
+													c.getMinZ()).getType() != Material.AIR
 											&& (dx != 0 || dz != 0))
 										UpdateMouse(null, dx * MouseSpeed, dz
 												* MouseSpeed, 0, 0, "");
@@ -163,7 +165,7 @@ public class PluginMain extends JavaPlugin
 							}
 						}
 					}, 1, 1);
-        	}
+		}
 
 		getServer().getPluginManager().registerEvents(
 				new MouseLockerPlayerListener(), this);
@@ -171,15 +173,15 @@ public class PluginMain extends JavaPlugin
 
 	public void Stop(CommandSender sender)
 	{
-		sender.sendMessage("Â§eStopping computer...");
+		sender.sendMessage("§eStopping computer...");
 		computer.PowerOff();
-		sender.sendMessage("Â§eComputer stopped.");
+		sender.sendMessage("§eComputer stopped.");
 	}
 
 	@SuppressWarnings("deprecation")
 	public void PowerButton(CommandSender sender)
 	{
-		sender.sendMessage("Â§eStarting/stoppping computer...");
+		sender.sendMessage("§eStarting/stoppping computer...");
 		final CommandSender s = sender;
 		getServer().getScheduler().scheduleAsyncDelayedTask(this,
 				new Runnable()
@@ -190,25 +192,25 @@ public class PluginMain extends JavaPlugin
 						if (computer.PowerButton())
 						{
 							DoStart();
-							s.sendMessage("Â§eComputer started.");
+							s.sendMessage("§eComputer started.");
 						} else
-							s.sendMessage("Â§ePowerbutton pressed.");
+							s.sendMessage("§ePowerbutton pressed.");
 					}
 				});
 	}
 
 	public void Reset(CommandSender sender)
 	{
-		sender.sendMessage("Â§eResetting computer...");
+		sender.sendMessage("§eResetting computer...");
 		computer.Reset();
-		sender.sendMessage("Â§eComputer reset.");
+		sender.sendMessage("§eComputer reset.");
 	}
 
 	public void FixScreen(CommandSender sender)
 	{
-		sender.sendMessage("Â§eFixing screen...");
+		sender.sendMessage("§eFixing screen...");
 		computer.FixScreen();
-		sender.sendMessage("Â§eScreen fixed.");
+		sender.sendMessage("§eScreen fixed.");
 	}
 
 	public void PressKey(CommandSender sender, String key,

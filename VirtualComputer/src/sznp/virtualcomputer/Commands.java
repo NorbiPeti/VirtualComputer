@@ -47,7 +47,8 @@ public class Commands implements CommandExecutor
 								.get(0)
 								.getBlockAt(crafts[0].getMinX(),
 										crafts[0].getMinY() - 1,
-										crafts[0].getMinZ()).getType()); //Block: AIR
+										crafts[0].getMinZ()).getType()); // Block:
+																			// AIR
 				break;
 			case "powerbutton":
 				PluginMain.getPlugin(PluginMain.class).PowerButton(sender);
@@ -61,7 +62,7 @@ public class Commands implements CommandExecutor
 			case "key":
 				if (args.length < 2)
 				{
-					sender.sendMessage("Â§cUsage: /computer key <key> [down/up|interval]");
+					sender.sendMessage("§cUsage: /computer key <key> [down/up|interval]");
 					return true;
 				}
 				if (args.length < 3)
@@ -75,7 +76,7 @@ public class Commands implements CommandExecutor
 				boolean showusage = true;
 				if (args.length < 6)
 				{
-					//Command overloading, because I can :P
+					// Command overloading, because I can :P
 					if (args.length > 4) // 4<x<6
 					{
 						PluginMain.getPlugin(PluginMain.class).UpdateMouse(
@@ -89,28 +90,27 @@ public class Commands implements CommandExecutor
 						if (args.length == 3)
 						{
 							PluginMain.getPlugin(PluginMain.class).UpdateMouse(
-									sender, 0, 0, 0, 0,
-									args[1], (args[2].equals("down")));
+									sender, 0, 0, 0, 0, args[1],
+									(args[2].equals("down")));
 							showusage = false;
 						} else if (args.length == 2)
 						{
 							PluginMain.getPlugin(PluginMain.class).UpdateMouse(
-									sender, 0, 0, 0, 0,
-									args[1]);
+									sender, 0, 0, 0, 0, args[1]);
 							showusage = false;
 						}
 					}
 				}
 				if (showusage)
 				{
-					sender.sendMessage("Â§cUsage: /computer mouse <relx> <rely> <relz> <relw>");
-					sender.sendMessage("Â§cOr: /computer mouse <button> [up/down]");
+					sender.sendMessage("§cUsage: /computer mouse <relx> <rely> <relz> <relw>");
+					sender.sendMessage("§cOr: /computer mouse <button> [up/down]");
 				}
 				break;
 			case "mspeed":
 				if (args.length < 2)
 				{
-					sender.sendMessage("Â§cUsage: /computer mspeed <speed>");
+					sender.sendMessage("§cUsage: /computer mspeed <speed>");
 					return true;
 				}
 				PluginMain.MouseSpeed = Integer.parseInt(args[1]);
@@ -120,12 +120,12 @@ public class Commands implements CommandExecutor
 			{
 				if (!(sender instanceof Player))
 				{
-					sender.sendMessage("Â§cError: Only players can use this command.");
+					sender.sendMessage("§cError: Only players can use this command.");
 					return true;
 				}
 				if (args.length < 2)
 				{
-					sender.sendMessage("Â§cUsage: /computer input <key|mouse>");
+					sender.sendMessage("§cUsage: /computer input <key|mouse>");
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("key"))
@@ -162,25 +162,33 @@ public class Commands implements CommandExecutor
 											+ " [\"\",{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlLeft\"}},{\"text\":\" [Alt]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltLeft\"}},{\"text\":\" [Space]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Space\"}},{\"text\":\" [AltGr]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltRight\"}},{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlRight\"}}]");
 				} else if (args[1].equalsIgnoreCase("mouse"))
 				{
-					if (!MouseLockerPlayerListener.LockedPlayers.contains(e.getPlayer()))
+					if (!(sender instanceof Player))
 					{
-						MouseLockerPlayerListener.LockedPlayers.add(e.getPlayer());
-						sender.sendMessage("Â§aMouse locked.");
+						sender.sendMessage("§cOnly ingame players can use this command.");
+						return true;
 					}
-					else
+					if (!MouseLockerPlayerListener.LockedPlayers
+							.contains(sender))
 					{
-						MouseLockedPlayerListener.LockedPlayers.remove(e.getPlayer());
-						sender.sendMessage("Â§bMouse unlocked.");
+						MouseLockerPlayerListener.LockedPlayers
+								.add((Player) sender);
+						sender.sendMessage("§aMouse locked.");
+					} else
+					{
+						MouseLockerPlayerListener.LockedPlayers.remove(sender);
+						sender.sendMessage("§bMouse unlocked.");
 					}
 				} else if (args[1].equalsIgnoreCase("mspeed"))
 				{
-					if(args.length<3)
+					if (args.length < 3)
 					{
-						sender.sendMessage("Â§cUsage: /computer input mspeed <integer>");
-						return;
+						sender.sendMessage("§cUsage: /computer input mspeed <integer>");
+						return true;
 					}
-					MouseLockerPlayerListener.LockedSpeed=Integer.parseInt(args[2]);
-					sender.sendMessage("Â§aMouse speed set to "+MouseLockerPlayerListener.LockedSpeed);
+					MouseLockerPlayerListener.LockedSpeed = Float
+							.parseFloat(args[2]);
+					sender.sendMessage("§aMouse speed set to "
+							+ MouseLockerPlayerListener.LockedSpeed);
 				}
 				break;
 			}
