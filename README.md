@@ -36,7 +36,6 @@ I plan on making a series where I show the whole process of creating this projec
 * Add a virtual PC if you don't have any (the first one will be started)
     * Install an OS and Guest Additions, if you haven't already
 * Put the jar file into <server>/plugins directory
-* Put the dll file into <server>/plugins/VirtualComputer directory - if it doesn't exist, create it
 * Make sure your server is set to a world that you don't mind your maps deleted from
 * Start your server
 
