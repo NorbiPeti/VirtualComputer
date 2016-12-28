@@ -157,7 +157,7 @@ namespace VirtualComputerSender //Copyright © NorbiPeti 2015-2016
                     {
                         if (x + 4 > aImage.Length)
                             return;
-                        Screen[640 * j + i] = Color.FromArgb(img[x + 2], img[x + 1], img[x]).ToArgb();
+                        Screen[640 * j + i] = Color.FromArgb(img[x + 2], img[x + 1], img[x]).ToArgb(); //TODO: Touchscreen and/or left click right click forwarding
                         x += 4;
                     }
                     x += (int)aX * 4;

@@ -148,21 +148,16 @@ namespace VirtualComputerSender //Copyright © NorbiPeti 2015-2016
         {
             var img = aImage.Cast<byte>().ToArray();
             int x = 0;
-            //if (aImage.Length > 1152000)
-            //Form1.Screen.Clear(Color.Black);
-            //else
-            //{
-            //Display.SetSeamlessMode(1);
-            /*if (aWidth == 800 && aHeight == 600)
-                Display.SetVideoModeHint(0, 1, 0, 0, 0, NetFrameBuffer.ScreenWidth, NetFrameBuffer.ScreenHeight, NetFrameBuffer.CBitsPerPixel);*/
             for (int j = (int)aY; j < aHeight && j < ScreenHeight; j++)
             {
+                //for (int i = (int)aX; (j % 20 == 0 ? (i < aWidth - 1 && i < ScreenWidth - 1) : (i < aWidth && i < ScreenWidth)); i++)
                 for (int i = (int)aX; i < aWidth && i < ScreenWidth; i++)
                 {
                     if (x + 4 > aImage.Length)
                         return;
                     //Form1.Screen.FillRectangle(new SolidBrush(Color.FromArgb(255, img[x + 2], img[x + 1], img[x])), i, j, 1, 1);
                     Screen[i, j] = Color.FromArgb(img[x + 2], img[x + 1], img[x]);
+                    //Form1.Screen.FillRectangle(new SolidBrush(Color.FromArgb(255, img[x], img[x + 1], img[x + 2])), i, j, 1, 1);
                     x += 4;
                 }
                 x += (int)aX * 4;
@@ -170,18 +165,6 @@ namespace VirtualComputerSender //Copyright © NorbiPeti 2015-2016
                 if (add > 0)
                     x += add * 4;
             }
-            /*var ms = new MemoryStream();
-            var bw = new BinaryWriter(ms);
-            bw.Write(Convert.ToInt32(aX));
-            bw.Write(Convert.ToInt32(aY));
-            bw.Write(Convert.ToInt32(aWidth));
-            bw.Write(Convert.ToInt32(aHeight));
-            bw.Write(img);
-            bw.Flush();
-            Client.Send(BitConverter.GetBytes(Convert.ToInt32(ms.Length)), 4);
-            Client.Send(ms.ToArray(), Convert.ToInt32(ms.Length));
-            bw.Close();*/
-            //}
         }
 
         public void NotifyChange(uint aScreenId, uint aXOrigin, uint aYOrigin, uint aWidth, uint aHeight)

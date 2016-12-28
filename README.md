@@ -12,7 +12,7 @@ I plan on making a series where I show the whole process of creating this projec
 *Note: only the server host has to meet these requirements.*
 
 ### Currently compiled for (and tested on):
-*If you don't meet these requirements, you will need to compile the files for yourself. Please help the community by sending the compiled version to me so more people can download it.*
+*If you don't meet these requirements, you will need to compile the files for yourself. Please help by sending the compiled version to me so more people can download it.*
 
 * Windows 7 64-bit
 * VirtualBox 5
@@ -41,7 +41,7 @@ I plan on making a series where I show the whole process of creating this projec
 * Start your server
 
 ## Usage
-*Please give appropriate credit and link to this page if you use this machine in one of your videos/creations/etc. You can also send me your video and I may put it here if I like it.*
+*Please give appropriate credit and link to this page if you use this machine in one of your videos/creations/etc. You can also send me your video so I can put it here.*
 
 ### Display
 *Note:* You can create as many displays as you want, but all of them will show the same.
