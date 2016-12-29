@@ -7,7 +7,6 @@ import java.util.HashMap;
 
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.CraftManager;
-import net.sf.jni4net.Bridge;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,14 +14,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-
-import virtualcomputersender.Computer;
+import org.virtualbox_5_1.ISession;
+import org.virtualbox_5_1.IVirtualBox;
+import org.virtualbox_5_1.VirtualBoxManager;
 
 import com.mcplugindev.slipswhitley.sketchmap.map.RelativeLocation;
 import com.mcplugindev.slipswhitley.sketchmap.map.SketchMap;
 
 public class PluginMain extends JavaPlugin {
-	private Computer computer;
+	private IVirtualBox vbox;
+	private ISession session;
 	private SketchMap smap;
 
 	public static PluginMain Instance;
@@ -34,26 +35,10 @@ public class PluginMain extends JavaPlugin {
 		try {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
-			ccs.sendMessage("§bExtracting necessary libraries...");
-			final File[] libs = new File[] {
-					// new File(getDataFolder(), "jni4net.j-0.8.8.0.jar"),
-					new File(getDataFolder(), "jni4net.n-0.8.8.0.dll"),
-					new File(getDataFolder(), "jni4net.n.w64.v40-0.8.8.0.dll"),
-					// new File(getDataFolder(), "VirtualComputerSender.j4n.jar"),
-					new File(getDataFolder(), "VirtualComputerSender.j4n.dll"),
-					new File(getDataFolder(), "VirtualComputerSender.dll"),
-					new File(getDataFolder(), "Interop.VirtualBox.dll") };
-
-			for (final File lib : libs) {
-				if (!lib.exists()) {
-					JarUtils.extractFromJar(lib.getName(), lib.getAbsolutePath());
-				}
-			}
-			ccs.sendMessage("§bInitializing bridge...");
-			Bridge.init(new File(getDataFolder(), "jni4net.n.w64.v40-0.8.8.0.dll").getAbsoluteFile());
-			Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(), "VirtualComputerSender.j4n.dll"));
-			ccs.sendMessage("§bInititalizing VirtualBox interface...");
-			computer = new Computer();
+			ccs.sendMessage("§bInitializing VirtualBox...");
+			final VirtualBoxManager manager = VirtualBoxManager.createInstance(null);
+			vbox = manager.getVBox();
+			session = manager.getSessionObject();
 			ccs.sendMessage("§bLoading SketchMap...");
 			img = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
 			HashMap<Short, RelativeLocation> map = new HashMap<>();
@@ -82,7 +67,7 @@ public class PluginMain extends JavaPlugin {
 
 	public void Start(CommandSender sender) {
 		sender.sendMessage("§eStarting computer...");
-		computer.Start();
+		// computer.Start();
 		sender.sendMessage("§eComputer started.");
 		DoStart();
 	}
@@ -94,8 +79,8 @@ public class PluginMain extends JavaPlugin {
 			task = this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 				public void run() {
 					final int[] a = ((DataBufferInt) smap.image.getRaster().getDataBuffer()).getData();
-					final int[] data = computer.GetScreenPixelColors();
-					System.arraycopy(data, 0, a, 0, data.length);
+					// final int[] data = computer.GetScreenPixelColors();
+					// System.arraycopy(data, 0, a, 0, data.length);
 				}
 			}, 1, 10);
 		if (getServer().getPluginManager().isPluginEnabled("Movecraft")) {
@@ -123,7 +108,7 @@ public class PluginMain extends JavaPlugin {
 
 	public void Stop(CommandSender sender) {
 		sender.sendMessage("§eStopping computer...");
-		computer.PowerOff();
+		// computer.PowerOff();
 		sender.sendMessage("§eComputer stopped.");
 	}
 
@@ -133,43 +118,36 @@ public class PluginMain extends JavaPlugin {
 		getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
 			@Override
 			public void run() {
-				if (computer.PowerButton()) {
-					DoStart();
-					s.sendMessage("§eComputer started.");
-				} else
-					s.sendMessage("§ePowerbutton pressed.");
+				/*
+				 * if (computer.PowerButton()) { DoStart(); s.sendMessage("§eComputer started."); } else s.sendMessage("§ePowerbutton pressed.");
+				 */
 			}
 		});
 	}
 
 	public void Reset(CommandSender sender) {
 		sender.sendMessage("§eResetting computer...");
-		computer.Reset();
+		// computer.Reset();
 		sender.sendMessage("§eComputer reset.");
 	}
 
 	public void FixScreen(CommandSender sender) {
 		sender.sendMessage("§eFixing screen...");
-		computer.FixScreen();
+		// computer.FixScreen();
 		sender.sendMessage("§eScreen fixed.");
 	}
 
 	public void PressKey(CommandSender sender, String key, String stateorduration) {
-		if (stateorduration.length() == 0)
-			computer.PressKey(key, (short) 0);
-		else if (stateorduration.equalsIgnoreCase("down"))
-			computer.PressKey(key, (short) -1);
-		else if (stateorduration.equalsIgnoreCase("up"))
-			computer.PressKey(key, (short) -2);
-		else
-			computer.PressKey(key, Short.parseShort(stateorduration));
+		/*
+		 * if (stateorduration.length() == 0) computer.PressKey(key, (short) 0); else if (stateorduration.equalsIgnoreCase("down")) computer.PressKey(key, (short) -1); else if
+		 * (stateorduration.equalsIgnoreCase("up")) computer.PressKey(key, (short) -2); else computer.PressKey(key, Short.parseShort(stateorduration));
+		 */
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs, boolean down) {
-		if (down)
-			computer.UpdateMouse(x, y, z, w, mbs);
-		else
-			computer.UpdateMouse(x, y, z, w, "");
+		/*
+		 * if (down) computer.UpdateMouse(x, y, z, w, mbs); else computer.UpdateMouse(x, y, z, w, "");
+		 */
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs) {
