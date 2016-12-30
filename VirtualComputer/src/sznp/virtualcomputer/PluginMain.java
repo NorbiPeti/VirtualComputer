@@ -14,6 +14,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.mozilla.interfaces.IFramebufferOverlay;
+import org.mozilla.interfaces.nsISupports;
+import org.virtualbox_5_1.IFramebuffer;
 import org.virtualbox_5_1.ISession;
 import org.virtualbox_5_1.IVirtualBox;
 import org.virtualbox_5_1.VirtualBoxManager;
@@ -36,9 +39,13 @@ public class PluginMain extends JavaPlugin {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
 			ccs.sendMessage("§bInitializing VirtualBox...");
-			final VirtualBoxManager manager = VirtualBoxManager.createInstance(null);
+			// Connect con = new Connect("vbox:///");
+			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			vbox = manager.getVBox();
 			session = manager.getSessionObject();
+			vbox.getMachines().get(0).launchVMProcess(session, "headless", "");
+			session.getConsole().getDisplay().attachFramebuffer(0L, new MCFrameBuffer());
+			
 			ccs.sendMessage("§bLoading SketchMap...");
 			img = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
 			HashMap<Short, RelativeLocation> map = new HashMap<>();
