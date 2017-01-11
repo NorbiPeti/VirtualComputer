@@ -2,7 +2,6 @@ package sznp.virtualcomputer;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.File;
 import java.util.HashMap;
 
 import net.countercraft.movecraft.craft.Craft;
@@ -14,8 +13,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.mozilla.interfaces.IFramebufferOverlay;
-import org.mozilla.interfaces.nsISupports;
 import org.virtualbox_5_1.IFramebuffer;
 import org.virtualbox_5_1.ISession;
 import org.virtualbox_5_1.IVirtualBox;
@@ -39,13 +36,12 @@ public class PluginMain extends JavaPlugin {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
 			ccs.sendMessage("§bInitializing VirtualBox...");
-			// Connect con = new Connect("vbox:///");
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			vbox = manager.getVBox();
 			session = manager.getSessionObject();
-			vbox.getMachines().get(0).launchVMProcess(session, "headless", "");
-			session.getConsole().getDisplay().attachFramebuffer(0L, new MCFrameBuffer());
-			
+			ccs.sendMessage("§bStarting VM for testing...");
+			vbox.getMachines().get(0).launchVMProcess(session, "headless", "").waitForCompletion(2000);
+			session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer()));
 			ccs.sendMessage("§bLoading SketchMap...");
 			img = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
 			HashMap<Short, RelativeLocation> map = new HashMap<>();

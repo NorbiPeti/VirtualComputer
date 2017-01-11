@@ -1,108 +1,115 @@
 package sznp.virtualcomputer;
 
-import org.virtualbox_5_1.IFramebuffer;
-import org.virtualbox_5_1.ObjectRefManager;
-import org.virtualbox_5_1.jaxws.VboxPortType;
+import org.mozilla.interfaces.IFramebuffer;
+import org.mozilla.interfaces.IFramebufferOverlay;
+import org.mozilla.interfaces.nsISupports;
 
-public class MCFrameBuffer extends IFramebuffer {
+public class MCFrameBuffer implements IFramebuffer {
 
-	public MCFrameBuffer(String wrapped, ObjectRefManager objMgr, VboxPortType port) {
-		super(wrapped, objMgr, port);
-		// TODO Auto-generated constructor stub
-	}
-
-	/*@Override
+	@Override
 	public nsISupports queryInterface(String arg0) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public long getBitsPerPixel() {
-		return 32;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public long getBytesPerLine() {
-		return 640 * 4;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public long[] getCapabilities(long[] arg0) {
-		return new long[] { FramebufferCapabilities.UpdateImage };
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public long getHeight() {
-		return 480;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public long getHeightReduction() {
+		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public IFramebufferOverlay getOverlay() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public long getPixelFormat() {
-		return BitmapFormat.RGBA;
+		// TODO Auto-generated method stub
+		return 0;
 	}
-
-	private byte visibleRegionB;
-	private long visibleRegionL;
 
 	@Override
 	public long getVisibleRegion(byte arg0, long arg1) {
-		System.out.println("Visible region get.");
-		return visibleRegionL;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public long getWidth() {
-		return 640;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public long getWinId() {
+		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void notify3DEvent(long arg0, byte[] arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void notifyChange(long arg0, long arg1, long arg2, long arg3, long arg4) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void notifyUpdate(long arg0, long arg1, long arg2, long arg3) {
 		// TODO Auto-generated method stub
-		System.out.println("UPDATE");
+		
 	}
 
 	@Override
 	public void notifyUpdateImage(long arg0, long arg1, long arg2, long arg3, byte[] arg4) {
-		// TODO Auto-generated method stub
-		System.out.println("UPDATE IMAGE");
+		System.out.println("Update!");
 	}
 
 	@Override
 	public void processVHWACommand(byte arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void setVisibleRegion(byte arg0, long arg1) {
-		visibleRegionB = arg0;
-		visibleRegionL = arg1;
-		System.out.println("Visible region set.");
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public boolean videoModeSupported(long arg0, long arg1, long arg2) {
-		return true; // We support EVERYTHING
-	}*/
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
