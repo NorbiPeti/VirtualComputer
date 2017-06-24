@@ -36,6 +36,8 @@ public class PluginMain extends JavaPlugin {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
 			ccs.sendMessage("§bInitializing VirtualBox...");
+			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
+				System.setProperty("vbox.home", "/opt/virtualbox");
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			vbox = manager.getVBox();
 			session = manager.getSessionObject();
