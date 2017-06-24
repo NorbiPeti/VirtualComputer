@@ -33,13 +33,9 @@ public class DirectRenderer implements IRenderer {
 	 * @throws Exception
 	 *             Usually happens on incompatibility
 	 */
-	@SuppressWarnings("deprecation")
 	public DirectRenderer(short id, World world, byte[] allpixels, int startindex)
 			throws Exception, Exception, Exception, Exception {
-		map = Bukkit.getMap(id);
-		if (map == null)
-			map = Bukkit.createMap(world);
-		map.getRenderers().clear();
+		map = IRenderer.prepare(id, world);
 		final Field field = map.getClass().getDeclaredField("renderCache");
 		field.setAccessible(true);
 		@SuppressWarnings("unchecked")

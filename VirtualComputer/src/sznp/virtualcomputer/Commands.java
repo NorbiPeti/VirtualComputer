@@ -62,7 +62,7 @@ public class Commands implements CommandExecutor
 			case "key":
 				if (args.length < 2)
 				{
-					sender.sendMessage("§cUsage: /computer key <key> [down/up|interval]");
+					sender.sendMessage("§cUsage: /computer key <key> [down/up|duration(ticks)]");
 					return true;
 				}
 				if (args.length < 3)
@@ -187,8 +187,7 @@ public class Commands implements CommandExecutor
 					}
 					MouseLockerPlayerListener.LockedSpeed = Float
 							.parseFloat(args[2]);
-					sender.sendMessage("§aMouse speed set to "
-							+ MouseLockerPlayerListener.LockedSpeed);
+					sender.sendMessage("§aMouse speed set to " + MouseLockerPlayerListener.LockedSpeed);
 				}
 				break;
 			}

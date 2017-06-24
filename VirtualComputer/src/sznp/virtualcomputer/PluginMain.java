@@ -1,8 +1,8 @@
 package sznp.virtualcomputer;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.util.HashMap;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.CraftManager;
@@ -12,21 +12,18 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
-import org.virtualbox_5_1.IFramebuffer;
-import org.virtualbox_5_1.ISession;
-import org.virtualbox_5_1.IVirtualBox;
-import org.virtualbox_5_1.VirtualBoxManager;
+import org.virtualbox_5_1.*;
 
-import com.mcplugindev.slipswhitley.sketchmap.map.RelativeLocation;
-import com.mcplugindev.slipswhitley.sketchmap.map.SketchMap;
+import com.google.common.collect.Lists;
 
 public class PluginMain extends JavaPlugin {
 	private IVirtualBox vbox;
 	private ISession session;
-	private SketchMap smap;
+	private ArrayList<IRenderer> renderers = new ArrayList<>();
+	private IMachine machine;
 
 	public static PluginMain Instance;
+	public static byte[] allpixels = new byte[640 * 480];
 
 	// Fired when plugin is first enabled
 	@Override
@@ -36,21 +33,27 @@ public class PluginMain extends JavaPlugin {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
 			ccs.sendMessage("§bInitializing VirtualBox...");
+			final String vbpath = System.getProperty("os.name").toLowerCase().contains("mac")
+					? "/Applications/VirtualBox.app/Contents/MacOS" : "/opt/virtualbox";
 			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
-				System.setProperty("vbox.home", "/opt/virtualbox");
+				System.setProperty("vbox.home", vbpath);
+			if (System.getProperty("sun.boot.library.path") == null
+					|| System.getProperty("sun.boot.library.path").isEmpty())
+				System.setProperty("sun.boot.library.path", vbpath);
+			addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			vbox = manager.getVBox();
 			session = manager.getSessionObject();
-			ccs.sendMessage("§bStarting VM for testing...");
-			vbox.getMachines().get(0).launchVMProcess(session, "headless", "").waitForCompletion(2000);
-			session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer()));
-			ccs.sendMessage("§bLoading SketchMap...");
-			img = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
-			HashMap<Short, RelativeLocation> map = new HashMap<>();
-			for (int i = 0; i < 5; i++)
-				for (int j = 0; j < 4; j++)
-					map.put((short) (i * 4 + j), new RelativeLocation(i, j));
-			smap = new SketchMap(img, "Screen", 5, 4, false, map);
+			ccs.sendMessage("§bLoading Screen...");
+			try {
+				for (short i = 0; i < 20; i++)
+					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), allpixels, i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
+				ccs.sendMessage("§bUsing Direct Renderer");
+			} catch (NoClassDefFoundError e) {
+				for (short i = 0; i < 20; i++)
+					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), allpixels, i * 128 * 128 * 4));
+				ccs.sendMessage("§6Compability error, using slower renderer");
+			}
 			ccs.sendMessage("§bLoaded!");
 			getServer().getPluginManager().registerEvents(new MouseLockerPlayerListener(), this);
 			DoStart();
@@ -67,12 +70,12 @@ public class PluginMain extends JavaPlugin {
 		saveConfig();
 	}
 
-	private volatile BufferedImage img;
-	private volatile BukkitTask task = null;
-
 	public void Start(CommandSender sender) {
 		sender.sendMessage("§eStarting computer...");
-		// computer.Start();
+		if (machine == null)
+			machine = vbox.getMachines().get(0);
+		machine.launchVMProcess(session, "headless", "").waitForCompletion(10000);
+		session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer()));
 		sender.sendMessage("§eComputer started.");
 		DoStart();
 	}
@@ -80,14 +83,6 @@ public class PluginMain extends JavaPlugin {
 	public static int MouseSpeed = 1;
 
 	private void DoStart() {
-		if (task == null)
-			task = this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-				public void run() {
-					final int[] a = ((DataBufferInt) smap.image.getRaster().getDataBuffer()).getData();
-					// final int[] data = computer.GetScreenPixelColors();
-					// System.arraycopy(data, 0, a, 0, data.length);
-				}
-			}, 1, 10);
 		if (getServer().getPluginManager().isPluginEnabled("Movecraft")) {
 			this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 				public void run() {
@@ -113,50 +108,106 @@ public class PluginMain extends JavaPlugin {
 
 	public void Stop(CommandSender sender) {
 		sender.sendMessage("§eStopping computer...");
-		// computer.PowerOff();
+		session.getConsole().powerDown().waitForCompletion(2000);
 		sender.sendMessage("§eComputer stopped.");
 	}
 
 	public void PowerButton(CommandSender sender) {
-		sender.sendMessage("§eStarting/stoppping computer...");
+		sender.sendMessage("§ePressing powerbutton...");
 		final CommandSender s = sender;
 		getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
 			@Override
 			public void run() {
-				/*
-				 * if (computer.PowerButton()) { DoStart(); s.sendMessage("§eComputer started."); } else s.sendMessage("§ePowerbutton pressed.");
-				 */
+				if (session.getState() != SessionState.Locked || session.getMachine() == null) {
+					Start(sender);
+				} else {
+					session.getConsole().powerButton();
+					s.sendMessage("§ePowerbutton pressed.");
+				}
 			}
 		});
 	}
 
 	public void Reset(CommandSender sender) {
 		sender.sendMessage("§eResetting computer...");
-		// computer.Reset();
+		if (session.getState() == SessionState.Locked)
+			session.getConsole().powerDown().waitForCompletion(10000);
 		sender.sendMessage("§eComputer reset.");
 	}
 
 	public void FixScreen(CommandSender sender) {
 		sender.sendMessage("§eFixing screen...");
-		// computer.FixScreen();
+		session.getConsole().getDisplay().setSeamlessMode(false);
+		session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L);
 		sender.sendMessage("§eScreen fixed.");
 	}
 
 	public void PressKey(CommandSender sender, String key, String stateorduration) {
-		/*
-		 * if (stateorduration.length() == 0) computer.PressKey(key, (short) 0); else if (stateorduration.equalsIgnoreCase("down")) computer.PressKey(key, (short) -1); else if
-		 * (stateorduration.equalsIgnoreCase("up")) computer.PressKey(key, (short) -2); else computer.PressKey(key, Short.parseShort(stateorduration));
-		 */
+		if (session.getState() == SessionState.Locked) {
+			int durationorstate;
+			if (stateorduration.length() == 0)
+				durationorstate = 0;
+			else if (stateorduration.equalsIgnoreCase("down"))
+				durationorstate = -1;
+			else if (stateorduration.equalsIgnoreCase("up"))
+				durationorstate = -2;
+			else
+				durationorstate = Short.parseShort(stateorduration);
+			int code = 0;
+			// Release key scan code concept taken from VirtualBox source code (KeyboardImpl.cpp:putCAD())
+			// +128
+			if (durationorstate != 2)
+				session.getConsole().getKeyboard().putScancode(code);
+			Runnable sendrelease = () -> session.getConsole().getKeyboard()
+					.putScancodes(Lists.newArrayList(code + 128, Scancode.sc_controlLeft.Code + 128,
+							Scancode.sc_shiftLeft.Code + 128, Scancode.sc_altLeft.Code + 128));
+			if (durationorstate == 0 || durationorstate == -2)
+				sendrelease.run();
+			if (durationorstate > 0) {
+				Bukkit.getScheduler().runTaskLaterAsynchronously(this, sendrelease, durationorstate);
+			}
+		}
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs, boolean down) {
-		/*
-		 * if (down) computer.UpdateMouse(x, y, z, w, mbs); else computer.UpdateMouse(x, y, z, w, "");
-		 */
+		if (session.getState() != SessionState.Locked)
+			return;
+		int state = 0;
+		if (mbs.length() > 0 && down)
+			state = Arrays.stream(MouseButtonState.values()).filter(mousebs -> mousebs.name().equalsIgnoreCase(mbs))
+					.findAny().orElseThrow(() -> new RuntimeException("Unknown mouse button")).value();
+		session.getConsole().getMouse().putMouseEvent(x, y, z, w, state);
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs) {
 		UpdateMouse(sender, x, y, z, w, mbs, true);
 		UpdateMouse(sender, x, y, z, w, mbs, false);
+	}
+
+	/**
+	 * Adds the specified path to the java library path
+	 *
+	 * @param pathToAdd
+	 *            the path to add
+	 * @throws Exception
+	 */
+	public static void addLibraryPath(String pathToAdd) throws Exception {
+		final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+		usrPathsField.setAccessible(true);
+
+		// get array of paths
+		final String[] paths = (String[]) usrPathsField.get(null);
+
+		// check if the path to add is already present
+		for (String path : paths) {
+			if (path.equals(pathToAdd)) {
+				return;
+			}
+		}
+
+		// add the new path
+		final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+		newPaths[newPaths.length - 1] = pathToAdd;
+		usrPathsField.set(null, newPaths);
 	}
 }
