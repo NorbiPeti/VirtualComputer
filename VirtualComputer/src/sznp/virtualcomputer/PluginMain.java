@@ -4,14 +4,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import net.countercraft.movecraft.craft.Craft;
-import net.countercraft.movecraft.craft.CraftManager;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.virtualbox_5_1.*;
 
 import com.google.common.collect.Lists;
@@ -21,6 +18,7 @@ public class PluginMain extends JavaPlugin {
 	private ISession session;
 	private ArrayList<IRenderer> renderers = new ArrayList<>();
 	private IMachine machine;
+	private BukkitTask screenupdatetask;
 
 	public static PluginMain Instance;
 	public static byte[] allpixels = new byte[640 * 480];
@@ -43,7 +41,7 @@ public class PluginMain extends JavaPlugin {
 			addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			vbox = manager.getVBox();
-			session = manager.getSessionObject();
+			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
 			try {
 				for (short i = 0; i < 20; i++)
@@ -56,7 +54,6 @@ public class PluginMain extends JavaPlugin {
 			}
 			ccs.sendMessage("§bLoaded!");
 			getServer().getPluginManager().registerEvents(new MouseLockerPlayerListener(), this);
-			DoStart();
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
@@ -66,45 +63,38 @@ public class PluginMain extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
+		ccs.sendMessage("§aSaving machine state...");
+		if (session.getState() == SessionState.Locked && session.getMachine().getState().equals(MachineState.Running))
+			session.getMachine().saveState();
+
 		ccs.sendMessage("§aHuh.");
 		saveConfig();
 	}
 
-	public void Start(CommandSender sender) {
-		sender.sendMessage("§eStarting computer...");
-		if (machine == null)
-			machine = vbox.getMachines().get(0);
-		machine.launchVMProcess(session, "headless", "").waitForCompletion(10000);
-		session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer()));
-		sender.sendMessage("§eComputer started.");
-		DoStart();
+	public void Start(CommandSender sender) {// TODO: Add touchscreen support (#2)
+		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+			sender.sendMessage("§eStarting computer...");
+			if (machine == null)
+				machine = vbox.getMachines().get(0);
+			machine.launchVMProcess(session, "headless", "").waitForCompletion(10000);
+			session.getConsole().getDisplay().attachFramebuffer(0L,
+					new IFramebuffer(new MCFrameBuffer(session.getConsole().getDisplay())));
+			if (screenupdatetask == null)
+				screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+					if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
+							&& session.getConsole().getState().equals(MachineState.Running))
+						session.getConsole().getDisplay().invalidateAndUpdateScreen(0L);
+					if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
+							|| session.getConsole().getState().equals(MachineState.PoweredOff)) {
+						screenupdatetask.cancel();
+						screenupdatetask = null;
+					}
+				}, 100, 100); // Do a full update every 2 seconds
+			sender.sendMessage("§eComputer started.");
+		});
 	}
 
 	public static int MouseSpeed = 1;
-
-	private void DoStart() {
-		if (getServer().getPluginManager().isPluginEnabled("Movecraft")) {
-			this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-				public void run() {
-					Craft[] crafts = CraftManager.getInstance().getCraftsInWorld(Bukkit.getWorlds().get(0));
-					if (crafts == null)
-						return;
-					for (Craft c : crafts) {
-						if (c.getType().getCraftName().equalsIgnoreCase("mouse")) {
-							int dx = c.getLastDX();
-							// int dy = c.getLastDY();
-							int dz = c.getLastDZ();
-							if (Bukkit.getWorlds().get(0).getBlockAt(c.getMinX(), c.getMinY() - 1, c.getMinZ())
-									.getType() != Material.AIR && (dx != 0 || dz != 0))
-								UpdateMouse(null, dx * MouseSpeed, dz * MouseSpeed, 0, 0, "");
-							c.setLastDX(0);
-							c.setLastDZ(0);
-						}
-					}
-				}
-			}, 1, 1);
-		}
-	}
 
 	public void Stop(CommandSender sender) {
 		sender.sendMessage("§eStopping computer...");

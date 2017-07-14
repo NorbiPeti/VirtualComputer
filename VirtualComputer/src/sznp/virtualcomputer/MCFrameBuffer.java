@@ -5,12 +5,21 @@ import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
 import org.virtualbox_5_1.BitmapFormat;
 import org.virtualbox_5_1.FramebufferCapabilities;
+import org.virtualbox_5_1.Holder;
+import org.virtualbox_5_1.IDisplay;
+import org.virtualbox_5_1.IDisplaySourceBitmap;
 
 public class MCFrameBuffer implements IFramebuffer {
+	private IDisplay display;
+	private Holder<IDisplaySourceBitmap> holder;
+
+	public MCFrameBuffer(IDisplay display) {
+		this.display = display;
+	}
 
 	@Override
 	public nsISupports queryInterface(String arg0) {
-		return null;
+		return this;
 	}
 
 	@Override
@@ -68,16 +77,22 @@ public class MCFrameBuffer implements IFramebuffer {
 	}
 
 	@Override
-	public void notifyChange(long arg0, long arg1, long arg2, long arg3, long arg4) {
+	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
+		display.querySourceBitmap(0L, holder); // TODO: Crashes here
+		holder.value.getTypedWrapped().queryBitmapInfo(PluginMain.allpixels, new long[] { width },
+				new long[] { height }, new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
+				new long[] { getPixelFormat() }); // These are out params but whatever
+		System.out.println("Change!");
 	}
 
 	@Override
 	public void notifyUpdate(long arg0, long arg1, long arg2, long arg3) {
+		System.out.println("Update!");
 	}
 
 	@Override
 	public void notifyUpdateImage(long arg0, long arg1, long arg2, long arg3, byte[] arg4) {
-		System.out.println("Update!");
+		System.out.println("Update image!");
 	}
 
 	@Override
