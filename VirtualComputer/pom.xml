@@ -75,12 +75,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.countercraft</groupId>
-			<artifactId>Movecraft</artifactId>
-			<version>3.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.virtualbox</groupId>
 			<artifactId>VirtualBox</artifactId>
 			<version>5.1</version>

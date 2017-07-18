@@ -1,5 +1,6 @@
 package sznp.virtualcomputer;
 
+import org.bukkit.Bukkit;
 import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
@@ -78,11 +79,13 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
-		display.querySourceBitmap(0L, holder); // TODO: Crashes here
-		holder.value.getTypedWrapped().queryBitmapInfo(PluginMain.allpixels, new long[] { width },
-				new long[] { height }, new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
-				new long[] { getPixelFormat() }); // These are out params but whatever
-		System.out.println("Change!");
+		Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
+			display.querySourceBitmap(0L, holder); // TODO: Crashes here
+			holder.value.getTypedWrapped().queryBitmapInfo(PluginMain.allpixels, new long[] { width },
+					new long[] { height }, new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
+					new long[] { getPixelFormat() }); // These are out params but whatever
+			System.out.println("Change!");
+		}, 5); // Wait 1/4th of a second
 	}
 
 	@Override

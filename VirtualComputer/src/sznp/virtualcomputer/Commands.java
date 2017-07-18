@@ -1,10 +1,6 @@
 package sznp.virtualcomputer;
 
-import net.countercraft.movecraft.craft.Craft;
-import net.countercraft.movecraft.craft.CraftManager;
-
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,35 +16,35 @@ public class Commands implements CommandExecutor {
 				return false;
 			switch (args[0].toLowerCase()) {
 			case "start":
+			case "poweron":
+			case "on":
+			case "startup":
 				PluginMain.Instance.Start(sender);
 				break;
 			case "stop":
+			case "poweroff":
+			case "off":
+			case "shutdown":
+			case "kill":
 				PluginMain.Instance.Stop(sender);
 				break;
-			case "debug":
-				World w = Bukkit.getWorlds().get(0);
-				Craft[] crafts = CraftManager.getInstance().getCraftsInWorld(w);
-				sender.sendMessage("World: " + w);
-				sender.sendMessage("Crafts: " + crafts);
-				sender.sendMessage("Craft type: " + crafts[0].getType().getCraftName());
-				sender.sendMessage("DX: " + crafts[0].getLastDX());
-				sender.sendMessage("DY: " + crafts[0].getLastDY());
-				sender.sendMessage("DZ: " + crafts[0].getLastDZ());
-				sender.sendMessage("MouseSpeed: " + PluginMain.MouseSpeed);
-				sender.sendMessage("Block: " + Bukkit.getWorlds().get(0)
-						.getBlockAt(crafts[0].getMinX(), crafts[0].getMinY() - 1, crafts[0].getMinZ()).getType()); // Block:
-																													// AIR
-				break;
 			case "powerbutton":
+			case "pwrbtn":
+			case "powerbtn":
 				PluginMain.Instance.PowerButton(sender);
 				break;
 			case "reset":
+			case "restart":
 				PluginMain.Instance.Reset(sender);
 				break;
 			case "fix":
+			case "fixscreen":
 				PluginMain.Instance.FixScreen(sender);
 				break;
 			case "key":
+			case "press":
+			case "presskey":
+			case "keypress":
 				if (args.length < 2) {
 					sender.sendMessage("§cUsage: /computer key <key> [down/up|duration(ticks)]");
 					return true;
@@ -69,7 +65,7 @@ public class Commands implements CommandExecutor {
 						showusage = false;
 					} else {
 						if (args.length == 3) {
-							PluginMain.Instance.UpdateMouse(sender, 0, 0, 0, 0, args[1], (args[2].equals("down")));
+							PluginMain.Instance.UpdateMouse(sender, 0, 0, 0, 0, args[1], args[2].equals("down"));
 							showusage = false;
 						} else if (args.length == 2) {
 							PluginMain.Instance.UpdateMouse(sender, 0, 0, 0, 0, args[1]);
@@ -82,15 +78,10 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage("§cOr: /computer mouse <button> [up/down]");
 				}
 				break;
-			case "mspeed":
-				if (args.length < 2) {
-					sender.sendMessage("§cUsage: /computer mspeed <speed>");
-					return true;
-				}
-				PluginMain.MouseSpeed = Integer.parseInt(args[1]);
-				sender.sendMessage("Mouse speed set to " + args[1]);
-				break;
-			case "input": {
+			case "input":
+			case "show":
+			case "showinput":
+			case "shinput": {
 				if (!(sender instanceof Player)) {
 					sender.sendMessage("§cError: Only players can use this command.");
 					return true;
@@ -99,7 +90,9 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage("§cUsage: /computer input <key|mouse>");
 					return true;
 				}
-				if (args[1].equalsIgnoreCase("key")) {
+				switch (args[1].toLowerCase()) {
+				case "key":
+				case "keyboard":
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
 							+ " [\"\",{\"text\":\" [0]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D0\"}},{\"text\":\" [1]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D1\"}},{\"text\":\" [2]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D2\"}},{\"text\":\" [3]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D3\"}},{\"text\":\" [4]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D4\"}},{\"text\":\" [5]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D5\"}},{\"text\":\" [6]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D6\"}},{\"text\":\" [7]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D7\"}},{\"text\":\" [8]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D8\"}},{\"text\":\" [9]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D9\"}}]");
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
@@ -110,7 +103,7 @@ public class Commands implements CommandExecutor {
 							+ " [\"\",{\"text\":\"           [Z]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Z\"}},{\"text\":\" [X]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key X\"}},{\"text\":\" [C]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key C\"}},{\"text\":\" [V]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key V\"}},{\"text\":\" [B]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key B\"}},{\"text\":\" [N]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key N\"}},{\"text\":\" [M]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key M\"}}]");
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
 							+ " [\"\",{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlLeft\"}},{\"text\":\" [Alt]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltLeft\"}},{\"text\":\" [Space]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Space\"}},{\"text\":\" [AltGr]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltRight\"}},{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlRight\"}}]");
-				} else if (args[1].equalsIgnoreCase("mouse")) {
+				case "mouse":
 					if (!(sender instanceof Player)) {
 						sender.sendMessage("§cOnly ingame players can use this command.");
 						return true;
@@ -122,7 +115,8 @@ public class Commands implements CommandExecutor {
 						MouseLockerPlayerListener.LockedPlayers.remove(sender);
 						sender.sendMessage("§bMouse unlocked.");
 					}
-				} else if (args[1].equalsIgnoreCase("mspeed")) {
+				case "mspeed":
+				case "mousespeed":
 					if (args.length < 3) {
 						sender.sendMessage("§cUsage: /computer input mspeed <integer>");
 						return true;
