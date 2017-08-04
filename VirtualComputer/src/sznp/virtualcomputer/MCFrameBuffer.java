@@ -4,11 +4,7 @@ import org.bukkit.Bukkit;
 import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
-import org.virtualbox_5_1.BitmapFormat;
-import org.virtualbox_5_1.FramebufferCapabilities;
-import org.virtualbox_5_1.Holder;
-import org.virtualbox_5_1.IDisplay;
-import org.virtualbox_5_1.IDisplaySourceBitmap;
+import org.virtualbox_5_1.*;
 
 public class MCFrameBuffer implements IFramebuffer {
 	private IDisplay display;
@@ -35,7 +31,7 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public long[] getCapabilities(long[] arg0) {
-		return new long[] { FramebufferCapabilities.UpdateImage.value() };
+		return new long[] {};
 	}
 
 	@Override
@@ -80,7 +76,7 @@ public class MCFrameBuffer implements IFramebuffer {
 	@Override
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
 		Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
-			display.querySourceBitmap(0L, holder); // TODO: Crashes here
+			display.querySourceBitmap(0L, holder); // TODO: Test if it crashes here
 			holder.value.getTypedWrapped().queryBitmapInfo(PluginMain.allpixels, new long[] { width },
 					new long[] { height }, new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
 					new long[] { getPixelFormat() }); // These are out params but whatever

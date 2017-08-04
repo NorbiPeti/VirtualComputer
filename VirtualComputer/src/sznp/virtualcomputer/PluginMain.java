@@ -63,10 +63,13 @@ public class PluginMain extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
-		ccs.sendMessage("§aSaving machine state...");
-		if (session.getState() == SessionState.Locked && session.getMachine().getState().equals(MachineState.Running))
-			session.getMachine().saveState();
-
+		if (session.getState() == SessionState.Locked) {
+			if (session.getMachine().getState().equals(MachineState.Running)) {
+				ccs.sendMessage("§aSaving machine state...");
+				session.getMachine().saveState().waitForCompletion(10000);
+			}
+			session.unlockMachine();
+		}
 		ccs.sendMessage("§aHuh.");
 		saveConfig();
 	}
@@ -76,7 +79,10 @@ public class PluginMain extends JavaPlugin {
 			sender.sendMessage("§eStarting computer...");
 			if (machine == null)
 				machine = vbox.getMachines().get(0);
-			machine.launchVMProcess(session, "headless", "").waitForCompletion(10000);
+			// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
+			machine.lockMachine(session, LockType.Write); // We want the machine inside *our* process
+			machine = session.getMachine(); // This is the Machine object we can work with
+			session.getConsole().powerUp().waitForCompletion(10000);
 			session.getConsole().getDisplay().attachFramebuffer(0L,
 					new IFramebuffer(new MCFrameBuffer(session.getConsole().getDisplay())));
 			if (screenupdatetask == null)
@@ -86,6 +92,8 @@ public class PluginMain extends JavaPlugin {
 						session.getConsole().getDisplay().invalidateAndUpdateScreen(0L);
 					if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
 							|| session.getConsole().getState().equals(MachineState.PoweredOff)) {
+						if (session.getState().equals(SessionState.Locked))
+							session.unlockMachine();
 						screenupdatetask.cancel();
 						screenupdatetask = null;
 					}
@@ -99,6 +107,7 @@ public class PluginMain extends JavaPlugin {
 	public void Stop(CommandSender sender) {
 		sender.sendMessage("§eStopping computer...");
 		session.getConsole().powerDown().waitForCompletion(2000);
+		session.unlockMachine();
 		sender.sendMessage("§eComputer stopped.");
 	}
 
@@ -121,7 +130,7 @@ public class PluginMain extends JavaPlugin {
 	public void Reset(CommandSender sender) {
 		sender.sendMessage("§eResetting computer...");
 		if (session.getState() == SessionState.Locked)
-			session.getConsole().powerDown().waitForCompletion(10000);
+			session.getConsole().reset();
 		sender.sendMessage("§eComputer reset.");
 	}
 
