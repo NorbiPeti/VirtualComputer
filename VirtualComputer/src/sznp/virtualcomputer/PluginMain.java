@@ -16,12 +16,12 @@ import com.google.common.collect.Lists;
 public class PluginMain extends JavaPlugin {
 	private IVirtualBox vbox;
 	private ISession session;
-	private ArrayList<IRenderer> renderers = new ArrayList<>();
 	private IMachine machine;
 	private BukkitTask screenupdatetask;
 
 	public static PluginMain Instance;
-	public static byte[] allpixels = new byte[640 * 480];
+	public static byte[] allpixels = null; // It's set on each change
+	public static ArrayList<IRenderer> renderers = new ArrayList<>();
 
 	// Fired when plugin is first enabled
 	@Override
@@ -45,11 +45,11 @@ public class PluginMain extends JavaPlugin {
 			ccs.sendMessage("§bLoading Screen...");
 			try {
 				for (short i = 0; i < 20; i++)
-					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), allpixels, i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
-				ccs.sendMessage("§bUsing Direct Renderer");
+					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
+				ccs.sendMessage("§bUsing Direct Renderer, all good");
 			} catch (NoClassDefFoundError e) {
 				for (short i = 0; i < 20; i++)
-					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), allpixels, i * 128 * 128 * 4));
+					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
 				ccs.sendMessage("§6Compability error, using slower renderer");
 			}
 			ccs.sendMessage("§bLoaded!");
@@ -97,7 +97,7 @@ public class PluginMain extends JavaPlugin {
 						screenupdatetask.cancel();
 						screenupdatetask = null;
 					}
-				}, 100, 100); // Do a full update every 2 seconds
+				}, 100, 100); // Do a full update every 5 seconds
 			sender.sendMessage("§eComputer started.");
 		});
 	}

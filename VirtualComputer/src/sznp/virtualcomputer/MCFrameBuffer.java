@@ -80,12 +80,20 @@ public class MCFrameBuffer implements IFramebuffer {
 			holder.value.getTypedWrapped().queryBitmapInfo(PluginMain.allpixels, new long[] { width },
 					new long[] { height }, new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
 					new long[] { getPixelFormat() }); // These are out params but whatever
+			for (IRenderer r : PluginMain.renderers)
+				if (r instanceof BukkitRenderer)
+					((BukkitRenderer) r).setAllPixels(PluginMain.allpixels);
+				else if (r instanceof DirectRenderer)
+					((DirectRenderer) r).render(PluginMain.allpixels, xOrigin, yOrigin, width, height);
 			System.out.println("Change!");
 		}, 5); // Wait 1/4th of a second
 	}
 
 	@Override
-	public void notifyUpdate(long arg0, long arg1, long arg2, long arg3) {
+	public void notifyUpdate(long x, long y, long width, long height) {
+		for (IRenderer r : PluginMain.renderers)
+			if (r instanceof DirectRenderer)
+				((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
 		System.out.println("Update!");
 	}
 

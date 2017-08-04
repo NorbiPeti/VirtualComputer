@@ -15,6 +15,10 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 	private BufferedImage image;
 	private int startindex;
 
+	public void setAllPixels(byte[] allpixels) {
+		this.allpixels = allpixels;
+	}
+
 	/**
 	 * Generic implementation, should work on most versions
 	 * 
@@ -27,10 +31,9 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 	 * @param startindex
 	 *            The index to start from in allpixels
 	 */
-	public BukkitRenderer(short id, World world, byte[] allpixels, int startindex) {
+	public BukkitRenderer(short id, World world, int startindex) {
 		MapView map = IRenderer.prepare(id, world);
 		map.addRenderer(this);
-		this.allpixels = allpixels;
 		this.startindex = startindex;
 		image = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
 	}
@@ -40,6 +43,8 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 
 	@Override
 	public void render(MapView view, MapCanvas canvas, Player player) {
+		if (allpixels == null)
+			return;
 		long time = System.nanoTime();
 
 		final int[] a = ((DataBufferInt) image.getRaster().getDataBuffer()).getData(); // Directly update the bytes of the image

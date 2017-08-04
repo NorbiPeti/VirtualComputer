@@ -100,12 +100,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>net.countercraft</groupId>
-      <artifactId>Movecraft</artifactId>
-      <version>3.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>craftbukkit</artifactId>
       <version>1.12-R0.1-SNAPSHOT</version>
