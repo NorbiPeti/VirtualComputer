@@ -81,23 +81,31 @@ public class PluginMain extends JavaPlugin {
 				machine = vbox.getMachines().get(0);
 			// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
 			machine.lockMachine(session, LockType.Write); // We want the machine inside *our* process
-			machine = session.getMachine(); // This is the Machine object we can work with
-			session.getConsole().powerUp().waitForCompletion(10000);
-			session.getConsole().getDisplay().attachFramebuffer(0L,
-					new IFramebuffer(new MCFrameBuffer(session.getConsole().getDisplay())));
-			if (screenupdatetask == null)
-				screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-					if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
-							&& session.getConsole().getState().equals(MachineState.Running))
-						session.getConsole().getDisplay().invalidateAndUpdateScreen(0L);
-					if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
-							|| session.getConsole().getState().equals(MachineState.PoweredOff)) {
-						if (session.getState().equals(SessionState.Locked))
-							session.unlockMachine();
-						screenupdatetask.cancel();
-						screenupdatetask = null;
-					}
-				}, 100, 100); // Do a full update every 5 seconds
+			screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+				if (session.getState() == SessionState.Spawning) // https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#ac82c179a797c0d7c249d1b98a8e3aa8f
+					return; // "This state also occurs as a short transient state during an IMachine::lockMachine call."
+				else {
+					screenupdatetask.cancel();
+					screenupdatetask = null;
+				}
+				machine = session.getMachine(); // This is the Machine object we can work with
+				session.getConsole().powerUp().waitForCompletion(10000);
+				session.getConsole().getDisplay().attachFramebuffer(0L,
+						new IFramebuffer(new MCFrameBuffer(session.getConsole().getDisplay())));
+				if (screenupdatetask == null)
+					screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+						if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
+								&& session.getConsole().getState().equals(MachineState.Running))
+							session.getConsole().getDisplay().invalidateAndUpdateScreen(0L);
+						if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
+								|| session.getConsole().getState().equals(MachineState.PoweredOff)) {
+							if (session.getState().equals(SessionState.Locked))
+								session.unlockMachine();
+							screenupdatetask.cancel();
+							screenupdatetask = null;
+						}
+					}, 100, 100); // Do a full update every 5 seconds
+			}, 5, 5);
 			sender.sendMessage("§eComputer started.");
 		});
 	}
