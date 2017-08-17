@@ -4,4 +4,4 @@ version: 2.0
 commands:
     computer:
         usage: Use /computer start|stop|reset|key|mouse|input|fix
-        alias: c
+        aliases: c
