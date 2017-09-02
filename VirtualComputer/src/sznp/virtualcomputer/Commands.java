@@ -108,8 +108,8 @@ public class Commands implements CommandExecutor {
 						sender.sendMessage("§cOnly ingame players can use this command.");
 						return true;
 					}
-					if (!MouseLockerPlayerListener.LockedPlayers.contains(sender)) {
-						MouseLockerPlayerListener.LockedPlayers.add((Player) sender);
+					if (!MouseLockerPlayerListener.LockedPlayers.containsKey(sender)) {
+						MouseLockerPlayerListener.LockedPlayers.put((Player) sender, ((Player) sender).getLocation());
 						sender.sendMessage("§aMouse locked.");
 					} else {
 						MouseLockerPlayerListener.LockedPlayers.remove(sender);

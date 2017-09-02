@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
+import org.mozilla.xpcom.Mozilla;
 import org.virtualbox_5_1.*;
 
 public class MCFrameBuffer implements IFramebuffer {
@@ -15,8 +16,8 @@ public class MCFrameBuffer implements IFramebuffer {
 	}
 
 	@Override
-	public nsISupports queryInterface(String arg0) {
-		return this;
+	public nsISupports queryInterface(String id) {
+		return Mozilla.queryInterface(this, id);
 	}
 
 	@Override
@@ -66,7 +67,7 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public long getWinId() {
-		return 0;
+		return 0; // Zero means no win id
 	}
 
 	@Override

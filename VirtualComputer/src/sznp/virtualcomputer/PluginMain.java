@@ -18,6 +18,7 @@ public class PluginMain extends JavaPlugin {
 	private ISession session;
 	private IMachine machine;
 	private BukkitTask screenupdatetask;
+	private BukkitTask mousetask;
 
 	public static PluginMain Instance;
 	public static byte[] allpixels = null; // It's set on each change
@@ -53,7 +54,7 @@ public class PluginMain extends JavaPlugin {
 				ccs.sendMessage("§6Compability error, using slower renderer");
 			}
 			ccs.sendMessage("§bLoaded!");
-			getServer().getPluginManager().registerEvents(new MouseLockerPlayerListener(), this);
+			mousetask = getServer().getScheduler().runTaskTimer(this, new MouseLockerPlayerListener(), 0, 0);
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
@@ -63,6 +64,7 @@ public class PluginMain extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
+		mousetask.cancel();
 		if (session.getState() == SessionState.Locked) {
 			if (session.getMachine().getState().equals(MachineState.Running)) {
 				ccs.sendMessage("§aSaving machine state...");
@@ -91,6 +93,7 @@ public class PluginMain extends JavaPlugin {
 					screenupdatetask = null;
 				}
 				machine = session.getMachine(); // This is the Machine object we can work with
+				sender.sendMessage("B: " + machine.getState().toString());
 				final IConsole console = session.getConsole();
 				sender.sendMessage("1: " + console.getState().toString());
 				console.powerUp().waitForCompletion(10000);
