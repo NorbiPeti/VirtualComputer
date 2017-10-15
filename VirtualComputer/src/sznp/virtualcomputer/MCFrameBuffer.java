@@ -78,8 +78,10 @@ public class MCFrameBuffer implements IFramebuffer {
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
 		Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
 			display.querySourceBitmap(0L, holder); // TODO: Test if it crashes here
-			holder.value.getTypedWrapped().queryBitmapInfo(PluginMain.allpixels, new long[] { width },
-					new long[] { height }, new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
+			byte[] arr = new byte[10];
+			System.out.println("Arr0:" + arr[0]);
+			holder.value.getTypedWrapped().queryBitmapInfo(arr, new long[] { width }, new long[] { height },
+					new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
 					new long[] { getPixelFormat() }); // These are out params but whatever
 			for (IRenderer r : PluginMain.renderers)
 				if (r instanceof BukkitRenderer)

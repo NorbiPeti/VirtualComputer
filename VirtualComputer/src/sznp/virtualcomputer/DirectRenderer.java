@@ -2,6 +2,7 @@ package sznp.virtualcomputer;
 
 import java.awt.Color;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.bukkit.World;
@@ -50,11 +51,12 @@ public class DirectRenderer implements IRenderer {
 	private Exception ex;
 
 	@SuppressWarnings("deprecation")
-	public void render(byte[] allpixels, long x, long y, long width, long height) { // TODO
+	public void render(ByteBuffer allpixels, long x, long y, long width, long height) { // TODO
 		try {
-			for (int i = startindex, j = 0; i < startindex + 128 * 128 && i < allpixels.length
+			for (int i = startindex, j = 0; i < startindex + 128 * 128 && i < allpixels.limit()
 					&& j < buffer.length; i += 4, j++)
-				buffer[j] = MapPalette.matchColor(new Color(allpixels[i], allpixels[i + 1], allpixels[i + 2]));
+				buffer[j] = MapPalette
+						.matchColor(new Color(allpixels.get(i), allpixels.get(i + 1), allpixels.get(i + 2)));
 			final Field field = map.getClass().getField("worldmap");
 			field.setAccessible(true);
 			WorldMap wmap = (WorldMap) field.get(map);

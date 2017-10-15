@@ -2,6 +2,7 @@ package sznp.virtualcomputer;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.World;
@@ -11,11 +12,11 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 public class BukkitRenderer extends MapRenderer implements IRenderer {
-	private byte[] allpixels;
+	private ByteBuffer allpixels;
 	private BufferedImage image;
 	private int startindex;
 
-	public void setAllPixels(byte[] allpixels) {
+	public void setAllPixels(ByteBuffer allpixels) {
 		this.allpixels = allpixels;
 	}
 
@@ -53,9 +54,9 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 		for (int i = startindex, j = 0; i < startindex + 128 * 128; i = i + 4, j++) {
 			int b, g, r;
 
-			b = allpixels[i] & 0xFF;
-			g = allpixels[i + 1] & 0xFF;
-			r = allpixels[i + 2] & 0xFF;
+			b = allpixels.get(i) & 0xFF;
+			g = allpixels.get(i + 1) & 0xFF;
+			r = allpixels.get(i + 2) & 0xFF;
 
 			a[j] = (r << 16) | (g << 8) | b;
 		}

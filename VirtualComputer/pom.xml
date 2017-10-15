@@ -85,11 +85,12 @@
 			<version>1.12-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.hynnet/jacob -->
+		<!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
 		<dependency>
-			<groupId>com.hynnet</groupId>
-			<artifactId>jacob</artifactId>
-			<version>1.18</version>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.4.0</version>
 		</dependency>
+
 	</dependencies>
 </project>

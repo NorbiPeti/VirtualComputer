@@ -1,6 +1,8 @@
 package sznp.virtualcomputer;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -21,7 +23,7 @@ public class PluginMain extends JavaPlugin {
 	private BukkitTask mousetask;
 
 	public static PluginMain Instance;
-	public static byte[] allpixels = null; // It's set on each change
+	public static ByteBuffer allpixels = null; // It's set on each change
 	public static ArrayList<IRenderer> renderers = new ArrayList<>();
 
 	// Fired when plugin is first enabled
@@ -32,13 +34,18 @@ public class PluginMain extends JavaPlugin {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
 			ccs.sendMessage("§bInitializing VirtualBox...");
-			final String vbpath = System.getProperty("os.name").toLowerCase().contains("mac")
+			String vbpath = System.getProperty("os.name").toLowerCase().contains("mac")
 					? "/Applications/VirtualBox.app/Contents/MacOS" : "/opt/virtualbox";
+			File f = new File(vbpath);
+			if (!f.isDirectory() || !Arrays.stream(f.list()).anyMatch(s -> s.contains("xpcom")))
+				vbpath = "/usr/lib/virtualbox";
 			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
 				System.setProperty("vbox.home", vbpath);
 			if (System.getProperty("sun.boot.library.path") == null
 					|| System.getProperty("sun.boot.library.path").isEmpty())
 				System.setProperty("sun.boot.library.path", vbpath);
+			if (System.getProperty("java.library.path") == null || System.getProperty("java.library.path").isEmpty())
+				System.setProperty("java.library.path", vbpath);
 			addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			vbox = manager.getVBox();
@@ -55,6 +62,7 @@ public class PluginMain extends JavaPlugin {
 			}
 			ccs.sendMessage("§bLoaded!");
 			mousetask = getServer().getScheduler().runTaskTimer(this, new MouseLockerPlayerListener(), 0, 0);
+
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
@@ -85,40 +93,42 @@ public class PluginMain extends JavaPlugin {
 			// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
 			machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
 			sender.sendMessage("A: " + machine.getState().toString());
-			screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-				if (session.getState() != SessionState.Locked) // https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#ac82c179a797c0d7c249d1b98a8e3aa8f
-					return; // "This state also occurs as a short transient state during an IMachine::lockMachine call."
-				else {
-					screenupdatetask.cancel();
-					screenupdatetask = null;
-				}
-				machine = session.getMachine(); // This is the Machine object we can work with
-				sender.sendMessage("B: " + machine.getState().toString());
-				final IConsole console = session.getConsole();
-				sender.sendMessage("1: " + console.getState().toString());
-				console.powerUp().waitForCompletion(10000);
-				sender.sendMessage("2: " + console.getState().toString());
-				console.getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer(console.getDisplay())));
-				sender.sendMessage("3: " + console.getState().toString());
-				if (screenupdatetask == null)
-					screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-						sender.sendMessage("4: " + console.getState().toString());
-						if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
-								&& console.getState().equals(MachineState.Running))
-							console.getDisplay().invalidateAndUpdateScreen(0L);
-						if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
-								|| console.getState().equals(MachineState.PoweredOff)) {
-							sender.sendMessage("5: " + console.getState().toString());
-							if (session.getState().equals(SessionState.Locked)) {
-								session.unlockMachine();
-								sender.sendMessage("Computer powered off, released it.");
+			final Runnable tr = new Runnable() {
+				public void run() {
+					if (session.getState() != SessionState.Locked) { // https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#ac82c179a797c0d7c249d1b98a8e3aa8f
+						Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.this, this, 5);
+						return; // "This state also occurs as a short transient state during an IMachine::lockMachine call."
+					}
+					machine = session.getMachine(); // This is the Machine object we can work with
+					sender.sendMessage("B: " + machine.getState().toString());
+					final IConsole console = session.getConsole();
+					sender.sendMessage("1: " + console.getState().toString());
+					console.powerUp().waitForCompletion(10000);
+					sender.sendMessage("2: " + console.getState().toString());
+					console.getDisplay().attachFramebuffer(0L,
+							new IFramebuffer(new MCFrameBuffer(console.getDisplay())));
+					sender.sendMessage("3: " + console.getState().toString());
+					if (screenupdatetask == null)
+						screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.this, () -> {
+							sender.sendMessage("4: " + console.getState().toString());
+							if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
+									&& console.getState().equals(MachineState.Running))
+								console.getDisplay().invalidateAndUpdateScreen(0L);
+							if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
+									|| console.getState().equals(MachineState.PoweredOff)) {
+								sender.sendMessage("5: " + console.getState().toString());
+								if (session.getState().equals(SessionState.Locked)) {
+									session.unlockMachine();
+									sender.sendMessage("Computer powered off, released it.");
+								}
+								screenupdatetask.cancel();
+								screenupdatetask = null;
 							}
-							screenupdatetask.cancel();
-							screenupdatetask = null;
-						}
-					}, 100, 100); // Do a full update every 5 seconds
-				sender.sendMessage("§eComputer started.");
-			}, 5, 5);
+						}, 100, 100); // Do a full update every 5 seconds
+					sender.sendMessage("§eComputer started.");
+				}
+			};
+			Bukkit.getScheduler().runTaskLaterAsynchronously(this, tr, 5);
 		});
 	}
 

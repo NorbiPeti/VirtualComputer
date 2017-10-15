@@ -106,9 +106,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.hynnet</groupId>
-      <artifactId>jacob</artifactId>
-      <version>1.18</version>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>4.4.0</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
