@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.virtualbox_5_1.*;
+import org.virtualbox_5_2.*;
 
 import com.google.common.collect.Lists;
 
@@ -35,7 +35,8 @@ public class PluginMain extends JavaPlugin {
 			this.getCommand("computer").setExecutor(new Commands());
 			ccs.sendMessage("§bInitializing VirtualBox...");
 			String vbpath = System.getProperty("os.name").toLowerCase().contains("mac")
-					? "/Applications/VirtualBox.app/Contents/MacOS" : "/opt/virtualbox";
+					? "/Applications/VirtualBox.app/Contents/MacOS"
+					: "/opt/virtualbox";
 			File f = new File(vbpath);
 			if (!f.isDirectory() || !Arrays.stream(f.list()).anyMatch(s -> s.contains("xpcom")))
 				vbpath = "/usr/lib/virtualbox";
@@ -103,7 +104,7 @@ public class PluginMain extends JavaPlugin {
 					sender.sendMessage("B: " + machine.getState().toString());
 					final IConsole console = session.getConsole();
 					sender.sendMessage("1: " + console.getState().toString());
-					console.powerUp().waitForCompletion(10000);
+					console.powerUp();
 					sender.sendMessage("2: " + console.getState().toString());
 					console.getDisplay().attachFramebuffer(0L,
 							new IFramebuffer(new MCFrameBuffer(console.getDisplay())));
@@ -115,7 +116,8 @@ public class PluginMain extends JavaPlugin {
 									&& console.getState().equals(MachineState.Running))
 								console.getDisplay().invalidateAndUpdateScreen(0L);
 							if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
-									|| console.getState().equals(MachineState.PoweredOff)) {
+									|| console.getState().equals(MachineState.PoweredOff)
+									|| console.getState().equals(MachineState.Saved)) {
 								sender.sendMessage("5: " + console.getState().toString());
 								if (session.getState().equals(SessionState.Locked)) {
 									session.unlockMachine();

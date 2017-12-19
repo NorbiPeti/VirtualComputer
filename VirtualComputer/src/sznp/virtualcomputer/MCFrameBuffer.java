@@ -5,7 +5,7 @@ import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
 import org.mozilla.xpcom.Mozilla;
-import org.virtualbox_5_1.*;
+import org.virtualbox_5_2.*;
 
 public class MCFrameBuffer implements IFramebuffer {
 	private IDisplay display;
