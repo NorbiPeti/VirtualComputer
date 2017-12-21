@@ -41,11 +41,6 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<artifactSet>
-								<includes>
-									<include>org.virtualbox:VirtualBox</include>
-								</includes>
-							</artifactSet>
 							<pluginExecution>
 								<action>
 									<execute />
@@ -91,6 +86,11 @@
 			<artifactId>jna</artifactId>
 			<version>4.4.0</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/com.github.jnr/jnr-ffi -->
+		<dependency>
+			<groupId>com.github.jnr</groupId>
+			<artifactId>jnr-ffi</artifactId>
+			<version>2.1.7</version>
+		</dependency>
 	</dependencies>
 </project>

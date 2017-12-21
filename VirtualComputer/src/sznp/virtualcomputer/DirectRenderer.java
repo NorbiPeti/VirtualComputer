@@ -63,7 +63,8 @@ public class DirectRenderer implements IRenderer {
 			wmap.flagDirty(0, 0);
 			wmap.flagDirty(128, 128); // Send the whole image - TODO: Only send changes
 		} catch (Exception e) {
-			if (ex != null && e.getMessage().equals(ex.getMessage()))
+			if (ex != null && (e.getMessage() == ex.getMessage()
+					|| (e.getMessage() != null && e.getMessage().equals(ex.getMessage()))))
 				return;
 			(ex = e).printStackTrace();
 		}

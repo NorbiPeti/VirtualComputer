@@ -9,7 +9,7 @@ import org.virtualbox_5_2.*;
 
 public class MCFrameBuffer implements IFramebuffer {
 	private IDisplay display;
-	private Holder<IDisplaySourceBitmap> holder;
+	private Holder<IDisplaySourceBitmap> holder = new Holder<>();
 
 	public MCFrameBuffer(IDisplay display) {
 		this.display = display;

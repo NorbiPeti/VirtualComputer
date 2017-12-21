@@ -11,9 +11,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.mozilla.xpcom.Mozilla;
+import org.mozilla.xpcom.internal.XPCOMImpl;
 import org.virtualbox_5_2.*;
 
 import com.google.common.collect.Lists;
+
+import jnr.ffi.LibraryLoader;
 
 public class PluginMain extends JavaPlugin {
 	private IVirtualBox vbox;
@@ -49,6 +53,8 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("java.library.path", vbpath);
 			addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
+			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load(vbpath + "/libvboxjxpcom.so");
+			vbl.RTR3InitExe(0, "", 0);
 			vbox = manager.getVBox();
 			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
@@ -104,7 +110,7 @@ public class PluginMain extends JavaPlugin {
 					sender.sendMessage("B: " + machine.getState().toString());
 					final IConsole console = session.getConsole();
 					sender.sendMessage("1: " + console.getState().toString());
-					console.powerUp();
+					console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
 					sender.sendMessage("2: " + console.getState().toString());
 					console.getDisplay().attachFramebuffer(0L,
 							new IFramebuffer(new MCFrameBuffer(console.getDisplay())));
