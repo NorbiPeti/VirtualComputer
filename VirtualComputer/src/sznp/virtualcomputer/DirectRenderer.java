@@ -53,15 +53,14 @@ public class DirectRenderer implements IRenderer {
 	@SuppressWarnings("deprecation")
 	public void render(ByteBuffer allpixels, long x, long y, long width, long height) { // TODO
 		try {
-			for (int i = startindex, j = 0; i < startindex + 128 * 128 && i < allpixels.limit()
-					&& j < buffer.length; i += 4, j++)
+			for (int i = startindex, j = 0; i < allpixels.limit() - 4 && j < buffer.length; i += 4, j++)
 				buffer[j] = MapPalette
 						.matchColor(new Color(allpixels.get(i), allpixels.get(i + 1), allpixels.get(i + 2)));
-			final Field field = map.getClass().getField("worldmap");
+			final Field field = map.getClass().getDeclaredField("worldMap");
 			field.setAccessible(true);
 			WorldMap wmap = (WorldMap) field.get(map);
 			wmap.flagDirty(0, 0);
-			wmap.flagDirty(128, 128); // Send the whole image - TODO: Only send changes
+			wmap.flagDirty(127, 127); // Send the whole image - TODO: Only send changes
 		} catch (Exception e) {
 			if (ex != null && (e.getMessage() == ex.getMessage()
 					|| (e.getMessage() != null && e.getMessage().equals(ex.getMessage()))))

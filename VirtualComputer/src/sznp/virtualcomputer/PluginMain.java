@@ -11,8 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.mozilla.xpcom.Mozilla;
-import org.mozilla.xpcom.internal.XPCOMImpl;
 import org.virtualbox_5_2.*;
 
 import com.google.common.collect.Lists;
@@ -27,7 +25,7 @@ public class PluginMain extends JavaPlugin {
 	private BukkitTask mousetask;
 
 	public static PluginMain Instance;
-	public static ByteBuffer allpixels = null; // It's set on each change
+	public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480); // It's set on each change
 	public static ArrayList<IRenderer> renderers = new ArrayList<>();
 
 	// Fired when plugin is first enabled
@@ -53,7 +51,7 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("java.library.path", vbpath);
 			addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
-			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load(vbpath + "/libvboxjxpcom.so");
+			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
 			vbl.RTR3InitExe(0, "", 0);
 			vbox = manager.getVBox();
 			session = manager.getSessionObject(); // TODO: Events

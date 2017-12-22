@@ -76,13 +76,16 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
+		if (width > 640 || height > 480)
+			return; // Don't even try to render too large resolutions
 		Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
-			display.querySourceBitmap(0L, holder); // TODO: Test if it crashes here
-			byte[] arr = new byte[10];
-			System.out.println("Arr0:" + arr[0]);
+			display.querySourceBitmap(0L, holder);
+			byte[] arr = PluginMain.allpixels.array();
 			holder.value.getTypedWrapped().queryBitmapInfo(arr, new long[] { width }, new long[] { height },
 					new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
 					new long[] { getPixelFormat() }); // These are out params but whatever
+			System.out.println("Arr0:" + arr[0]);
+			PluginMain.allpixels.limit((int) (width * height * 4));
 			for (IRenderer r : PluginMain.renderers)
 				if (r instanceof BukkitRenderer)
 					((BukkitRenderer) r).setAllPixels(PluginMain.allpixels);
