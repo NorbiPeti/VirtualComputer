@@ -3,6 +3,7 @@ package sznp.virtualcomputer;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.bukkit.World;
@@ -61,6 +62,11 @@ public class DirectRenderer implements IRenderer {
 			WorldMap wmap = (WorldMap) field.get(map);
 			wmap.flagDirty(0, 0);
 			wmap.flagDirty(127, 127); // Send the whole image - TODO: Only send changes
+			/*
+			 * final Field fieldf = map.getClass().getDeclaredField("renderCache"); fieldf.setAccessible(true);
+			 * @SuppressWarnings("unchecked") final Map<CraftPlayer, RenderData> renderCache = (Map<CraftPlayer, RenderData>) fieldf.get(map); RenderData render = renderCache.get(null);
+			 * System.out.println("==: " + (buffer == render.buffer)); System.out.println("equals:" + Arrays.equals(buffer, render.buffer));
+			 */
 		} catch (Exception e) {
 			if (ex != null && (e.getMessage() == ex.getMessage()
 					|| (e.getMessage() != null && e.getMessage().equals(ex.getMessage()))))

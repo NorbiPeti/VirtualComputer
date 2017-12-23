@@ -115,6 +115,7 @@ public class Commands implements CommandExecutor {
 						MouseLockerPlayerListener.LockedPlayers.remove(sender);
 						sender.sendMessage("§bMouse unlocked.");
 					}
+					break;
 				case "mspeed":
 				case "mousespeed":
 					if (args.length < 3) {

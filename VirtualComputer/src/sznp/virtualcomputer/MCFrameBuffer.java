@@ -1,6 +1,7 @@
 package sznp.virtualcomputer;
 
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
@@ -74,18 +75,28 @@ public class MCFrameBuffer implements IFramebuffer {
 	public void notify3DEvent(long arg0, byte[] arg1) {
 	}
 
+	private BukkitTask tt;
+
 	@Override
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
-		if (width > 640 || height > 480)
-			return; // Don't even try to render too large resolutions
+		System.out.println("Change - " + width + "x" + height);
+		if (tt != null)
+			tt.cancel();
+		/*
+		 * if (width > 640 || height > 480) { tt = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.Instance, () -> display.setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L), 5, 5);
+		 * return; // Don't even try to render too large resolutions }
+		 */
 		Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
 			display.querySourceBitmap(0L, holder);
 			byte[] arr = PluginMain.allpixels.array();
-			holder.value.getTypedWrapped().queryBitmapInfo(arr, new long[] { width }, new long[] { height },
-					new long[] { getBitsPerPixel() }, new long[] { getBytesPerLine() },
-					new long[] { getPixelFormat() }); // These are out params but whatever
-			System.out.println("Arr0:" + arr[0]);
-			PluginMain.allpixels.limit((int) (width * height * 4));
+			long[] w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
+			holder.value.getTypedWrapped().queryBitmapInfo(arr, w, h, bpp, bpl, pf);
+			System.out.println("Arr10:" + arr[10]);
+			System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
+			if (width * height > 640 * 480)
+				PluginMain.allpixels.limit(640 * 480 * 4);
+			else
+				PluginMain.allpixels.limit((int) (width * height * 4));
 			for (IRenderer r : PluginMain.renderers)
 				if (r instanceof BukkitRenderer)
 					((BukkitRenderer) r).setAllPixels(PluginMain.allpixels);
@@ -100,7 +111,6 @@ public class MCFrameBuffer implements IFramebuffer {
 		for (IRenderer r : PluginMain.renderers)
 			if (r instanceof DirectRenderer)
 				((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
-		System.out.println("Update!");
 	}
 
 	@Override

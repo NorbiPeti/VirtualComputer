@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 public class MouseLockerPlayerListener implements Runnable {
 	public static Map<Player, Location> LockedPlayers = new HashMap<>();
@@ -24,7 +25,7 @@ public class MouseLockerPlayerListener implements Runnable {
 			PluginMain.Instance.UpdateMouse(null, (int) ((yaw2 - yaw1) * LockedSpeed),
 					(int) ((pitch2 - pitch1) * LockedSpeed), 0, 0, "");
 
-			entry.setValue(entry.getValue());
+			entry.getKey().teleport(entry.getValue(), TeleportCause.PLUGIN);
 		}
 	}
 }

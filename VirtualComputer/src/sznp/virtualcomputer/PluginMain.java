@@ -25,7 +25,7 @@ public class PluginMain extends JavaPlugin {
 	private BukkitTask mousetask;
 
 	public static PluginMain Instance;
-	public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480); // It's set on each change
+	public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
 	public static ArrayList<IRenderer> renderers = new ArrayList<>();
 
 	// Fired when plugin is first enabled
@@ -57,9 +57,10 @@ public class PluginMain extends JavaPlugin {
 			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
 			try {
-				for (short i = 0; i < 20; i++)
+				throw new NoClassDefFoundError("Test error pls ignore");
+				/*for (short i = 0; i < 20; i++)
 					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
-				ccs.sendMessage("§bUsing Direct Renderer, all good");
+				ccs.sendMessage("§bUsing Direct Renderer, all good");*/
 			} catch (NoClassDefFoundError e) {
 				for (short i = 0; i < 20; i++)
 					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
@@ -97,7 +98,6 @@ public class PluginMain extends JavaPlugin {
 			session.setName("minecraft");
 			// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
 			machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
-			sender.sendMessage("A: " + machine.getState().toString());
 			final Runnable tr = new Runnable() {
 				public void run() {
 					if (session.getState() != SessionState.Locked) { // https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#ac82c179a797c0d7c249d1b98a8e3aa8f
@@ -105,24 +105,18 @@ public class PluginMain extends JavaPlugin {
 						return; // "This state also occurs as a short transient state during an IMachine::lockMachine call."
 					}
 					machine = session.getMachine(); // This is the Machine object we can work with
-					sender.sendMessage("B: " + machine.getState().toString());
 					final IConsole console = session.getConsole();
-					sender.sendMessage("1: " + console.getState().toString());
 					console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
-					sender.sendMessage("2: " + console.getState().toString());
 					console.getDisplay().attachFramebuffer(0L,
 							new IFramebuffer(new MCFrameBuffer(console.getDisplay())));
-					sender.sendMessage("3: " + console.getState().toString());
 					if (screenupdatetask == null)
 						screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.this, () -> {
-							sender.sendMessage("4: " + console.getState().toString());
 							if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
 									&& console.getState().equals(MachineState.Running))
 								console.getDisplay().invalidateAndUpdateScreen(0L);
 							if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
 									|| console.getState().equals(MachineState.PoweredOff)
 									|| console.getState().equals(MachineState.Saved)) {
-								sender.sendMessage("5: " + console.getState().toString());
 								if (session.getState().equals(SessionState.Locked)) {
 									session.unlockMachine();
 									sender.sendMessage("Computer powered off, released it.");
@@ -141,8 +135,13 @@ public class PluginMain extends JavaPlugin {
 	public static int MouseSpeed = 1;
 
 	public void Stop(CommandSender sender) {
-		if (!checkMachineRunning(sender))
+		if (!checkMachineRunning(sender)) {
+			if (session.getState().equals(SessionState.Locked)) {
+				session.unlockMachine();
+				sender.sendMessage("§eComputer powered off, released it.");
+			}
 			return;
+		}
 		sender.sendMessage("§eStopping computer...");
 		session.getConsole().powerDown().waitForCompletion(2000);
 		session.unlockMachine();

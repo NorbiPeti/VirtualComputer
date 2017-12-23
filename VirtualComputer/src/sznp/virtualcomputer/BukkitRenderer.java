@@ -36,7 +36,7 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 		MapView map = IRenderer.prepare(id, world);
 		map.addRenderer(this);
 		this.startindex = startindex;
-		image = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
+		image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
 	}
 
 	private int progress = 0;
