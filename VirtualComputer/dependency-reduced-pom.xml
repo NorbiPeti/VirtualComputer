@@ -39,13 +39,7 @@
             <goals>
               <goal>shade</goal>
             </goals>
-            <configuration>
-              <pluginExecution>
-                <action>
-                  <execute />
-                </action>
-              </pluginExecution>
-            </configuration>
+            <configuration />
           </execution>
         </executions>
       </plugin>

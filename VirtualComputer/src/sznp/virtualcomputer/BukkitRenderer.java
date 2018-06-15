@@ -1,15 +1,15 @@
 package sznp.virtualcomputer;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.nio.ByteBuffer;
-import java.util.concurrent.TimeUnit;
-
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 
 public class BukkitRenderer extends MapRenderer implements IRenderer {
 	private ByteBuffer allpixels;
@@ -54,7 +54,7 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 		for (int i = startindex, j = 0; i < startindex + 128 * 128; i = i + 4, j++) {
 			int b, g, r;
 
-			b = allpixels.get(i) & 0xFF;
+			b = allpixels.get(i) & 0xFF; //TODO: <-- IndexOutOfBoundsException sometimes
 			g = allpixels.get(i + 1) & 0xFF;
 			r = allpixels.get(i + 2) & 0xFF;
 

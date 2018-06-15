@@ -6,7 +6,10 @@ import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
 import org.mozilla.xpcom.Mozilla;
-import org.virtualbox_5_2.*;
+import org.virtualbox_5_2.BitmapFormat;
+import org.virtualbox_5_2.Holder;
+import org.virtualbox_5_2.IDisplay;
+import org.virtualbox_5_2.IDisplaySourceBitmap;
 
 public class MCFrameBuffer implements IFramebuffer {
 	private IDisplay display;
@@ -76,6 +79,7 @@ public class MCFrameBuffer implements IFramebuffer {
 	}
 
 	private BukkitTask tt;
+	private BukkitTask tttt;
 
 	@Override
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
@@ -86,12 +90,12 @@ public class MCFrameBuffer implements IFramebuffer {
 		 * if (width > 640 || height > 480) { tt = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.Instance, () -> display.setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L), 5, 5);
 		 * return; // Don't even try to render too large resolutions }
 		 */
-		Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
+		tt = Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
 			display.querySourceBitmap(0L, holder);
 			byte[] arr = PluginMain.allpixels.array();
 			long[] w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
 			holder.value.getTypedWrapped().queryBitmapInfo(arr, w, h, bpp, bpl, pf);
-			System.out.println("Arr10:" + arr[10]);
+			System.out.println("Arr0:" + arr[0]);
 			System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
 			if (width * height > 640 * 480)
 				PluginMain.allpixels.limit(640 * 480 * 4);
@@ -108,9 +112,13 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public void notifyUpdate(long x, long y, long width, long height) {
-		for (IRenderer r : PluginMain.renderers)
-			if (r instanceof DirectRenderer)
-				((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
+		if(tttt != null)
+			tttt.cancel(); //We are getting updates, but the pixel array isn't updated - VB reacts slowly
+		tttt = Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
+			for (IRenderer r : PluginMain.renderers)
+				if (r instanceof DirectRenderer)
+					((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
+		}, 5);
 	}
 
 	@Override

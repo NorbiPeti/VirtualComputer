@@ -1,18 +1,19 @@
 package sznp.virtualcomputer;
 
-import java.awt.Color;
-import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Map;
-
+import net.minecraft.server.v1_12_R1.WorldMap;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.map.RenderData;
+import org.bukkit.entity.Player;
+import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapPalette;
+import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
-import net.minecraft.server.v1_12_R1.WorldMap;
+import java.awt.*;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.util.Map;
 
 public class DirectRenderer implements IRenderer {
 	private int startindex;
@@ -26,8 +27,6 @@ public class DirectRenderer implements IRenderer {
 	 *            The ID of the current map
 	 * @param world
 	 *            The world to create new maps in
-	 * @param allpixels
-	 *            The raw pixel data from the machine in BGRA format
 	 * @param startindex
 	 *            The index to start from in allpixels
 	 * @throws Exception
@@ -47,16 +46,41 @@ public class DirectRenderer implements IRenderer {
 
 		this.startindex = startindex;
 		this.buffer = render.buffer;
+		map.addRenderer(new DummyRenderer());
+	}
+
+	private final class DummyRenderer extends MapRenderer {
+		@Override
+		public void render(MapView map, MapCanvas canvas, Player player) {
+			if(allpixels != null)
+				DirectRenderer.this.render(allpixels, x, y, width, height); //Render after zeroing whole map
+		}
 	}
 
 	private Exception ex;
+	private ByteBuffer allpixels;
+	private long x, y, width, height;
+	private long lastrender;
 
 	@SuppressWarnings("deprecation")
 	public void render(ByteBuffer allpixels, long x, long y, long width, long height) { // TODO
+		this.allpixels=allpixels;
+		this.x=x;
+		this.y=y;
+		this.width=width;
+		this.height=height;
+		if(System.nanoTime()-lastrender<100*1000*1000)
+			return;
+		lastrender=System.nanoTime();
 		try {
-			for (int i = startindex, j = 0; i < allpixels.limit() - 4 && j < buffer.length; i += 4, j++)
-				buffer[j] = MapPalette
-						.matchColor(new Color(allpixels.get(i), allpixels.get(i + 1), allpixels.get(i + 2)));
+			boolean hascolor=false;
+			for (int i = startindex, j = 0; i < allpixels.limit() - 4 && j < buffer.length; i += 4, j++) {
+				buffer[j] = MapPalette.matchColor(new Color(allpixels.get(i), allpixels.get(i + 1), allpixels.get(i + 2)));
+				if(allpixels.get(i+2)>10)
+					hascolor=true;
+			}
+			if(hascolor)
+				System.out.println("Some color!");
 			final Field field = map.getClass().getDeclaredField("worldMap");
 			field.setAccessible(true);
 			WorldMap wmap = (WorldMap) field.get(map);

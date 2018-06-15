@@ -1,11 +1,7 @@
 package sznp.virtualcomputer;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import com.google.common.collect.Lists;
+import jnr.ffi.LibraryLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -13,9 +9,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.virtualbox_5_2.*;
 
-import com.google.common.collect.Lists;
-
-import jnr.ffi.LibraryLoader;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PluginMain extends JavaPlugin {
 	private IVirtualBox vbox;
@@ -57,10 +55,10 @@ public class PluginMain extends JavaPlugin {
 			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
 			try {
-				throw new NoClassDefFoundError("Test error pls ignore");
-				/*for (short i = 0; i < 20; i++)
+				//throw new NoClassDefFoundError("Test error pls ignore");
+				for (short i = 0; i < 20; i++)
 					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
-				ccs.sendMessage("§bUsing Direct Renderer, all good");*/
+				ccs.sendMessage("§bUsing Direct Renderer, all good");
 			} catch (NoClassDefFoundError e) {
 				for (short i = 0; i < 20; i++)
 					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
