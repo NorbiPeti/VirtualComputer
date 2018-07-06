@@ -6,10 +6,9 @@ import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
 import org.mozilla.xpcom.Mozilla;
-import org.virtualbox_5_2.BitmapFormat;
-import org.virtualbox_5_2.Holder;
-import org.virtualbox_5_2.IDisplay;
-import org.virtualbox_5_2.IDisplaySourceBitmap;
+import org.virtualbox_5_2.*;
+
+import java.util.Arrays;
 
 public class MCFrameBuffer implements IFramebuffer {
 	private IDisplay display;
@@ -36,7 +35,14 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public long[] getCapabilities(long[] arg0) {
-		return new long[] {};
+		try {
+			System.out.println("Capabilities: " + Arrays.toString(arg0));
+			return new long[]{FramebufferCapabilities.UpdateImage.value()};
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return new long[]{};
+		}
 	}
 
 	@Override
@@ -114,11 +120,13 @@ public class MCFrameBuffer implements IFramebuffer {
 	public void notifyUpdate(long x, long y, long width, long height) {
 		if(tttt != null)
 			tttt.cancel(); //We are getting updates, but the pixel array isn't updated - VB reacts slowly
-		tttt = Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
+		/*tttt = Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
 			for (IRenderer r : PluginMain.renderers)
 				if (r instanceof DirectRenderer)
 					((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
-		}, 5);
+			System.out.println("Update!");
+		}, 5);*/
+		throw new UnsupportedOperationException("Use UpdateImage");
 	}
 
 	@Override
