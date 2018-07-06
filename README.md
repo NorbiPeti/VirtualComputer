@@ -4,45 +4,43 @@ A working modern computer in Minecraft made using VirtualBox and Java. No client
 I started working on this project on 2015. december 5. However I did not write much code in that time as I had to figure out how things work.
 I plan on making a series where I show the whole process of creating this project.
 
-##Video
+## Video
 
 [![Original video](https://img.youtube.com/vi/VxSyDfxPd3s/0.jpg)](https://www.youtube.com/watch?v=VxSyDfxPd3s)
 
 ## Installation requirements
 *Note: only the server host has to meet these requirements.*
 
-### Currently compiled for (and tested on):
-*If you don't meet these requirements, you will need to compile the files for yourself. Please help by sending the compiled version to me so more people can download it.*
+### Tested versions:
+*If you don't meet these requirements, you may need to compile the files for yourself. If you do please send the compiled version to me so more people can download it.*
 
-* OS X
-* VirtualBox 5.1
+* OS X; Ubuntu 16.04/18.04
+* VirtualBox 5.2
 * Spgiot/Bukkit 1.8/1.9/1.12
 * Java 8
 
-### Possibly works with (untested):
-* Any operating system which is not Windows
+### Untested:
+* Any Linux versions
 * Other VirtualBox versions (code modifications are probably necessary)
 * Other Spigot/Bukkit versions
-* Microsoft .NET Framework 4 (code modifications *are* necessary)
 * Other Java versions
 
 *Due to VirtualBox Java binding support limitations the plugin does not support Windows currently.*
 
 ## Installation
-**Warning:** The first loaded world on the server (the one specified in server.properties) will temporarily **lose** the first 20 maps, although it will reset if the server is loaded without the plugin.
+**Warning:** The first loaded world on the server (the one specified in server.properties) will temporarily **lose** the first 20 maps, although it will be back to normal if the server is loaded without the plugin.
 
-* Install all the requirements
+* Install VirtualBox
 * Add a virtual PC if you don't have any (the first one will be started)
     * Install an OS and Guest Additions, if you haven't already
 * Put the jar file into <server>/plugins directory
-* Make sure your server is set to a world that you don't mind your maps temporarily deleted from
 * Start your server
 
 ## Usage
 *Please give appropriate credit and link to this page if you use this machine in one of your videos/creations/etc. You can also send me your video so I can put it here.*
 
 ### Display
-*Note:* You can create as many displays as you want, but all of them will show the same.
+*Note:* You can create as many displays as you want, but all of them will show the same currently.
 
 To create a display, make a 5 wide 4 high wall of item frames, then put the maps 0-19 on them starting from the top left and going downwards. You can give the maps with this command:
 
