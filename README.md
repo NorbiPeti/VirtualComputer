@@ -37,7 +37,7 @@ I plan on making a series where I show the whole process of creating this projec
 * Start your server
 
 ## Usage
-*Please give appropriate credit and link to this page if you use this machine in one of your videos/creations/etc. You can also send me your video so I can put it here.*
+*Please give appropriate credit and link to this page if you use this machine in one of your videos/creations/etc.*
 
 ### Display
 *Note:* You can create as many displays as you want, but all of them will show the same currently.
