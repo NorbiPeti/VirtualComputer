@@ -97,22 +97,27 @@ public class MCFrameBuffer implements IFramebuffer {
 		 * return; // Don't even try to render too large resolutions }
 		 */
 		tt = Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
-			display.querySourceBitmap(0L, holder);
-			byte[] arr = PluginMain.allpixels.array();
-			long[] w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
-			holder.value.getTypedWrapped().queryBitmapInfo(arr, w, h, bpp, bpl, pf);
-			System.out.println("Arr0:" + arr[0]);
-			System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
-			if (width * height > 640 * 480)
-				PluginMain.allpixels.limit(640 * 480 * 4);
-			else
-				PluginMain.allpixels.limit((int) (width * height * 4));
-			for (IRenderer r : PluginMain.renderers)
-				if (r instanceof BukkitRenderer)
-					((BukkitRenderer) r).setAllPixels(PluginMain.allpixels);
-				else if (r instanceof DirectRenderer)
-					((DirectRenderer) r).render(PluginMain.allpixels, xOrigin, yOrigin, width, height);
-			System.out.println("Change!");
+			try {
+				display.querySourceBitmap(0L, holder);
+				//byte[] arr = PluginMain.allpixels.array();
+				long[] arr = new long[1];
+				long[] w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
+				holder.value.getTypedWrapped().queryBitmapInfo(arr, w, h, bpp, bpl, pf);
+				System.out.println("Arr0:" + arr[0]);
+				System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
+				if (width * height > 640 * 480)
+					PluginMain.allpixels.limit(640 * 480 * 4);
+				else
+					PluginMain.allpixels.limit((int) (width * height * 4));
+				for (IRenderer r : PluginMain.renderers)
+					if (r instanceof BukkitRenderer)
+						((BukkitRenderer) r).setAllPixels(PluginMain.allpixels);
+					else if (r instanceof DirectRenderer)
+						((DirectRenderer) r).render(PluginMain.allpixels, xOrigin, yOrigin, width, height);
+				System.out.println("Change!");
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
 		}, 5); // Wait 1/4th of a second
 	}
 
@@ -126,7 +131,6 @@ public class MCFrameBuffer implements IFramebuffer {
 					((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
 			System.out.println("Update!");
 		}, 5);*/
-		throw new UnsupportedOperationException("Use UpdateImage");
 	}
 
 	@Override
@@ -135,11 +139,11 @@ public class MCFrameBuffer implements IFramebuffer {
 	}
 
 	@Override
-	public void processVHWACommand(byte arg0) {
+	public void setVisibleRegion(byte arg0, long arg1) {
 	}
 
 	@Override
-	public void setVisibleRegion(byte arg0, long arg1) {
+	public void processVHWACommand(byte b, int i, boolean b1) {
 	}
 
 	@Override

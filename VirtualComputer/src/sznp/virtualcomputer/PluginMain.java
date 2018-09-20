@@ -1,7 +1,6 @@
 package sznp.virtualcomputer;
 
 import com.google.common.collect.Lists;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import jnr.ffi.LibraryLoader;
 import org.bukkit.Bukkit;
@@ -10,7 +9,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.virtualbox_5_2.*;
-import sun.misc.Unsafe;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -115,7 +113,7 @@ public class PluginMain extends JavaPlugin {
 						screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.this, () -> {
 							if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
 									&& console.getState().equals(MachineState.Running))
-								console.getDi	splay().invalidateAndUpdateScreen(0L);
+								console.getDisplay().invalidateAndUpdateScreen(0L);
 							if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
 									|| console.getState().equals(MachineState.PoweredOff)
 									|| console.getState().equals(MachineState.Saved)) {
