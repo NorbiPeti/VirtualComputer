@@ -1,7 +1,6 @@
 package sznp.virtualcomputer;
 
 import com.google.common.collect.Lists;
-import com.sun.jna.Pointer;
 import jnr.ffi.LibraryLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -10,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.virtualbox_5_2.*;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -24,7 +24,8 @@ public class PluginMain extends JavaPlugin {
 	private BukkitTask mousetask;
 
 	public static PluginMain Instance;
-	public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
+	//public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
+	public static ByteBuffer allpixels; // It's set on each change
 	public static ArrayList<IRenderer> renderers = new ArrayList<>();
 
 	// Fired when plugin is first enabled
@@ -39,7 +40,7 @@ public class PluginMain extends JavaPlugin {
 					? "/Applications/VirtualBox.app/Contents/MacOS"
 					: "/opt/virtualbox";
 			File f = new File(vbpath);
-			if (!f.isDirectory() || !Arrays.stream(f.list()).anyMatch(s -> s.contains("xpcom")))
+			if (!f.isDirectory() || Arrays.stream(f.list()).noneMatch(s -> s.contains("xpcom")))
 				vbpath = "/usr/lib/virtualbox";
 			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
 				System.setProperty("vbox.home", vbpath);
@@ -52,7 +53,6 @@ public class PluginMain extends JavaPlugin {
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
 			vbl.RTR3InitExe(0, "", 0);
-			Pointer addr = new Pointer(10);
 			vbox = manager.getVBox();
 			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
@@ -135,7 +135,7 @@ public class PluginMain extends JavaPlugin {
 	public static int MouseSpeed = 1;
 
 	public void Stop(CommandSender sender) {
-		if (!checkMachineRunning(sender)) {
+		if (checkMachineNotRunning(sender)) {
 			if (session.getState().equals(SessionState.Locked)) {
 				session.unlockMachine();
 				sender.sendMessage("§eComputer powered off, released it.");
@@ -165,7 +165,7 @@ public class PluginMain extends JavaPlugin {
 	}
 
 	public void Reset(CommandSender sender) {
-		if (!checkMachineRunning(sender))
+		if (checkMachineNotRunning(sender))
 			return;
 		sender.sendMessage("§eResetting computer...");
 		session.getConsole().reset();
@@ -173,7 +173,7 @@ public class PluginMain extends JavaPlugin {
 	}
 
 	public void FixScreen(CommandSender sender) {
-		if (!checkMachineRunning(sender))
+		if (checkMachineNotRunning(sender))
 			return;
 		sender.sendMessage("§eFixing screen...");
 		session.getConsole().getDisplay().setSeamlessMode(false);
@@ -181,16 +181,17 @@ public class PluginMain extends JavaPlugin {
 		sender.sendMessage("§eScreen fixed.");
 	}
 
-	private boolean checkMachineRunning(CommandSender sender) {
+	public boolean checkMachineNotRunning(@Nullable CommandSender sender) {
 		if (session.getState() != SessionState.Locked || machine.getState() != MachineState.Running) {
-			sender.sendMessage("§cMachine isn't running.");
-			return false;
+			if (sender != null)
+				sender.sendMessage("§cMachine isn't running.");
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public void PressKey(CommandSender sender, String key, String stateorduration) {
-		if (!checkMachineRunning(sender))
+		if (checkMachineNotRunning(sender))
 			return;
 		int durationorstate;
 		if (stateorduration.length() == 0)
@@ -216,7 +217,7 @@ public class PluginMain extends JavaPlugin {
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs, boolean down) {
-		if (!checkMachineRunning(sender))
+		if (checkMachineNotRunning(sender))
 			return;
 		int state = 0;
 		if (mbs.length() > 0 && down)
@@ -226,7 +227,7 @@ public class PluginMain extends JavaPlugin {
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs) {
-		if (!checkMachineRunning(sender))
+		if (checkMachineNotRunning(sender))
 			return;
 		UpdateMouse(sender, x, y, z, w, mbs, true);
 		UpdateMouse(sender, x, y, z, w, mbs, false);

@@ -62,9 +62,13 @@ public class DirectRenderer implements IRenderer {
 	private long x, y, width, height;
 	private long lastrender;
 
+	public void setAllpixels(ByteBuffer bb) {
+		allpixels = bb;
+	}
+
 	@SuppressWarnings("deprecation")
 	public void render(ByteBuffer allpixels, long x, long y, long width, long height) { // TODO
-		this.allpixels=allpixels;
+		this.allpixels = allpixels; //TODO: |CRASH| Prevent trying to read memory after computer is stopped
 		this.x=x;
 		this.y=y;
 		this.width=width;
@@ -75,12 +79,15 @@ public class DirectRenderer implements IRenderer {
 		try {
 			boolean hascolor=false;
 			for (int i = startindex, j = 0; i < allpixels.limit() - 4 && j < buffer.length; i += 4, j++) {
-				buffer[j] = MapPalette.matchColor(new Color(allpixels.get(i), allpixels.get(i + 1), allpixels.get(i + 2)));
+				if (PluginMain.Instance.checkMachineNotRunning(null))
+					return;
+				buffer[j] = MapPalette.matchColor(new Color(Byte.toUnsignedInt(allpixels.get(i)), Byte.toUnsignedInt(allpixels.get(i + 1)), Byte.toUnsignedInt(allpixels.get(i + 2))));
 				if(allpixels.get(i+2)>10)
 					hascolor=true;
 			}
 			if(hascolor)
 				System.out.println("Some color!");
+			else return;
 			final Field field = map.getClass().getDeclaredField("worldMap");
 			field.setAccessible(true);
 			WorldMap wmap = (WorldMap) field.get(map);
@@ -92,7 +99,7 @@ public class DirectRenderer implements IRenderer {
 			 * System.out.println("==: " + (buffer == render.buffer)); System.out.println("equals:" + Arrays.equals(buffer, render.buffer));
 			 */
 		} catch (Exception e) {
-			if (ex != null && (e.getMessage() == ex.getMessage()
+			if (ex != null && (e.getMessage() == ex.getMessage() //Checking for null with the ==
 					|| (e.getMessage() != null && e.getMessage().equals(ex.getMessage()))))
 				return;
 			(ex = e).printStackTrace();

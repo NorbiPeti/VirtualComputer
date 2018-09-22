@@ -1,5 +1,6 @@
 package sznp.virtualcomputer;
 
+import com.sun.jna.Pointer;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.mozilla.interfaces.IFramebuffer;
@@ -100,11 +101,11 @@ public class MCFrameBuffer implements IFramebuffer {
 			try {
 				display.querySourceBitmap(0L, holder);
 				//byte[] arr = PluginMain.allpixels.array();
-				long[] arr = new long[1];
-				long[] w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
-				holder.value.getTypedWrapped().queryBitmapInfo(arr, w, h, bpp, bpl, pf);
-				System.out.println("Arr0:" + arr[0]);
+				long[] ptr = new long[1], w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
+				holder.value.getTypedWrapped().queryBitmapInfo(ptr, w, h, bpp, bpl, pf);
+				System.out.println("Arr0:" + ptr[0]);
 				System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
+				PluginMain.allpixels = new Pointer(ptr[0]).getByteBuffer(0L, width * height * 4);
 				if (width * height > 640 * 480)
 					PluginMain.allpixels.limit(640 * 480 * 4);
 				else
@@ -113,7 +114,8 @@ public class MCFrameBuffer implements IFramebuffer {
 					if (r instanceof BukkitRenderer)
 						((BukkitRenderer) r).setAllPixels(PluginMain.allpixels);
 					else if (r instanceof DirectRenderer)
-						((DirectRenderer) r).render(PluginMain.allpixels, xOrigin, yOrigin, width, height);
+						//((DirectRenderer) r).render(PluginMain.allpixels, xOrigin, yOrigin, width, height);
+						((DirectRenderer) r).setAllpixels(PluginMain.allpixels);
 				System.out.println("Change!");
 			} catch (Throwable t) {
 				t.printStackTrace();
@@ -129,7 +131,7 @@ public class MCFrameBuffer implements IFramebuffer {
 			for (IRenderer r : PluginMain.renderers)
 				if (r instanceof DirectRenderer)
 					((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
-			System.out.println("Update!");
+			System.out.println("Update!"); - The render is done each tick
 		}, 5);*/
 	}
 
