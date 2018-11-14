@@ -14,6 +14,6 @@ public class Test {
 		ByteBuffer bb = ByteBuffer.allocateDirect(2);
 		long[] x = new long[]{Pointer.nativeValue(Native.getDirectBufferPointer(bb))};
 		pxc.convert(new int[]{5, 10}, x);
-		System.out.println(bb.get(0)); //19 AYY
+		System.out.println(bb.get(0)); //19 AYY //TO!DO: Use setSource, we don't want to wrap the native array
 	}
 }
