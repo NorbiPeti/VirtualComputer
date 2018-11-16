@@ -16,12 +16,11 @@ public interface PXCLib {
 	 * @param h Height of the screen
 	 * @param mc Total count of maps used for the screen
 	 */
-	void setSource(long address, int w, int h, int mc);
+	void setSource(long address, int w, int h, int mcx, int mcy);
 
 	/**
 	 * Updates map and returns it's content
-	 * @param mapnum Number of the map (0 is first)
-	 * @return Address of the map data
+	 * @return Full map data [mapc][data]
 	 */
-	long updateAndGetMap(short mapnum); //TODO: Only update parts that actually updated and return them per-map (flagDirty)
+	byte[][] updateAndGetMap(int x, int y, int width, int height); //TODO: Only update parts that actually updated and return them per-map (flagDirty)
 }

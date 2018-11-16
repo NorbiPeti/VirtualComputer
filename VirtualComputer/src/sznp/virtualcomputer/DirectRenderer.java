@@ -75,7 +75,6 @@ public class DirectRenderer implements IRenderer {
 		this.height=height;
 		if(System.nanoTime()-lastrender<100*1000*1000)
 			return;
-		lastrender=System.nanoTime();
 		try {
 			boolean hascolor=false;
 			for (int i = startindex, j = 0; i < allpixels.limit() - 4 && j < buffer.length; i += 4, j++) {
@@ -103,6 +102,8 @@ public class DirectRenderer implements IRenderer {
 					|| (e.getMessage() != null && e.getMessage().equals(ex.getMessage()))))
 				return;
 			(ex = e).printStackTrace();
+		} finally {
+			lastrender = System.nanoTime(); //Even if there was an error, wait for the next render
 		}
 	}
 }
