@@ -13,21 +13,26 @@
 //---------------------------------------------------------------------
 
 typedef long long int addr;
+typedef struct { //RGB
+	int red : 8;
+	int green : 8;
+	int blue : 8;
+} Color; //Used for Bukkit's initializers (for simplicity)
 typedef struct { //BGRA
 	int blue : 8;
 	int green : 8;
 	int red : 8;
 	int alpha : 8;
-} Color;
+} NativeColor; //Used for the screen data
 
-char matchColor(Color* p);
+char matchColor(NativeColor* p);
 
 void* image=NULL;
 void* maps=NULL; //Per map data (1st map, second map etc.)
 
 short width, height, mapcx, mapcy;
 char* mapp=NULL; //Pointer inside the map
-Color* imgp=NULL; //Pointer inside the image
+NativeColor* imgp=NULL; //Pointer inside the image
 
 void setSource(addr address, short w, short h, short mcx, short mcy) {
 	ct_assert(sizeof(char)==1); //Compile-time assert
@@ -45,21 +50,21 @@ void* updateAndGetMap(int x, int y, int w, int h) { //TODO: Support the paramete
 	for(short i=0; i<MAPSIZE; i++) { //We need to jump
 		for(short j=0; j<MAPSIZE; j++) {
 			*mapp=matchColor(imgp);
-			imgp++; //Increment by the size of color so 4
+			imgp++; //Increment by the size of Nativecolor so 4
 			mapp++;
 		}
 		imgp+=width-MAPSIZE; //Go back to the first column
 	}
 	imgp+=MAPSIZE; //Go to the next map, kind of - TODO: Use X and Y coords!
 	if((void*)mapp - maps     >    MAPSIZE * MAPSIZE * mapcx * mapcy ||
-	   (void*)imgp - image    >    width   * height  * sizeof(Color)) {
+	   (void*)imgp - image    >    width   * height  * sizeof(NativeColor)) {
 		mapp = maps;  //Start over
 		imgp = image; //Start over
 	} //TODO: This is only one map, do it for all of them
 	return retp;
 }
 
-const Color colors[] = { //TODO: These should be in BGRA format, not RGB
+const Color colors[] = {
 	{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0},
 	{89, 125, 39}, {109, 153, 48}, {127, 178, 56}, {67, 94, 29},
 	{174, 164, 115}, {213, 201, 140}, {247, 233, 163}, {130, 123, 86},
@@ -128,9 +133,9 @@ double getDistance(Color c1, Color c2) {
 }
 
 //Code from Bukkit's MapPalette class
-char matchColor(Color* const p) {
-	Color color=*p;
-	if (color.alpha < 128) return 0;
+char matchColor(NativeColor* const p) {
+	if (p->alpha < 128) return 0;
+	Color color={.red=p->red, .green=p->green, .blue=p->blue};
 
 	char index = 0;
 	double best = -1;
