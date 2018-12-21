@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>org.virtualbox</groupId>
 			<artifactId>VirtualBox</artifactId>
-			<version>5.2</version>
+            <version>6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>

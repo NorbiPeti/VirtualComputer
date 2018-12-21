@@ -1,0 +1,3 @@
+If a new version is released, copy this to the JAR into org/mozilla/interfaces
+This fixes the source bitmap pointer return type in the Java API.
+

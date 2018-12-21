@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.virtualbox_5_2.*;
+import org.virtualbox_6_0.*;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -40,6 +40,7 @@ public class PluginMain extends JavaPlugin {
 					? "/Applications/VirtualBox.app/Contents/MacOS"
 					: "/opt/virtualbox";
 			File f = new File(vbpath);
+			//noinspection ConstantConditions
 			if (!f.isDirectory() || Arrays.stream(f.list()).noneMatch(s -> s.contains("xpcom")))
 				vbpath = "/usr/lib/virtualbox";
 			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
@@ -132,8 +133,6 @@ public class PluginMain extends JavaPlugin {
 		});
 	}
 
-	public static int MouseSpeed = 1;
-
 	public void Stop(CommandSender sender) {
 		if (checkMachineNotRunning(sender)) {
 			if (session.getState().equals(SessionState.Locked)) {
@@ -202,10 +201,16 @@ public class PluginMain extends JavaPlugin {
 			durationorstate = -2;
 		else
 			durationorstate = Short.parseShort(stateorduration);
-		int code = 0;
+		int code;
+		try {
+			code = Scancode.valueOf("sc_" + key.toLowerCase()).Code;
+		} catch (IllegalArgumentException e) {
+			sender.sendMessage("§cUnknown key: " + key);
+			return;
+		}
 		// Release key scan code concept taken from VirtualBox source code (KeyboardImpl.cpp:putCAD())
 		// +128
-		if (durationorstate != 2)
+		if (durationorstate != -2)
 			session.getConsole().getKeyboard().putScancode(code);
 		Runnable sendrelease = () -> session.getConsole().getKeyboard().putScancodes(Lists.newArrayList(code + 128,
 				Scancode.sc_controlLeft.Code + 128, Scancode.sc_shiftLeft.Code + 128, Scancode.sc_altLeft.Code + 128));
