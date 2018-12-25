@@ -16,6 +16,9 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 	private BufferedImage image;
 	private int startindex;
 
+	/**
+	 * The raw pixel data from the machine in BGRA format
+	 */
 	public void setAllPixels(ByteBuffer allpixels) {
 		this.allpixels = allpixels;
 	}
@@ -27,8 +30,6 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 	 *            The ID of the current map
 	 * @param world
 	 *            The world to create new maps in
-	 * @param allpixels
-	 *            The raw pixel data from the machine in BGRA format
 	 * @param startindex
 	 *            The index to start from in allpixels
 	 */

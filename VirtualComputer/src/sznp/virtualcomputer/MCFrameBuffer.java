@@ -105,17 +105,15 @@ public class MCFrameBuffer implements IFramebuffer {
 				holder.value.getTypedWrapped().queryBitmapInfo(ptr, w, h, bpp, bpl, pf);
 				System.out.println("Arr0:" + ptr[0]);
 				System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
-				PluginMain.allpixels = new Pointer(ptr[0]).getByteBuffer(0L, width * height * 4);
-				if (width * height > 640 * 480)
-					PluginMain.allpixels.limit(640 * 480 * 4);
-				else
-					PluginMain.allpixels.limit((int) (width * height * 4));
-				for (IRenderer r : PluginMain.renderers)
-					if (r instanceof BukkitRenderer)
-						((BukkitRenderer) r).setAllPixels(PluginMain.allpixels);
-					else if (r instanceof DirectRenderer)
-						//((DirectRenderer) r).render(PluginMain.allpixels, xOrigin, yOrigin, width, height);
-						((DirectRenderer) r).setAllpixels(PluginMain.allpixels);
+				if(PluginMain.direct)
+				PluginMain.pxc.setSource(ptr[0], (int)w[0], (int)h[0], PluginMain.MCX, PluginMain.MCY);
+				else {
+					PluginMain.allpixels = new Pointer(ptr[0]).getByteBuffer(0L, width * height * 4);
+					if (width * height > 640 * 480)
+						PluginMain.allpixels.limit(640 * 480 * 4);
+					else
+						PluginMain.allpixels.limit((int) (width * height * 4));
+				}
 				System.out.println("Change!");
 			} catch (Throwable t) {
 				t.printStackTrace();

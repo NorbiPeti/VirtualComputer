@@ -15,8 +15,11 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 public class PluginMain extends JavaPlugin {
+	public static final int MCX = 5;
+	public static final int MCY = 4;
 	private IVirtualBox vbox;
 	private ISession session;
 	private IMachine machine;
@@ -25,8 +28,16 @@ public class PluginMain extends JavaPlugin {
 
 	public static PluginMain Instance;
 	//public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
+	/**
+	 * Only used if {@link #direct} is false.
+	 */
 	public static ByteBuffer allpixels; // It's set on each change
 	public static ArrayList<IRenderer> renderers = new ArrayList<>();
+	/**
+	 * Only used if {@link #direct} is true.
+	 */
+	public static PXCLib pxc;
+	public static boolean direct;
 
 	// Fired when plugin is first enabled
 	@Override
@@ -39,10 +50,12 @@ public class PluginMain extends JavaPlugin {
 			String vbpath = System.getProperty("os.name").toLowerCase().contains("mac")
 					? "/Applications/VirtualBox.app/Contents/MacOS"
 					: "/opt/virtualbox";
-			File f = new File(vbpath);
 			//noinspection ConstantConditions
-			if (!f.isDirectory() || Arrays.stream(f.list()).noneMatch(s -> s.contains("xpcom")))
+			Predicate<File> notGoodDir= ff->!ff.isDirectory() || Arrays.stream(ff.list()).noneMatch(s -> s.contains("xpcom"));
+			if (notGoodDir.test(new File(vbpath)))
 				vbpath = "/usr/lib/virtualbox";
+			if(notGoodDir.test(new File(vbpath)))
+				error("Could not find VirtualBox! Download from https://www.virtualbox.org/wiki/Downloads");
 			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
 				System.setProperty("vbox.home", vbpath);
 			if (System.getProperty("sun.boot.library.path") == null
@@ -57,22 +70,32 @@ public class PluginMain extends JavaPlugin {
 			vbox = manager.getVBox();
 			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
+			pxc = LibraryLoader.create(PXCLib.class).search(getDataFolder().getAbsolutePath()).load("pxc");
 			try {
 				//throw new NoClassDefFoundError("Test error pls ignore");
 				for (short i = 0; i < 20; i++)
 					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
+				direct=true;
 				ccs.sendMessage("§bUsing Direct Renderer, all good");
 			} catch (NoClassDefFoundError e) {
 				for (short i = 0; i < 20; i++)
 					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
-				ccs.sendMessage("§6Compability error, using slower renderer");
+				direct=false;
+				ccs.sendMessage("§6Compatibility error, using slower renderer");
 			}
 			ccs.sendMessage("§bLoaded!");
 			mousetask = getServer().getScheduler().runTaskTimer(this, new MouseLockerPlayerListener(), 0, 0);
 
 		} catch (final Exception e) {
 			e.printStackTrace();
+			error(e.getMessage());
 		}
+	}
+
+	private void error(String message) {
+		getLogger().severe("A fatal error occured, disabling plugin!");
+		Bukkit.getPluginManager().disablePlugin(this);
+		throw new RuntimeException(message);
 	}
 
 	// Fired when plugin is disabled

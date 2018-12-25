@@ -41,7 +41,7 @@ void setSource(addr address, short w, short h, short mcx, short mcy) {
 }
 
 //May return 0
-void* updateAndGetMap(int x, int y, int w, int h) { //TODO: Support the parameters
+void* updateAndGetMap(int x, int y, int w, int h, int** out_changed) { //TODO: Support the parameters
 	if(image==NULL || maps==NULL) return 0;
 	char* mapp = maps;
 	NativeColor* imgp = image;
