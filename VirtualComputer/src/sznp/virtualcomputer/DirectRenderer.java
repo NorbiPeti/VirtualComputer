@@ -1,18 +1,16 @@
 package sznp.virtualcomputer;
 
+import com.sun.jna.Pointer;
 import net.minecraft.server.v1_12_R1.WorldMap;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.map.RenderData;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
-import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
-import java.awt.*;
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class DirectRenderer implements IRenderer {
@@ -52,23 +50,17 @@ public class DirectRenderer implements IRenderer {
 	private final class DummyRenderer extends MapRenderer {
 		@Override
 		public void render(MapView map, MapCanvas canvas, Player player) {
-			if(allpixels != null)
-				DirectRenderer.this.render(allpixels, x, y, width, height); //Render after zeroing whole map
+			DirectRenderer.this.render(x, y, width, height); //Render after zeroing whole map
 		}
 	}
 
 	private Exception ex;
-	private ByteBuffer allpixels;
 	private long x, y, width, height;
 	private long lastrender;
 
-	public void setAllpixels(ByteBuffer bb) {
-		allpixels = bb;
-	}
-
 	@SuppressWarnings("deprecation")
-	public void render(ByteBuffer allpixels, long x, long y, long width, long height) { // TODO
-		this.allpixels = allpixels; //TODO: |CRASH| Prevent trying to read memory after computer is stopped
+	public void render(long x, long y, long width, long height) { // TODO
+		//TODO: |CRASH| Prevent trying to read memory after computer is stopped
 		this.x=x;
 		this.y=y;
 		this.width=width;
@@ -76,12 +68,15 @@ public class DirectRenderer implements IRenderer {
 		if(System.nanoTime()-lastrender<100*1000*1000)
 			return;
 		try {
+			long p = PluginMain.pxc.updateAndGetMap((int) x, (int) y, (int) width, (int) height, null);
+			if (p == 0) return;
+			byte[] img = new Pointer(p).getByteArray(0, 128 * 128);
 			boolean hascolor=false;
-			for (int i = startindex, j = 0; i < allpixels.limit() - 4 && j < buffer.length; i += 4, j++) {
+			for (int j = 0; j < buffer.length; j++) {
 				if (PluginMain.Instance.checkMachineNotRunning(null))
 					return;
-				buffer[j] = MapPalette.matchColor(new Color(Byte.toUnsignedInt(allpixels.get(i)), Byte.toUnsignedInt(allpixels.get(i + 1)), Byte.toUnsignedInt(allpixels.get(i + 2))));
-				if(allpixels.get(i+2)>10)
+				buffer[j] = img[j];
+				if (img[j] != 0)
 					hascolor=true;
 			}
 			if(hascolor)

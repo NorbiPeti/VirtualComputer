@@ -70,17 +70,18 @@ public class PluginMain extends JavaPlugin {
 			vbox = manager.getVBox();
 			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
-			pxc = LibraryLoader.create(PXCLib.class).search(getDataFolder().getAbsolutePath()).load("pxc");
 			try {
 				//throw new NoClassDefFoundError("Test error pls ignore");
 				for (short i = 0; i < 20; i++)
 					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
+				pxc = LibraryLoader.create(PXCLib.class).search(getDataFolder().getAbsolutePath()).load("pxc");
 				direct=true;
 				ccs.sendMessage("§bUsing Direct Renderer, all good");
-			} catch (NoClassDefFoundError e) {
+			} catch (NoClassDefFoundError | Exception e) {
 				for (short i = 0; i < 20; i++)
 					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
 				direct=false;
+				e.printStackTrace();
 				ccs.sendMessage("§6Compatibility error, using slower renderer");
 			}
 			ccs.sendMessage("§bLoaded!");

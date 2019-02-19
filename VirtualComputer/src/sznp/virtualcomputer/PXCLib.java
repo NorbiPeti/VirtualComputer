@@ -2,9 +2,6 @@ package sznp.virtualcomputer;
 
 import jnr.ffi.Pointer;
 
-import java.awt.*;
-import java.nio.Buffer;
-
 @SuppressWarnings("unused")
 public interface PXCLib {
 	/**
@@ -29,5 +26,5 @@ public interface PXCLib {
 	 * Updates map and returns it's content, where affected
 	 * @return Partial map data [mapc][data]
 	 */
-	Buffer updateAndGetMap(int x, int y, int width, int height, Pointer out_changed); //TODO: Only update parts that actually updated and return them per-map (flagDirty)
+	long updateAndGetMap(int x, int y, int width, int height, Pointer out_changed); //TODO: Only update parts that actually updated and return them per-map (flagDirty)
 }
