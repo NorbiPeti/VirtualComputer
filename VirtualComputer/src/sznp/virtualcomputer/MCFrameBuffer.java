@@ -15,7 +15,7 @@ public class MCFrameBuffer implements IFramebuffer {
 	private IDisplay display;
 	private Holder<IDisplaySourceBitmap> holder = new Holder<>();
 
-	public MCFrameBuffer(IDisplay display) {
+	public MCFrameBuffer(IDisplay display, boolean VBoxDirect) { //TODO: Implement param
 		this.display = display;
 	}
 

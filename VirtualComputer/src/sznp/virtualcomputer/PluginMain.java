@@ -3,6 +3,7 @@ package sznp.virtualcomputer;
 import com.google.common.collect.Lists;
 import jnr.ffi.LibraryLoader;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -117,63 +118,86 @@ public class PluginMain extends JavaPlugin {
 
 	public void Start(CommandSender sender) {// TODO: Add touchscreen support (#2)
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-			sender.sendMessage("§eStarting computer...");
-			if (machine == null)
-				machine = vbox.getMachines().get(0);
-			session.setName("minecraft");
-			// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
-			machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
-			final Runnable tr = new Runnable() {
-				public void run() {
-					if (session.getState() != SessionState.Locked) { // https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#ac82c179a797c0d7c249d1b98a8e3aa8f
-						Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.this, this, 5);
-						return; // "This state also occurs as a short transient state during an IMachine::lockMachine call."
+			try {
+				sendMessage(sender, "§eStarting computer...");
+				if (machine == null)
+					machine = vbox.getMachines().get(0);
+				session.setName("minecraft");
+				// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
+				machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
+				final Runnable tr = new Runnable() {
+					public void run() {
+						if (session.getState() != SessionState.Locked) { // https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#ac82c179a797c0d7c249d1b98a8e3aa8f
+							Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.this, this, 5);
+							return; // "This state also occurs as a short transient state during an IMachine::lockMachine call."
+						}
+						machine = session.getMachine(); // This is the Machine object we can work with
+						final IConsole console = session.getConsole();
+						console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
+						console.getDisplay().attachFramebuffer(0L,
+								new IFramebuffer(new MCFrameBuffer(console.getDisplay(), true)));
+						startScreenTask(console, sender);
 					}
-					machine = session.getMachine(); // This is the Machine object we can work with
-					final IConsole console = session.getConsole();
-					console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
-					console.getDisplay().attachFramebuffer(0L,
-							new IFramebuffer(new MCFrameBuffer(console.getDisplay())));
-					if (screenupdatetask == null)
-						screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.this, () -> {
-							if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
-									&& console.getState().equals(MachineState.Running))
-								console.getDisplay().invalidateAndUpdateScreen(0L);
-							if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
-									|| console.getState().equals(MachineState.PoweredOff)
-									|| console.getState().equals(MachineState.Saved)) {
-								if (session.getState().equals(SessionState.Locked)) {
-									session.unlockMachine();
-									sender.sendMessage("Computer powered off, released it.");
-								}
-								screenupdatetask.cancel();
-								screenupdatetask = null;
-							}
-						}, 100, 100); // Do a full update every 5 seconds
-					sender.sendMessage("§eComputer started.");
+				};
+				Bukkit.getScheduler().runTaskLaterAsynchronously(this, tr, 5);
+			} catch (VBoxException e) {
+				if (e.getResultCode() == 0x80070005) { //lockMachine: "The object functionality is limited"
+					sendMessage(sender, "§6Cannot start computer, the machine may be inaccessible");
+					return; //TODO: If we have VirtualBox open, it won't close the server's port
+					//TODO: Can't detect if machine fails to start because of hardening issues
+					//TODO: This error also occurs if the machine has failed to start at least once (always reassign the machine?)
+					//machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); //No privileges, start the 'old' way
+					//session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer(session.getConsole().getDisplay(), false)));
+					//sendMessage(sender, "§6Computer started with slower screen. Run as root to use a faster method.");
+				} else {
+					sendMessage(sender, "§cFailed to start computer: " + e.getMessage());
+					return;
 				}
-			};
-			Bukkit.getScheduler().runTaskLaterAsynchronously(this, tr, 5);
+			}
+			sendMessage(sender, "§eComputer started.");
 		});
+	}
+
+	private void startScreenTask(IConsole console, CommandSender sender) {
+		if (screenupdatetask == null)
+			screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.this, () -> {
+				if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
+						&& console.getState().equals(MachineState.Running))
+					console.getDisplay().invalidateAndUpdateScreen(0L);
+				if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
+						|| console.getState().equals(MachineState.PoweredOff)
+						|| console.getState().equals(MachineState.Saved)) {
+					if (session.getState().equals(SessionState.Locked)) {
+						session.unlockMachine();
+						sendMessage(sender, "Computer powered off, released it.");
+					}
+					screenupdatetask.cancel();
+					screenupdatetask = null;
+				}
+			}, 100, 100); // Do a full update every 5 seconds
+	}
+
+	private void sendMessage(CommandSender sender, String message) {
+		sender.sendMessage(message);
+		getLogger().warning(sender.getName() + ": " + ChatColor.stripColor(message));
 	}
 
 	public void Stop(CommandSender sender) {
 		if (checkMachineNotRunning(sender)) {
 			if (session.getState().equals(SessionState.Locked)) {
 				session.unlockMachine();
-				sender.sendMessage("§eComputer powered off, released it.");
+				sendMessage(sender, "§eComputer powered off, released it.");
 			}
 			return;
 		}
-		sender.sendMessage("§eStopping computer...");
+		sendMessage(sender, "§eStopping computer...");
 		session.getConsole().powerDown().waitForCompletion(2000);
 		session.unlockMachine();
-		sender.sendMessage("§eComputer stopped.");
+		sendMessage(sender, "§eComputer stopped.");
 	}
 
 	public void PowerButton(CommandSender sender) {
-		sender.sendMessage("§ePressing powerbutton...");
-		final CommandSender s = sender;
+		sendMessage(sender, "§ePressing powerbutton...");
 		getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
 			@Override
 			public void run() {
@@ -181,7 +205,7 @@ public class PluginMain extends JavaPlugin {
 					Start(sender);
 				} else {
 					session.getConsole().powerButton();
-					s.sendMessage("§ePowerbutton pressed.");
+					sendMessage(sender, "§ePowerbutton pressed.");
 				}
 			}
 		});
@@ -190,18 +214,18 @@ public class PluginMain extends JavaPlugin {
 	public void Reset(CommandSender sender) {
 		if (checkMachineNotRunning(sender))
 			return;
-		sender.sendMessage("§eResetting computer...");
+		sendMessage(sender, "§eResetting computer...");
 		session.getConsole().reset();
-		sender.sendMessage("§eComputer reset.");
+		sendMessage(sender, "§eComputer reset.");
 	}
 
 	public void FixScreen(CommandSender sender) {
 		if (checkMachineNotRunning(sender))
 			return;
-		sender.sendMessage("§eFixing screen...");
+		sendMessage(sender, "§eFixing screen...");
 		session.getConsole().getDisplay().setSeamlessMode(false);
 		session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L);
-		sender.sendMessage("§eScreen fixed.");
+		sendMessage(sender, "§eScreen fixed.");
 	}
 
 	public boolean checkMachineNotRunning(@Nullable CommandSender sender) {
