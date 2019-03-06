@@ -87,5 +87,10 @@
 			<artifactId>jnr-ffi</artifactId>
 			<version>2.1.7</version>
 		</dependency>
+		<dependency>
+		<groupId>com.aparapi</groupId>
+		<artifactId>aparapi</artifactId>
+		<version>1.10.0</version>
+	</dependency>
 	</dependencies>
 </project>

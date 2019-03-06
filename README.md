@@ -15,12 +15,12 @@ I plan on making a series where I show the whole process of creating this projec
 *If you don't meet these requirements, you may need to compile the files for yourself. If you do please send the compiled version to me so more people can download it.*
 
 * OS X; Ubuntu 16.04/18.04
-* VirtualBox 5.2
+* VirtualBox 6.0
 * Spgiot/Bukkit 1.8/1.9/1.12
 * Java 8
 
 ### Untested:
-* Any Linux versions
+* Other Linux versions
 * Other VirtualBox versions (code modifications are probably necessary)
 * Other Spigot/Bukkit versions
 * Other Java versions
@@ -66,3 +66,9 @@ Due to the way it works, it automatically plays every sound from the virtual mac
 ### Special thanks:
 * The creators of VirtualBox for making it open-source and kind of easy to use (though I had minor issues as the documentation doesn't really tell me how to write a new frontend :P and that I needed to learn how machines work - especially keyboards)
 * @iiegit for testing and more testing for the non-Windows version
+
+# Known issues
+## Port remains open (cannot bind to port)
+**Fix:** Close all VirtualBox instances and wait 10 seconds.
+
+**Cause:** Possibly it happens because the plugin creates the VBoxSVC process, which thus inherits file descriptors such as the open server port.
