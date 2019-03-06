@@ -38,6 +38,18 @@ void setSource(addr address, short w, short h, short mcx, short mcy) {
 	image=(void*)address;
 	maps=malloc(MAPSIZE*MAPSIZE*mcx*mcy); //1 byte per pixel
 	width=w, height=h, mapcx=mcx, mapcy=mcy;
+	printf("PXC: w=%d h=%d mcx=%d mcy=%d\n", w, h, mcx, mcy);
+}
+
+NativeColor* getNativeColor(int x, int y) {
+	if(x<0||x>width||y<0||y>height) return NULL;
+	return ((NativeColor*)image)+x+y*width;
+}
+
+char* getMapColor(int x, int y) {
+	if(x<0||x>width||y<0||y>height) return NULL;
+	int mc=x/MAPSIZE+y/MAPSIZE*mapcx;
+	return maps+mc*MAPSIZE*MAPSIZE; //TODO: Use
 }
 
 //May return 0
@@ -45,16 +57,25 @@ void* updateAndGetMap(int x, int y, int w, int h, int** out_changed) { //TODO: S
 	if(image==NULL || maps==NULL) return 0;
 	char* mapp = maps;
 	NativeColor* imgp = image;
+	printf("PXC: mapp=%p imgp=%p\n", mapp, imgp);
 	for(int k=0; k<mapcx; k++) {
+		printf("PXC: k=%d\n", k);
 		for(int l=0; l<mapcy; l++) {
+			printf("PXC: l=%d\n", l);
 			mapp = maps + MAPSIZE*k + MAPSIZE*mapcx*MAPSIZE*l; //Go to the start of the map
+			printf("PXC: mapp=%p imgp=%p - %d\n", mapp, imgp, *mapp);
 			for(short i=0; i<MAPSIZE; i++) { //We need to jump
 				for(short j=0; j<MAPSIZE; j++) {
-					*mapp=matchColor(*imgp);
+					//*mapp=matchColor(*imgp); - TODO
+					NativeColor x={.red=0, .green=0, .blue=255};
+					*mapp=matchColor(x);
+					printf("PXC: imgp: %ld - %x\n", (void*)imgp-image, *imgp); //TODO: The bottom of the image
+					printf("PXC: mapcx: %d mapcy: %d\n", k, l); //TODO: Has nothing
 					imgp++; //Increment by the size of NativeColor so 4
 					mapp++;
 				}
 				imgp+=width-MAPSIZE; //Go back to the first column
+				//printf("Row done, imgp=%p\n", imgp);
 			}
 			imgp+=MAPSIZE; //Go to the next map, kind of - TODO: Use X and Y coords!
 			if((void*)mapp - maps     >    MAPSIZE * MAPSIZE * mapcx * mapcy ||
@@ -64,6 +85,7 @@ void* updateAndGetMap(int x, int y, int w, int h, int** out_changed) { //TODO: S
 			}
 		}
 	}
+	printf("PXC: ret maps=%p\n", maps);
 	return maps; //TODO: Return changed only
 }
 
