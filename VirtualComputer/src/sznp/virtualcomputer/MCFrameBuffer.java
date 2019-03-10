@@ -105,9 +105,11 @@ public class MCFrameBuffer implements IFramebuffer {
 				holder.value.getTypedWrapped().queryBitmapInfo(ptr, w, h, bpp, bpl, pf);
 				System.out.println("Arr0:" + ptr[0]);
 				System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
-				if(PluginMain.direct)
-				PluginMain.pxc.setSource(ptr[0], (int)w[0], (int)h[0], PluginMain.MCX, PluginMain.MCY);
-				else {
+				if (PluginMain.direct) {
+					//PluginMain.pxc.setSource(ptr[0], (int)w[0], (int)h[0], PluginMain.MCX, PluginMain.MCY);
+					PluginMain.pixels = new Pointer(ptr[0]).getByteArray(0L, (int) (w[0] * h[0] * 4));
+					GPURenderer.setWidth((int) w[0]);
+				} else {
 					PluginMain.allpixels = new Pointer(ptr[0]).getByteBuffer(0L, width * height * 4);
 					if (width * height > 640 * 480)
 						PluginMain.allpixels.limit(640 * 480 * 4);

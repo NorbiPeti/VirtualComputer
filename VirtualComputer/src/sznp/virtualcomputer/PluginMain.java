@@ -37,8 +37,12 @@ public class PluginMain extends JavaPlugin {
 	/**
 	 * Only used if {@link #direct} is true.
 	 */
-	public static PXCLib pxc;
+	//public static PXCLib pxc;
 	public static boolean direct;
+	/**
+	 * Only used if {@link #direct} is true.
+	 */
+	public static byte[] pixels;
 
 	// Fired when plugin is first enabled
 	@Override
@@ -73,9 +77,10 @@ public class PluginMain extends JavaPlugin {
 			ccs.sendMessage("§bLoading Screen...");
 			try {
 				//throw new NoClassDefFoundError("Test error pls ignore");
-				for (short i = 0; i < 20; i++)
-					renderers.add(new DirectRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4)); // TODO: The pixels are selected in a horribly wrong way probably
-				pxc = LibraryLoader.create(PXCLib.class).search(getDataFolder().getAbsolutePath()).load("pxc");
+				for (short i = 0; i < 5; i++)
+					for (short j = 0; j < 4; j++)
+						renderers.add(new GPURenderer(i, Bukkit.getWorlds().get(0), i, j));
+				//pxc = LibraryLoader.create(PXCLib.class).search(getDataFolder().getAbsolutePath()).load("pxc");
 				direct=true;
 				ccs.sendMessage("§bUsing Direct Renderer, all good");
 			} catch (NoClassDefFoundError | Exception e) {

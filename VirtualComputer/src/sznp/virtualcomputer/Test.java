@@ -2,7 +2,6 @@ package sznp.virtualcomputer;
 
 import com.aparapi.Kernel;
 import com.aparapi.Range;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import jnr.ffi.LibraryLoader;
 import org.bukkit.Color;
@@ -12,9 +11,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 public class Test {
 	public static void main(String[] args) {
@@ -28,7 +25,6 @@ public class Test {
 		//final int[] b={10,80,10,3,32,20,56,85,51,968,156,5894,10,60,52};
 		//final int[] a={5,6};
 		//final int[] b={10,80};
-		long t=System.nanoTime();
 		int[] a= IntStream.range(0, 640*480).toArray();
 		final int[] res=new int[a.length];
 		Kernel kernel=new Kernel() {
@@ -37,14 +33,20 @@ public class Test {
 				int i=getGlobalId();
 				//System.out.println(i);
 				//res[i]=a[i]+b[i];
-				Color c=Color.fromBGR((int)a[i]);
-				res[i]= MapPalette.matchColor(c.getRed(), c.getGreen(), c.getBlue());
+				//res[i]= MapPalette.matchColor(a[i] & 0x0000FF, a[i] & 0x00FF00 >> 8, a[i] & 0xFF0000 >> 16);
+				res[i] = a[i];
 			}
 		};
-		kernel.execute(Range.create(res.length));
+		long t = System.nanoTime();
+		kernel.put(a).execute(Range.create(res.length)).get(res);
 		//System.out.println(Arrays.toString(res));
 		System.out.println(a[10]);
 		System.out.println("OpenCL time: "+(System.nanoTime()-t)/1000000f+"ms");
+		a[50] = 652; //Massive speedups after the fist pass
+		t = System.nanoTime();
+		kernel.put(a).execute(Range.create(res.length)).get(res);
+		System.out.println(a[10]);
+		System.out.println("Second OpenCL time: " + (System.nanoTime() - t) / 1000000f + "ms");
 
 		t=System.nanoTime();
 		for (int i = 0; i < res.length; i++) {
@@ -58,15 +60,29 @@ public class Test {
 		System.out.println("Sys time: "+(System.nanoTime()-t)/1000000f+"ms");
 
 		PXCLib pxc = LibraryLoader.create(PXCLib.class).search(new File("").getAbsolutePath()).load("pxc");
-		ByteBuffer bb=ByteBuffer.allocateDirect(640*480);
+		ByteBuffer bb = ByteBuffer.allocateDirect(640 * 480 * 4);
 		try {
 			Field f=Buffer.class.getDeclaredField("address");
 			f.setAccessible(true);
 			long addr= (long) f.get(bb);
 			pxc.setSource(addr, 640, 480, 5, 4);
-			pxc.updateAndGetMap(0, 0, 640, 480, null);
+			t = System.nanoTime();
+			long p = pxc.updateAndGetMap(0, 0, 640, 480, null);
+			if (p == 0) return;
+			byte[] img = new Pointer(p).getByteArray(0, 128 * 128);
+			System.out.println("img[50]: " + img[50]);
+			System.out.println("Native time: " + (System.nanoTime() - t) / 1000000f + "ms");
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+
+		kernel = new Kernel() {
+			@Override
+			public void run() {
+				PXCLib pxc = LibraryLoader.create(PXCLib.class).search(new File("").getAbsolutePath()).load("pxc");
+				pxc.updateAndGetMap(0, 0, 0, 0, null);
+			}
+		};
+		kernel.execute(Range.create(1));
 	}
 }

@@ -28,6 +28,9 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<compilerArgs>
+						<arg>-g</arg> <!-- TODO: Still warns about this -->
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -92,5 +95,10 @@
 		<artifactId>aparapi</artifactId>
 		<version>1.10.0</version>
 	</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.16</version>
+		</dependency>
 	</dependencies>
 </project>

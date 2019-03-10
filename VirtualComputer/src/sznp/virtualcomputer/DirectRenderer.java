@@ -68,7 +68,8 @@ public class DirectRenderer implements IRenderer {
 		if(System.nanoTime()-lastrender<100*1000*1000)
 			return;
 		try {
-			long p = PluginMain.pxc.updateAndGetMap((int) x, (int) y, (int) width, (int) height, null);
+			//long p = PluginMain.pxc.updateAndGetMap((int) x, (int) y, (int) width, (int) height, null);
+			long p = 0; //TODO: Not used (class)
 			if (p == 0) return;
 			byte[] img = new Pointer(p).getByteArray(0, 128 * 128);
 			boolean hascolor=false;
