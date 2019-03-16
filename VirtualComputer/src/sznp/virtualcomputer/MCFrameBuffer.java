@@ -86,7 +86,9 @@ public class MCFrameBuffer implements IFramebuffer {
 	}
 
 	private BukkitTask tt;
-	private BukkitTask tttt;
+	private Pointer pointer;
+	private int width;
+	private int height;
 
 	@Override
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
@@ -107,8 +109,10 @@ public class MCFrameBuffer implements IFramebuffer {
 				System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
 				if (PluginMain.direct) {
 					//PluginMain.pxc.setSource(ptr[0], (int)w[0], (int)h[0], PluginMain.MCX, PluginMain.MCY);
-					PluginMain.pixels = new Pointer(ptr[0]).getByteArray(0L, (int) (w[0] * h[0] * 4));
-					GPURenderer.setWidth((int) w[0]);
+					pointer = new Pointer(ptr[0]);
+					this.width = (int) w[0];
+					this.height = (int) h[0];
+					GPURendererInternal.setPixels(pointer.getByteArray(0L, (int) (w[0] * h[0] * 4)), (int) w[0], (int) h[0]);
 				} else {
 					PluginMain.allpixels = new Pointer(ptr[0]).getByteBuffer(0L, width * height * 4);
 					if (width * height > 640 * 480)
@@ -125,14 +129,15 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public void notifyUpdate(long x, long y, long width, long height) {
-		if(tttt != null)
-			tttt.cancel(); //We are getting updates, but the pixel array isn't updated - VB reacts slowly
+		/*if(tttt != null)
+			tttt.cancel();*/ //We are getting updates, but the pixel array isn't updated - VB reacts slowly
 		/*tttt = Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
 			for (IRenderer r : PluginMain.renderers)
 				if (r instanceof DirectRenderer)
 					((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
 			System.out.println("Update!"); - The render is done each tick
 		}, 5);*/
+		GPURendererInternal.setPixels(pointer.getByteArray(0L, (this.width * this.height * 4)), this.width, this.height); //TODO: Only copy changed part
 	}
 
 	@Override

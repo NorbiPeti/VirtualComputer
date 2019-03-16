@@ -14,6 +14,9 @@ import java.nio.ByteBuffer;
 import java.util.stream.IntStream;
 
 public class Test {
+	private int[] x = new int[]{10};
+
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		/*System.out.println(new File("").getAbsolutePath());
 		PXCLib pxc = LibraryLoader.create(PXCLib.class).search(new File("").getAbsolutePath()).load("pxc");
@@ -25,8 +28,18 @@ public class Test {
 		//final int[] b={10,80,10,3,32,20,56,85,51,968,156,5894,10,60,52};
 		//final int[] a={5,6};
 		//final int[] b={10,80};
-		int[] a= IntStream.range(0, 640*480).toArray();
-		final int[] res=new int[a.length];
+		int[] a = IntStream.range(0, 640 * 480).toArray();
+		final int[] res = new int[a.length];
+		//java.awt.Color tc=new java.awt.Color(0);
+		/*GPURenderer gr;
+		try {
+			gr=new GPURenderer((short) 0, null, 0, 0);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}*/
+		//gr.pixels=new byte[1];
+		int[] x = new Test().x;
 		Kernel kernel=new Kernel() {
 			@Override
 			public void run() {
@@ -34,7 +47,12 @@ public class Test {
 				//System.out.println(i);
 				//res[i]=a[i]+b[i];
 				//res[i]= MapPalette.matchColor(a[i] & 0x0000FF, a[i] & 0x00FF00 >> 8, a[i] & 0xFF0000 >> 16);
-				res[i] = a[i];
+				//res[i] = a[i];
+				//res[i]=tc.getBlue();
+				//gr.pixels[0]=5;
+				res[i] = x[0];
+				//GPURenderer.px[0]=10;
+				//GPURendererInternal.test[0]=10; - LAMBDAS
 			}
 		};
 		long t = System.nanoTime();
@@ -50,7 +68,7 @@ public class Test {
 
 		t=System.nanoTime();
 		for (int i = 0; i < res.length; i++) {
-			Color c=Color.fromBGR((int)a[i]);
+			Color c = Color.fromBGR(a[i]);
 			res[i]= MapPalette.matchColor(c.getRed(), c.getGreen(), c.getBlue());
 		}
 		System.out.println("For loop time: "+(System.nanoTime()-t)/1000000f+"ms");

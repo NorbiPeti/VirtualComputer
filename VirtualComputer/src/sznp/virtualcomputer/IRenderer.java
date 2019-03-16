@@ -6,6 +6,7 @@ import org.bukkit.map.MapView;
 
 public interface IRenderer {
 	static MapView prepare(short id, World world) {
+		if (world == null) return null; //Testing
 		@SuppressWarnings("deprecation")
 		MapView map = Bukkit.getMap(id);
 		if (map == null)
