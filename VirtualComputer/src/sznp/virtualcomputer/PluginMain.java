@@ -34,7 +34,7 @@ public class PluginMain extends JavaPlugin {
 	 */
 	public static ByteBuffer allpixels; // It's set on each change
 	public static ArrayList<IRenderer> renderers = new ArrayList<>();
-	/**
+	/*
 	 * Only used if {@link #direct} is true.
 	 */
 	//public static PXCLib pxc;
@@ -117,12 +117,19 @@ public class PluginMain extends JavaPlugin {
 		saveConfig();
 	}
 
-	public void Start(CommandSender sender) {// TODO: Add touchscreen support (#2)
+	public void Start(CommandSender sender, int index) {// TODO: Add touchscreen support (#2)
+		if (session.getState() == SessionState.Locked) {
+			sender.sendMessage("§cThe machine is already running!");
+			return;
+		}
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+			if (vbox.getMachines().size() <= index) {
+				sendMessage(sender, "§cMachine not found!");
+				return;
+			}
 			try {
 				sendMessage(sender, "§eStarting computer...");
-				if (machine == null)
-					machine = vbox.getMachines().get(0);
+				machine = vbox.getMachines().get(index);
 				session.setName("minecraft");
 				// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
 				machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
@@ -159,12 +166,15 @@ public class PluginMain extends JavaPlugin {
 		});
 	}
 
+	/**
+	 * Right now only checks if the computer has turned off.
+	 */
 	private void startScreenTask(IConsole console, CommandSender sender) {
 		if (screenupdatetask == null)
 			screenupdatetask = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.this, () -> {
-				if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
+				/*if (session.getState().equals(SessionState.Locked) // Don't run until the machine is running
 						&& console.getState().equals(MachineState.Running))
-					console.getDisplay().invalidateAndUpdateScreen(0L);
+					console.getDisplay().invalidateAndUpdateScreen(0L);*/
 				if (session.getState().equals(SessionState.Unlocked) // Stop if the machine stopped fully
 						|| console.getState().equals(MachineState.PoweredOff)
 						|| console.getState().equals(MachineState.Saved)) {
@@ -197,13 +207,13 @@ public class PluginMain extends JavaPlugin {
 		sendMessage(sender, "§eComputer stopped.");
 	}
 
-	public void PowerButton(CommandSender sender) {
+	public void PowerButton(CommandSender sender, int index) {
 		sendMessage(sender, "§ePressing powerbutton...");
 		getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
 			@Override
 			public void run() {
 				if (session.getState() != SessionState.Locked || session.getMachine() == null) {
-					Start(sender);
+					Start(sender, index);
 				} else {
 					session.getConsole().powerButton();
 					sendMessage(sender, "§ePowerbutton pressed.");

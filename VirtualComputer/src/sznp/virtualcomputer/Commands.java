@@ -10,16 +10,19 @@ public class Commands implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		switch (cmd.getName().toLowerCase()) {
-		case "computer": {
-			if (args.length == 0)
-				return false;
-			switch (args[0].toLowerCase()) {
+		if (args.length == 0)
+			return false;
+		switch (args[0].toLowerCase()) {
 			case "start":
 			case "poweron":
 			case "on":
 			case "startup":
-				PluginMain.Instance.Start(sender);
+				int c = getMachineIndex(args);
+				if (c == -1) {
+					sender.sendMessage("§cUsage: /" + label + " start [index]");
+					return true;
+				}
+				PluginMain.Instance.Start(sender, c);
 				break;
 			case "stop":
 			case "poweroff":
@@ -31,7 +34,12 @@ public class Commands implements CommandExecutor {
 			case "powerbutton":
 			case "pwrbtn":
 			case "powerbtn":
-				PluginMain.Instance.PowerButton(sender);
+				c = getMachineIndex(args);
+				if (c == -1) {
+					sender.sendMessage("§cUsage: /" + label + " powerbutton [index]");
+					return true;
+				}
+				PluginMain.Instance.PowerButton(sender, c);
 				break;
 			case "reset":
 			case "restart":
@@ -91,46 +99,56 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				switch (args[1].toLowerCase()) {
-				case "key":
-				case "keyboard":
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
-							+ " [\"\",{\"text\":\" [0]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D0\"}},{\"text\":\" [1]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D1\"}},{\"text\":\" [2]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D2\"}},{\"text\":\" [3]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D3\"}},{\"text\":\" [4]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D4\"}},{\"text\":\" [5]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D5\"}},{\"text\":\" [6]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D6\"}},{\"text\":\" [7]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D7\"}},{\"text\":\" [8]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D8\"}},{\"text\":\" [9]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D9\"}}]");
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
-							+ " [\"\",{\"text\":\" [Tab]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Tab\"}},{\"text\":\" [Q]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Q\"}},{\"text\":\" [W]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key W\"}},{\"text\":\" [E]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key E\"}},{\"text\":\" [R]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key R\"}},{\"text\":\" [T]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key T\"}},{\"text\":\" [Y]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Y\"}},{\"text\":\" [U]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key U\"}},{\"text\":\" [I]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key I\"}},{\"text\":\" [O]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key O\"}},{\"text\":\" [P]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key P\"}}]");
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
-							+ " [\"\",{\"text\":\" [CapsLock]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key CapsLock\"}},{\"text\":\" [A]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key A\"}},{\"text\":\" [S]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key S\"}},{\"text\":\" [D]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D\"}},{\"text\":\" [F]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key F\"}},{\"text\":\" [G]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key G\"}},{\"text\":\" [H]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key H\"}},{\"text\":\" [J]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key J\"}},{\"text\":\" [K]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key K\"}},{\"text\":\" [L]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key L\"}},{\"text\":\" [Return]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Return\"}}]");
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
-							+ " [\"\",{\"text\":\"           [Z]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Z\"}},{\"text\":\" [X]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key X\"}},{\"text\":\" [C]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key C\"}},{\"text\":\" [V]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key V\"}},{\"text\":\" [B]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key B\"}},{\"text\":\" [N]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key N\"}},{\"text\":\" [M]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key M\"}}]");
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
-							+ " [\"\",{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlLeft\"}},{\"text\":\" [Alt]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltLeft\"}},{\"text\":\" [Space]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Space\"}},{\"text\":\" [AltGr]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltRight\"}},{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlRight\"}}]");
-				case "mouse":
-					if (!(sender instanceof Player)) {
-						sender.sendMessage("§cOnly ingame players can use this command.");
-						return true;
-					}
-					if (!MouseLockerPlayerListener.LockedPlayers.containsKey(sender)) {
-						MouseLockerPlayerListener.LockedPlayers.put((Player) sender, ((Player) sender).getLocation());
-						sender.sendMessage("§aMouse locked.");
-					} else {
-						MouseLockerPlayerListener.LockedPlayers.remove(sender);
-						sender.sendMessage("§bMouse unlocked.");
-					}
-					break;
-				case "mspeed":
-				case "mousespeed":
-					if (args.length < 3) {
-						sender.sendMessage("§cUsage: /computer input mspeed <integer>");
-						return true;
-					}
-					MouseLockerPlayerListener.LockedSpeed = Float.parseFloat(args[2]);
-					sender.sendMessage("§aMouse speed set to " + MouseLockerPlayerListener.LockedSpeed);
+					case "key":
+					case "keyboard":
+						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
+								+ " [\"\",{\"text\":\" [0]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D0\"}},{\"text\":\" [1]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D1\"}},{\"text\":\" [2]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D2\"}},{\"text\":\" [3]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D3\"}},{\"text\":\" [4]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D4\"}},{\"text\":\" [5]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D5\"}},{\"text\":\" [6]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D6\"}},{\"text\":\" [7]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D7\"}},{\"text\":\" [8]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D8\"}},{\"text\":\" [9]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D9\"}}]");
+						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
+								+ " [\"\",{\"text\":\" [Tab]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Tab\"}},{\"text\":\" [Q]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Q\"}},{\"text\":\" [W]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key W\"}},{\"text\":\" [E]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key E\"}},{\"text\":\" [R]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key R\"}},{\"text\":\" [T]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key T\"}},{\"text\":\" [Y]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Y\"}},{\"text\":\" [U]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key U\"}},{\"text\":\" [I]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key I\"}},{\"text\":\" [O]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key O\"}},{\"text\":\" [P]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key P\"}}]");
+						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
+								+ " [\"\",{\"text\":\" [CapsLock]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key CapsLock\"}},{\"text\":\" [A]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key A\"}},{\"text\":\" [S]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key S\"}},{\"text\":\" [D]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key D\"}},{\"text\":\" [F]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key F\"}},{\"text\":\" [G]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key G\"}},{\"text\":\" [H]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key H\"}},{\"text\":\" [J]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key J\"}},{\"text\":\" [K]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key K\"}},{\"text\":\" [L]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key L\"}},{\"text\":\" [Enter]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Enter\"}}]");
+						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
+								+ " [\"\",{\"text\":\"           [Z]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Z\"}},{\"text\":\" [X]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key X\"}},{\"text\":\" [C]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key C\"}},{\"text\":\" [V]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key V\"}},{\"text\":\" [B]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key B\"}},{\"text\":\" [N]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key N\"}},{\"text\":\" [M]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key M\"}}]");
+						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName()
+								+ " [\"\",{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlLeft\"}},{\"text\":\" [Alt]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltLeft\"}},{\"text\":\" [Space]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Space\"}},{\"text\":\" [AltGr]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltRight\"}},{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlRight\"}}]");
+					case "mouse":
+						if (!MouseLockerPlayerListener.LockedPlayers.containsKey(sender)) {
+							MouseLockerPlayerListener.LockedPlayers.put((Player) sender, ((Player) sender).getLocation());
+							sender.sendMessage("§aMouse locked.");
+						} else {
+							MouseLockerPlayerListener.LockedPlayers.remove(sender);
+							sender.sendMessage("§bMouse unlocked.");
+						}
+						break;
+					case "mspeed":
+					case "mousespeed":
+						if (args.length < 3) {
+							sender.sendMessage("§cUsage: /computer input mspeed <integer>");
+							return true;
+						}
+						MouseLockerPlayerListener.LockedSpeed = Float.parseFloat(args[2]);
+						sender.sendMessage("§aMouse speed set to " + MouseLockerPlayerListener.LockedSpeed);
 				}
 				break;
 			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks the 2nd parameter
+	 *
+	 * @return The index of the machine or -1 on usage error
+	 */
+	private int getMachineIndex(String[] args) {
+		int c = 0;
+		if (args.length >= 2) {
+			try {
+				c = Integer.parseInt(args[1]);
+			} catch (Exception ignored) {
+				return -1;
 			}
-			return true;
 		}
-		}
-		return false;
+		return c;
 	}
 }

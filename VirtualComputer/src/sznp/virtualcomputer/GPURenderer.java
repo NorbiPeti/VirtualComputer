@@ -34,7 +34,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 			Color[] cs = (Color[]) field.get(null);
 			colors_ = new int[cs.length];
 			for (int i = 0; i < colors_.length; i++) {
-				colors_[i] = cs[i].getRGB(); //TODO: BGR or RGB?
+				colors_[i] = cs[i].getRGB();
 			}
 		}
 		kernel = new GPURendererInternal(mapx, mapy, colors_);

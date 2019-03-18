@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.NorbiPeti</groupId>
 	<artifactId>VirtualComputer</artifactId>
@@ -29,7 +29,7 @@
 					<source>1.8</source>
 					<target>1.8</target>
 					<compilerArgs>
-						<arg>-g</arg> <!-- TODO: Still warns about this -->
+						<arg>-g</arg> <!-- LocalVariableTable -->
 					</compilerArgs>
 				</configuration>
 			</plugin>
@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>org.virtualbox</groupId>
 			<artifactId>VirtualBox</artifactId>
-            <version>6.0</version>
+			<version>6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>
@@ -91,14 +91,19 @@
 			<version>2.1.7</version>
 		</dependency>
 		<dependency>
-		<groupId>com.aparapi</groupId>
-		<artifactId>aparapi</artifactId>
-		<version>1.10.0</version>
-	</dependency>
+			<groupId>com.aparapi</groupId>
+			<artifactId>aparapi</artifactId>
+			<version>1.10.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.16.16</version>
+		</dependency>
+		<dependency> <!-- javax.annotations.Nullable -->
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.0</version>
 		</dependency>
 	</dependencies>
 </project>
