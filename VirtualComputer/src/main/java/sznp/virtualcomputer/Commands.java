@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import sznp.virtualcomputer.events.Computer;
 
 public class Commands implements CommandExecutor {
 
@@ -22,14 +23,14 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage("§cUsage: /" + label + " start [index]");
 					return true;
 				}
-				PluginMain.Instance.Start(sender, c);
+				Computer.getInstance().Start(sender, c);
 				break;
 			case "stop":
 			case "poweroff":
 			case "off":
 			case "shutdown":
 			case "kill":
-				PluginMain.Instance.Stop(sender);
+				Computer.getInstance().Stop(sender);
 				break;
 			case "powerbutton":
 			case "pwrbtn":
@@ -39,15 +40,15 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage("§cUsage: /" + label + " powerbutton [index]");
 					return true;
 				}
-				PluginMain.Instance.PowerButton(sender, c);
+				Computer.getInstance().PowerButton(sender, c);
 				break;
 			case "reset":
 			case "restart":
-				PluginMain.Instance.Reset(sender);
+				Computer.getInstance().Reset(sender);
 				break;
 			case "fix":
 			case "fixscreen":
-				PluginMain.Instance.FixScreen(sender);
+				Computer.getInstance().FixScreen(sender);
 				break;
 			case "key":
 			case "press":
@@ -58,9 +59,9 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				if (args.length < 3)
-					PluginMain.Instance.PressKey(sender, args[1], "");
+					Computer.getInstance().PressKey(sender, args[1], "");
 				else
-					PluginMain.Instance.PressKey(sender, args[1], args[2]);
+					Computer.getInstance().PressKey(sender, args[1], args[2]);
 				break;
 			case "mouse":
 				boolean showusage = true;
@@ -68,15 +69,15 @@ public class Commands implements CommandExecutor {
 					// Command overloading, because I can :P
 					if (args.length > 4) // 4<x<6
 					{
-						PluginMain.Instance.UpdateMouse(sender, Integer.parseInt(args[1]), Integer.parseInt(args[2]),
+						Computer.getInstance().UpdateMouse(sender, Integer.parseInt(args[1]), Integer.parseInt(args[2]),
 								Integer.parseInt(args[3]), Integer.parseInt(args[4]), "", false);
 						showusage = false;
 					} else {
 						if (args.length == 3) {
-							PluginMain.Instance.UpdateMouse(sender, 0, 0, 0, 0, args[1], args[2].equals("down"));
+							Computer.getInstance().UpdateMouse(sender, 0, 0, 0, 0, args[1], args[2].equals("down"));
 							showusage = false;
 						} else if (args.length == 2) {
-							PluginMain.Instance.UpdateMouse(sender, 0, 0, 0, 0, args[1]);
+							Computer.getInstance().UpdateMouse(sender, 0, 0, 0, 0, args[1]);
 							showusage = false;
 						}
 					}
