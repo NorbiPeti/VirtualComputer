@@ -2,6 +2,7 @@ package sznp.virtualcomputer.events;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -9,10 +10,10 @@ import org.virtualbox_6_0.*;
 import sznp.virtualcomputer.PluginMain;
 import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.Scancode;
+import sznp.virtualcomputer.util.Utils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Collections;
 
 public final class Computer {
     @Getter
@@ -46,25 +47,11 @@ public final class Computer {
                 session.setName("minecraft");
                 // machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
                 machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
-                final Runnable tr = new Runnable() {
-                    public void run() {
-                        if (session.getState() != SessionState.Locked) { // https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#ac82c179a797c0d7c249d1b98a8e3aa8f
-                            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, 5);
-                            return; // "This state also occurs as a short transient state during an IMachine::lockMachine call."
-                        }
-                        machine = session.getMachine(); // This is the Machine object we can work with
-                        final IConsole console = session.getConsole();
-                        console.getEventSource().registerListener(new IEventListener(new MachineEventHandler(Computer.this)), Collections.singletonList(VBoxEventType.MachineEvent), true);
-                        console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
-                        console.getDisplay().attachFramebuffer(0L,
-                                new IFramebuffer(new MCFrameBuffer(console.getDisplay(), true)));
-                    }
-                };
-                Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, tr, 5);
+                VBoxEventHandler.getInstance().setup(machine.getId(), sender);
             } catch (VBoxException e) {
                 if (e.getResultCode() == 0x80070005) { //lockMachine: "The object functionality is limited"
                     sendMessage(sender, "§6Cannot start computer, the machine may be inaccessible");
-                    return; //TODO: If we have VirtualBox open, it won't close the server's port
+                    //TODO: If we have VirtualBox open, it won't close the server's port
                     //TODO: Can't detect if machine fails to start because of hardening issues
                     //TODO: This error also occurs if the machine has failed to start at least once (always reassign the machine?)
                     //machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); //No privileges, start the 'old' way
@@ -72,11 +59,26 @@ public final class Computer {
                     //sendMessage(sender, "§6Computer started with slower screen. Run as root to use a faster method.");
                 } else {
                     sendMessage(sender, "§cFailed to start computer: " + e.getMessage());
-                    return;
                 }
             }
-            sendMessage(sender, "§eComputer started.");
         });
+    }
+
+    /**
+     * Gets called when the machine is locked after {@link #Start(CommandSender, int)}
+     *
+     * @param sender The sender which started the machine
+     */
+    public void onLock(CommandSender sender) {
+        machine = session.getMachine(); // This is the Machine object we can work with
+        final IConsole console = session.getConsole();
+        val handler = new MachineEventHandler(Computer.this);
+        Utils.registerListener(console.getEventSource(), handler, VBoxEventType.MachineEvent);
+        IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
+        Utils.registerListener(progress.getEventSource(), handler, VBoxEventType.OnProgressTaskCompleted); //TODO: Show progress bar some way?
+        console.getDisplay().attachFramebuffer(0L,
+                new IFramebuffer(new MCFrameBuffer(console.getDisplay(), true)));
+        sendMessage(sender, "§eComputer started.");
     }
 
     private void sendMessage(@Nullable CommandSender sender, String message) {

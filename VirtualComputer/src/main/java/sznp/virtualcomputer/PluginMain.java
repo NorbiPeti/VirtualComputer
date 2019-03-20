@@ -1,10 +1,7 @@
 package sznp.virtualcomputer;
 
-import com.google.common.collect.Lists;
 import jnr.ffi.LibraryLoader;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -13,18 +10,13 @@ import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.BukkitRenderer;
 import sznp.virtualcomputer.renderer.GPURenderer;
 import sznp.virtualcomputer.renderer.IRenderer;
-import sznp.virtualcomputer.renderer.MCFrameBuffer;
-import sznp.virtualcomputer.util.Scancode;
+import sznp.virtualcomputer.util.Utils;
 import sznp.virtualcomputer.util.VBoxLib;
 
-import javax.annotation.Nullable;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.function.Predicate;
 
 public class PluginMain extends JavaPlugin {
@@ -73,12 +65,12 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("sun.boot.library.path", vbpath);
 			if (System.getProperty("java.library.path") == null || System.getProperty("java.library.path").isEmpty())
 				System.setProperty("java.library.path", vbpath);
-			addLibraryPath(vbpath);
+			Utils.addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
 			vbl.RTR3InitExe(0, "", 0);
 			vbox = manager.getVBox();
-			vbox.getEventSource().registerListener(new IEventListener(new VBoxEventHandler()), Arrays.asList(VBoxEventType.OnMachineStateChanged), true);
+			Utils.registerListener(vbox.getEventSource(), new VBoxEventHandler(), VBoxEventType.OnMachineStateChanged);
 			session = manager.getSessionObject(); // TODO: Events
 			ccs.sendMessage("§bLoading Screen...");
 			try {
@@ -127,30 +119,4 @@ public class PluginMain extends JavaPlugin {
 		saveConfig();
 	}
 
-	/**
-	 * Adds the specified path to the java library path
-	 *
-	 * @param pathToAdd
-	 *            the path to add
-	 * @throws Exception
-	 */
-	public static void addLibraryPath(String pathToAdd) throws Exception {
-		final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
-		usrPathsField.setAccessible(true);
-
-		// get array of paths
-		final String[] paths = (String[]) usrPathsField.get(null);
-
-		// check if the path to add is already present
-		for (String path : paths) {
-			if (path.equals(pathToAdd)) {
-				return;
-			}
-		}
-
-		// add the new path
-		final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
-		newPaths[newPaths.length - 1] = pathToAdd;
-		usrPathsField.set(null, newPaths);
-	}
 }

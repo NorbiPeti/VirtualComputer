@@ -5,8 +5,6 @@ import lombok.val;
 import org.mozilla.interfaces.IEvent;
 import org.mozilla.interfaces.IEventListener;
 import org.virtualbox_6_0.IStateChangedEvent;
-import org.virtualbox_6_0.MachineState;
-import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.COMObjectBase;
 
 @RequiredArgsConstructor
