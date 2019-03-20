@@ -6,6 +6,7 @@ import com.sun.jna.Pointer;
 import jnr.ffi.LibraryLoader;
 import org.bukkit.Color;
 import org.bukkit.map.MapPalette;
+import sznp.virtualcomputer.util.PXCLib;
 
 import java.io.File;
 import java.lang.reflect.Field;

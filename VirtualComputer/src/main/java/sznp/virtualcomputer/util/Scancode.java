@@ -1,4 +1,4 @@
-package sznp.virtualcomputer;
+package sznp.virtualcomputer.util;
 
 /*
 The scancode values come from:
@@ -9,7 +9,7 @@ The scancode values come from:
 */
 
 @SuppressWarnings("unused")
-enum Scancode { // https://handmade.network/forums/t/2011-keyboard_inputs_-_scancodes,_raw_input,_text_input,_key_names
+public enum Scancode { // https://handmade.network/forums/t/2011-keyboard_inputs_-_scancodes,_raw_input,_text_input,_key_names
 
 	sc_escape(0x01), sc_1(0x02), sc_2(0x03), sc_3(0x04), sc_4(0x05), sc_5(0x06), sc_6(0x07), sc_7(0x08), sc_8(
 			0x09), sc_9(0x0A), sc_0(0x0B), sc_minus(0x0C), sc_equals(0x0D), sc_backspace(0x0E), sc_tab(0x0F), sc_q(

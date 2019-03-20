@@ -1,4 +1,4 @@
-package sznp.virtualcomputer;
+package sznp.virtualcomputer.renderer;
 
 import lombok.val;
 import net.minecraft.server.v1_12_R1.WorldMap;

@@ -9,6 +9,12 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.virtualbox_6_0.*;
+import sznp.virtualcomputer.renderer.BukkitRenderer;
+import sznp.virtualcomputer.renderer.GPURenderer;
+import sznp.virtualcomputer.renderer.IRenderer;
+import sznp.virtualcomputer.renderer.MCFrameBuffer;
+import sznp.virtualcomputer.util.Scancode;
+import sznp.virtualcomputer.util.VBoxLib;
 
 import javax.annotation.Nullable;
 import java.io.File;

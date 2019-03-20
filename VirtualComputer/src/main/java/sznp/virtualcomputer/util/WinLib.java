@@ -1,4 +1,4 @@
-package sznp.virtualcomputer;
+package sznp.virtualcomputer.util;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;

@@ -1,4 +1,4 @@
-package sznp.virtualcomputer;
+package sznp.virtualcomputer.renderer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;

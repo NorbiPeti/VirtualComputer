@@ -1,4 +1,4 @@
-package sznp.virtualcomputer;
+package sznp.virtualcomputer.util;
 
 import jnr.ffi.Pointer;
 

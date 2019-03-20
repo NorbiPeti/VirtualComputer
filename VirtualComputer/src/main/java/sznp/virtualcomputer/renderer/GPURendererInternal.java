@@ -1,4 +1,4 @@
-package sznp.virtualcomputer;
+package sznp.virtualcomputer.renderer;
 
 import com.aparapi.Kernel;
 import com.aparapi.Range;

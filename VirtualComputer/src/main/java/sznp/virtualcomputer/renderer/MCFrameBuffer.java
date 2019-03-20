@@ -1,4 +1,4 @@
-package sznp.virtualcomputer;
+package sznp.virtualcomputer.renderer;
 
 import com.sun.jna.Pointer;
 import org.bukkit.Bukkit;
@@ -8,6 +8,7 @@ import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
 import org.mozilla.xpcom.Mozilla;
 import org.virtualbox_6_0.*;
+import sznp.virtualcomputer.PluginMain;
 
 import java.util.Arrays;
 
