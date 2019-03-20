@@ -1,4 +1,4 @@
-package sznp.virtualcomputer.events;
+package sznp.virtualcomputer;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
@@ -7,10 +7,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.virtualbox_6_0.*;
-import sznp.virtualcomputer.PluginMain;
+import sznp.virtualcomputer.events.MachineEventHandler;
+import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.Scancode;
-import sznp.virtualcomputer.util.Utils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -25,10 +25,12 @@ public final class Computer {
     private IMachine machine;
 
     @java.beans.ConstructorProperties({"plugin"})
-    public Computer(PluginMain plugin) {
+    public Computer(PluginMain plugin, ISession session, IVirtualBox vbox) {
         this.plugin = plugin;
+	    this.session = session;
+	    this.vbox = vbox;
         if(instance!=null) throw new IllegalStateException("A computer already exists!");
-        instance=this; //TODO: Move some init stuff here
+	    instance = this;
     }
 
     public void Start(CommandSender sender, int index) {// TODO: Add touchscreen support (#2)
@@ -73,9 +75,9 @@ public final class Computer {
         machine = session.getMachine(); // This is the Machine object we can work with
         final IConsole console = session.getConsole();
         val handler = new MachineEventHandler(Computer.this);
-        Utils.registerListener(console.getEventSource(), handler, VBoxEventType.MachineEvent);
+	    handler.registerTo(console.getEventSource());
         IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
-        Utils.registerListener(progress.getEventSource(), handler, VBoxEventType.OnProgressTaskCompleted); //TODO: Show progress bar some way?
+	    handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
         console.getDisplay().attachFramebuffer(0L,
                 new IFramebuffer(new MCFrameBuffer(console.getDisplay(), true)));
         sendMessage(sender, "§eComputer started.");

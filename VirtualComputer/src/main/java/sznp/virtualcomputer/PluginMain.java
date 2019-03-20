@@ -70,8 +70,9 @@ public class PluginMain extends JavaPlugin {
 			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
 			vbl.RTR3InitExe(0, "", 0);
 			vbox = manager.getVBox();
-			Utils.registerListener(vbox.getEventSource(), new VBoxEventHandler(), VBoxEventType.OnMachineStateChanged);
-			session = manager.getSessionObject(); // TODO: Events
+			new VBoxEventHandler().registerTo(vbox.getEventSource());
+			session = manager.getSessionObject();
+			new Computer(this, session, vbox); //Saves itself
 			ccs.sendMessage("§bLoading Screen...");
 			try {
 				//throw new NoClassDefFoundError("Test error pls ignore");

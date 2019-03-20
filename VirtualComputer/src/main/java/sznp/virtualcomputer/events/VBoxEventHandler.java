@@ -1,16 +1,17 @@
 package sznp.virtualcomputer.events;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
-import lombok.val;
 import org.bukkit.command.CommandSender;
-import org.mozilla.interfaces.IEvent;
-import org.mozilla.interfaces.IEventListener;
+import org.bukkit.event.EventHandler;
 import org.virtualbox_6_0.ISessionStateChangedEvent;
 import org.virtualbox_6_0.SessionState;
-import sznp.virtualcomputer.util.COMObjectBase;
+import org.virtualbox_6_0.VBoxEventType;
+import sznp.virtualcomputer.Computer;
 
-public class VBoxEventHandler extends COMObjectBase implements IEventListener {
+public class VBoxEventHandler extends EventHandlerBase {
     public VBoxEventHandler() {
+        super(ImmutableMap.of(VBoxEventType.OnSessionStateChanged, ISessionStateChangedEvent.class));
         instance = this;
     }
 
@@ -19,14 +20,14 @@ public class VBoxEventHandler extends COMObjectBase implements IEventListener {
     private String machineID;
     private CommandSender sender;
 
-    @Override
-    public void handleEvent(IEvent iEvent) {
-        if (iEvent instanceof ISessionStateChangedEvent) {
-            val event = ((ISessionStateChangedEvent) iEvent);
-            if (!event.getMachineId().equals(machineID)) return;
-            if (event.getState() == SessionState.Locked) //Need to check here, because we can't access the console yet
-                Computer.getInstance().onLock(sender);
-        }
+    @EventHandler
+    public void onSessionStateChange(ISessionStateChangedEvent event) {
+        System.out.println("Session change event: " + event);
+        System.out.println("ID1: " + event.getMachineId() + " - ID2: " + machineID);
+        if (!event.getMachineId().equals(machineID)) return;
+        System.out.println("State: " + event.getState());
+        if (event.getState() == SessionState.Locked) //Need to check here, because we can't access the console yet
+            Computer.getInstance().onLock(sender);
     }
 
     public void setup(String machineID, CommandSender sender) {

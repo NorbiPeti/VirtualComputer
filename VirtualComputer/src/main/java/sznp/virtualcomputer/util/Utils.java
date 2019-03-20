@@ -1,11 +1,16 @@
 package sznp.virtualcomputer.util;
 
+import lombok.val;
 import org.mozilla.interfaces.IEventListener;
+import org.virtualbox_6_0.IEvent;
 import org.virtualbox_6_0.IEventSource;
 import org.virtualbox_6_0.VBoxEventType;
+import org.virtualbox_6_0.xpcom.IUnknown;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 
 public class Utils {
     /**
@@ -34,7 +39,21 @@ public class Utils {
         usrPathsField.set(null, newPaths);
     }
 
-    public static void registerListener(IEventSource source, IEventListener listener, VBoxEventType... types) {
-        source.registerListener(new org.virtualbox_6_0.IEventListener(listener), Arrays.asList(types), true);
+    //public static void registerListener(IEventSource source, IEventListener listener, VBoxEventType... types) {
+    public static void registerListener(IEventSource source, IEventListener listener, List<VBoxEventType> types) {
+        source.registerListener(new org.virtualbox_6_0.IEventListener(listener), types, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends IEvent> T getEvent(org.mozilla.interfaces.IEvent event, Class<T> cl) {
+        //if (event.getType() != type.value()) return null;
+        //return (T) T.queryInterface(new IEvent(event)); - Probably won't work
+        try {
+            val method = cl.getMethod("queryInterface", IUnknown.class);
+            return (T) method.invoke(null, new IEvent(event));
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

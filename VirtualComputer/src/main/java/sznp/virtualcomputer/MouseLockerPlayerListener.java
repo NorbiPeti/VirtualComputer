@@ -1,12 +1,12 @@
 package sznp.virtualcomputer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class MouseLockerPlayerListener implements Runnable {
 	public static Map<Player, Location> LockedPlayers = new HashMap<>();
@@ -22,7 +22,7 @@ public class MouseLockerPlayerListener implements Runnable {
 			if (yaw2 - yaw1 == 0 || pitch2 - pitch1 == 0)
 				return;
 
-			PluginMain.Instance.UpdateMouse(null, (int) ((yaw2 - yaw1) * LockedSpeed),
+			Computer.getInstance().UpdateMouse(null, (int) ((yaw2 - yaw1) * LockedSpeed),
 					(int) ((pitch2 - pitch1) * LockedSpeed), 0, 0, "");
 
 			entry.getKey().teleport(entry.getValue(), TeleportCause.PLUGIN);
