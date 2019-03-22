@@ -9,6 +9,7 @@ import org.mozilla.interfaces.nsISupports;
 import org.mozilla.xpcom.Mozilla;
 import org.virtualbox_6_0.*;
 import sznp.virtualcomputer.PluginMain;
+import sznp.virtualcomputer.util.Timing;
 
 import java.util.Arrays;
 
@@ -93,21 +94,22 @@ public class MCFrameBuffer implements IFramebuffer {
 
 	@Override
 	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
-		System.out.println("Change - " + width + "x" + height);
+		//Timing ti=new Timing();
+		//System.out.println("Change - " + width + "x" + height);
 		if (tt != null)
 			tt.cancel();
 		/*
 		 * if (width > 640 || height > 480) { tt = Bukkit.getScheduler().runTaskTimerAsynchronously(PluginMain.Instance, () -> display.setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L), 5, 5);
 		 * return; // Don't even try to render too large resolutions }
 		 */
-		tt = Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
+		tt = Bukkit.getScheduler().runTaskAsynchronously(PluginMain.Instance, () -> {
 			try {
 				display.querySourceBitmap(0L, holder);
 				//byte[] arr = PluginMain.allpixels.array();
 				long[] ptr = new long[1], w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
 				holder.value.getTypedWrapped().queryBitmapInfo(ptr, w, h, bpp, bpl, pf);
-				System.out.println("Arr0:" + ptr[0]);
-				System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
+				//System.out.println("Arr0:" + ptr[0]);
+				//System.out.println("whbppbplpf: " + w[0] + " " + h[0] + " " + bpp[0] + " " + bpl[0] + " " + pf[0]);
 				if (PluginMain.direct) {
 					//PluginMain.pxc.setSource(ptr[0], (int)w[0], (int)h[0], PluginMain.MCX, PluginMain.MCY);
 					pointer = new Pointer(ptr[0]);
@@ -121,11 +123,19 @@ public class MCFrameBuffer implements IFramebuffer {
 					else
 						PluginMain.allpixels.limit((int) (width * height * 4));
 				}
-				System.out.println("Change!");
+				//System.out.println("Change!");
+				//System.out.println("Change task took "+ti.elapsedMS()+"ms");
+			} catch (VBoxException e) {
+				if (e.getResultCode() == 0x80070005)
+					return; // Machine is being powered down
+				if (e.getResultCode() == 0x80004005) //The function "querySourceBitmap" returned an error condition: "Operation failed (NS_ERROR_FAILURE)"
+					System.out.println("I don't know why this happens, but stopping the computer helps.");
+				e.printStackTrace();
 			} catch (Throwable t) {
 				t.printStackTrace();
 			}
-		}, 5); // Wait 1/4th of a second
+		}); // Wait 1/4th of a second - Don't
+		//System.out.println("Change took "+ti.elapsedMS()+"ms");
 	}
 
 	@Override
@@ -138,7 +148,10 @@ public class MCFrameBuffer implements IFramebuffer {
 					((DirectRenderer) r).render(PluginMain.allpixels, x, y, width, height);
 			System.out.println("Update!"); - The render is done each tick
 		}, 5);*/
+		Timing t = new Timing();
 		GPURendererInternal.setPixels(pointer.getByteArray(0L, (this.width * this.height * 4)), this.width, this.height); //TODO: Only copy changed part
+		if (t.elapsedMS() > 60) //Typically 1ms max
+			System.out.println("Update took " + t.elapsedMS() + "ms");
 	}
 
 	@Override

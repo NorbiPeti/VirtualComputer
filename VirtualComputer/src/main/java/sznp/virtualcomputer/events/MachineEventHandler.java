@@ -2,7 +2,6 @@ package sznp.virtualcomputer.events;
 
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.event.EventHandler;
-import org.virtualbox_6_0.IMachineStateChangedEvent;
 import org.virtualbox_6_0.IProgressTaskCompletedEvent;
 import org.virtualbox_6_0.IStateChangedEvent;
 import org.virtualbox_6_0.VBoxEventType;
@@ -12,7 +11,7 @@ public class MachineEventHandler extends EventHandlerBase {
     private final Computer computer;
 
 	public MachineEventHandler(Computer computer) {
-		super(ImmutableMap.of(VBoxEventType.OnMachineStateChanged, IMachineStateChangedEvent.class,
+		super(ImmutableMap.of(VBoxEventType.OnStateChanged, IStateChangedEvent.class,
 				VBoxEventType.OnProgressTaskCompleted, IProgressTaskCompletedEvent.class));
 		this.computer = computer;
 	}
@@ -25,7 +24,7 @@ public class MachineEventHandler extends EventHandlerBase {
 				break;
 			case PoweredOff:
 			case Saved:
-				computer.stopRendering();
+				computer.onMachineStop();
         }
     }
 }

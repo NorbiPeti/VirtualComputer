@@ -10,6 +10,7 @@ import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
+import sznp.virtualcomputer.util.Timing;
 
 import java.awt.*;
 import java.lang.reflect.Field;
@@ -53,6 +54,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 
 	@Override
 	public void render(MapView map, MapCanvas canvas, Player player) {
+		Timing t = new Timing();
 		try {
 			if (kernel.isRendered()) return; //TODO: Stop rendering after computer is stopped
 			Field field = canvas.getClass().getDeclaredField("buffer");
@@ -67,5 +69,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		if (t.elapsedMS() > 60)
+			System.out.println("Map rendering took " + t.elapsedMS() + "ms");
 	}
 }

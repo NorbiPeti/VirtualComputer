@@ -156,10 +156,8 @@ public final class Computer {
             durationorstate = -2;
         else
             durationorstate = Short.parseShort(stateorduration);
-        int code;
-        try {
-            code = Scancode.valueOf("sc_" + key.toLowerCase()).Code;
-        } catch (IllegalArgumentException e) {
+	    int code = Scancode.getCode("sc_" + key.toLowerCase());
+	    if (code == -1) {
             sender.sendMessage("§cUnknown key: " + key);
             return;
         }
@@ -193,7 +191,8 @@ public final class Computer {
         UpdateMouse(sender, x, y, z, w, mbs, false);
     }
 
-    public void stopRendering() {
-        //TODO
+	public void onMachineStop() {
+		session.unlockMachine();
+		plugin.getLogger().info("Computer powered off.");
     }
 }

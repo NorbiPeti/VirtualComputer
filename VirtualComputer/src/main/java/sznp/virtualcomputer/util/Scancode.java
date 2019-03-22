@@ -8,6 +8,8 @@ The scancode values come from:
 - reading win32 WM_INPUT keyboard messages.
 */
 
+import java.util.HashMap;
+
 @SuppressWarnings("unused")
 public enum Scancode { // https://handmade.network/forums/t/2011-keyboard_inputs_-_scancodes,_raw_input,_text_input,_key_names
 
@@ -21,7 +23,7 @@ public enum Scancode { // https://handmade.network/forums/t/2011-keyboard_inputs
 			0x29), sc_shiftLeft(0x2A), sc_backslash(0x2B), sc_z(
 			0x2C), sc_x(0x2D), sc_c(0x2E), sc_v(0x2F), sc_b(
 			0x30), sc_n(0x31), sc_m(0x32), sc_comma(
-			0x33), sc_preiod(0x34), sc_slash(
+			0x33), sc_period(0x34), sc_slash(
 			0x35), sc_shiftRight(
 			0x36), sc_numpad_multiply(
 			0x37), sc_altLeft(
@@ -106,6 +108,25 @@ public enum Scancode { // https://handmade.network/forums/t/2011-keyboard_inputs
 	 * GetMessage or PeekMessage will return messages), you may get both a keydown and keyup message "at the same time". If you use VK messages most of the time you only get keydown messages), but
 	 * some times you get keyup messages too. - when pressed at the same time as one or both control keys, generates a 0xE046 (sc_cancel) and the string for that scancode is "break".
 	 */
+
+	private static final HashMap<String, Integer> scanCodes = new HashMap<>();
+
+	static {
+		for (Scancode sc : values())
+			scanCodes.put(sc.toString().toLowerCase(), sc.Code);
+	}
+
+	/**
+	 * Gets the scancode from a lowercased string (O(1))
+	 *
+	 * @param keyLowerCased The key name, lowercased (sc_...)
+	 * @return The code or -1 if not found
+	 */
+	public static int getCode(String keyLowerCased) {
+		Integer code = scanCodes.get(keyLowerCased);
+		if (code == null) return -1;
+		return code;
+	}
 
 	public int Code;
 
