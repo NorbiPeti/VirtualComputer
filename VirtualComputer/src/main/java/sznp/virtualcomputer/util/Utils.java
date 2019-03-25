@@ -40,8 +40,10 @@ public class Utils {
     }
 
     //public static void registerListener(IEventSource source, IEventListener listener, VBoxEventType... types) {
-    public static void registerListener(IEventSource source, IEventListener listener, List<VBoxEventType> types) {
-        source.registerListener(new org.virtualbox_6_0.IEventListener(listener), types, true);
+    public static org.virtualbox_6_0.IEventListener registerListener(IEventSource source, IEventListener listener, List<VBoxEventType> types) {
+        val ret = new org.virtualbox_6_0.IEventListener(listener);
+        source.registerListener(ret, types, true);
+        return ret;
     }
 
     @SuppressWarnings("unchecked")

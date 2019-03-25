@@ -2,13 +2,13 @@ package sznp.virtualcomputer;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
-import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.virtualbox_6_0.*;
 import sznp.virtualcomputer.events.MachineEventHandler;
 import sznp.virtualcomputer.events.VBoxEventHandler;
+import sznp.virtualcomputer.renderer.GPURendererInternal;
 import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.Scancode;
 
@@ -23,6 +23,8 @@ public final class Computer {
     private ISession session;
     private IVirtualBox vbox;
     private IMachine machine;
+    private MachineEventHandler handler;
+    private IEventListener listener;
 
     @java.beans.ConstructorProperties({"plugin"})
     public Computer(PluginMain plugin, ISession session, IVirtualBox vbox) {
@@ -49,13 +51,13 @@ public final class Computer {
                 session.setName("minecraft");
                 // machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
                 machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
-                VBoxEventHandler.getInstance().setup(machine.getId(), sender);
+                VBoxEventHandler.getInstance().setup(machine.getId(), sender); //TODO: Sometimes null
             } catch (VBoxException e) {
                 if (e.getResultCode() == 0x80070005) { //lockMachine: "The object functionality is limited"
                     sendMessage(sender, "§6Cannot start computer, the machine may be inaccessible");
+                    sendMessage(sender, "§6Make sure that the server is running as root (sudo)");
                     //TODO: If we have VirtualBox open, it won't close the server's port
-                    //TODO: Can't detect if machine fails to start because of hardening issues
-                    //TODO: This error also occurs if the machine has failed to start at least once (always reassign the machine?)
+                    //TODO: "The object in question already exists." on second start
                     //machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); //No privileges, start the 'old' way
                     //session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer(session.getConsole().getDisplay(), false)));
                     //sendMessage(sender, "§6Computer started with slower screen. Run as root to use a faster method.");
@@ -74,8 +76,8 @@ public final class Computer {
     public void onLock(CommandSender sender) {
         machine = session.getMachine(); // This is the Machine object we can work with
         final IConsole console = session.getConsole();
-        val handler = new MachineEventHandler(Computer.this);
-	    handler.registerTo(console.getEventSource());
+        handler = new MachineEventHandler(Computer.this);
+        listener = handler.registerTo(console.getEventSource());
         IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
 	    handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
         console.getDisplay().attachFramebuffer(0L,
@@ -99,7 +101,6 @@ public final class Computer {
         }
         sendMessage(sender, "§eStopping computer...");
         session.getConsole().powerDown().waitForCompletion(2000);
-        session.unlockMachine();
         sendMessage(sender, "§eComputer stopped.");
     }
 
@@ -192,7 +193,26 @@ public final class Computer {
     }
 
 	public void onMachineStop() {
-		session.unlockMachine();
-		plugin.getLogger().info("Computer powered off.");
+        System.out.println("Unlocking machine...");
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (session.getState() == SessionState.Locked) {
+                System.out.println("Unlocking...");
+                session.unlockMachine(); //Needs to be outside of the event handler
+                System.out.println("Machine unlocked.");
+            }
+        });
+        System.out.println("Setting pixels...");
+        GPURendererInternal.setPixels(new byte[1], 0, 0); //Black screen
+        System.out.println("Stopping events...");
+        stopEvents();
+        plugin.getLogger().info("Computer powered off.");
+    }
+
+    public void stopEvents() {
+        /*if(session!=null && listener!=null)
+            session.getConsole().getEventSource().unregisterListener(listener);*/
+        if (listener != null)
+            handler.disable();
+        listener = null;
     }
 }

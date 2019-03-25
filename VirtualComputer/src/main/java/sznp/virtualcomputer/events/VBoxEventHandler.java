@@ -22,10 +22,7 @@ public class VBoxEventHandler extends EventHandlerBase {
 
     @EventHandler
     public void onSessionStateChange(ISessionStateChangedEvent event) {
-        System.out.println("Session change event: " + event);
-        System.out.println("ID1: " + event.getMachineId() + " - ID2: " + machineID);
         if (!event.getMachineId().equals(machineID)) return;
-        System.out.println("State: " + event.getState());
         if (event.getState() == SessionState.Locked) //Need to check here, because we can't access the console yet
             Computer.getInstance().onLock(sender);
     }

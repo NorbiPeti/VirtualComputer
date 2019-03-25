@@ -27,6 +27,8 @@ public class PluginMain extends JavaPlugin {
 	private IMachine machine;
 	private BukkitTask screenupdatetask;
 	private BukkitTask mousetask;
+	private IEventListener listener;
+	private IEventSource source;
 
 	public static PluginMain Instance;
 	//public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
@@ -70,7 +72,7 @@ public class PluginMain extends JavaPlugin {
 			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
 			vbl.RTR3InitExe(0, "", 0);
 			vbox = manager.getVBox();
-			new VBoxEventHandler().registerTo(vbox.getEventSource());
+			listener = new VBoxEventHandler().registerTo(source = vbox.getEventSource());
 			session = manager.getSessionObject();
 			new Computer(this, session, vbox); //Saves itself
 			ccs.sendMessage("§bLoading Screen...");
@@ -109,6 +111,14 @@ public class PluginMain extends JavaPlugin {
 	public void onDisable() {
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
 		mousetask.cancel();
+		/*try {
+			source.unregisterListener(listener);
+		} catch (VBoxException e) { //"Listener was never registered"
+			e.printStackTrace(); - VBox claims the listener was never registered (can double register as well)
+		}*/
+		((VBoxEventHandler) listener.getTypedWrapped()).disable(); //The save progress wait locks with the event
+		if (Computer.getInstance() != null)
+			Computer.getInstance().stopEvents();
 		if (session.getState() == SessionState.Locked) {
 			if (session.getMachine().getState().equals(MachineState.Running)) {
 				ccs.sendMessage("§aSaving machine state...");

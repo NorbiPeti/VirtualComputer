@@ -20,7 +20,7 @@ public class GPURendererInternal extends Kernel {
 	private byte[] buffer; //References the map buffer
 	private Range range;
 	@Getter
-	private boolean rendered = true;
+	private boolean rendered;
 	private static ArrayList<GPURendererInternal> renderers = new ArrayList<>();
 
 	//public static byte[] test=new byte[1]; - LAMBDAS
@@ -29,6 +29,12 @@ public class GPURendererInternal extends Kernel {
 		this.mapy = mapy;
 		this.colors = colors;
 		range = Range.create2D(128, 128);
+
+		//Do an intial draw of a black screen with Aparapi so it doesn't lag at start
+		pixels = new byte[1];
+		width = height = 0;
+		rendered = false;
+
 		renderers.add(this);
 	}
 

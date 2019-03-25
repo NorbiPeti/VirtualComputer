@@ -9,6 +9,7 @@ import sznp.virtualcomputer.Computer;
 
 public class MachineEventHandler extends EventHandlerBase {
     private final Computer computer;
+	private boolean starting = false;
 
 	public MachineEventHandler(Computer computer) {
 		super(ImmutableMap.of(VBoxEventType.OnStateChanged, IStateChangedEvent.class,
@@ -18,13 +19,26 @@ public class MachineEventHandler extends EventHandlerBase {
 
 	@EventHandler
 	public void handleStateChange(IStateChangedEvent event) { //https://www.virtualbox.org/sdkref/_virtual_box_8idl.html#a80b08f71210afe16038e904a656ed9eb
+		System.out.println("State event: " + event.getState());
 		switch (event.getState()) {
 			case Stuck:
 				computer.Stop(null);
 				break;
 			case PoweredOff:
 			case Saved:
+				if (starting) {
+					System.out.println("Failed to start computer! See the VM's log for more details.");
+					starting = false; //TODO: Sender
+				}
 				computer.onMachineStop();
-        }
+				break;
+			case Starting:
+				starting = true;
+				break;
+			case Running:
+				System.out.println("Computer is running.");
+				starting = false;
+				break;
+		}
     }
 }

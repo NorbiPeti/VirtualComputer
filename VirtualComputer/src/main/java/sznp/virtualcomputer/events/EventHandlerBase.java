@@ -22,6 +22,7 @@ public abstract class EventHandlerBase extends COMObjectBase implements IEventLi
 	 * The events to listen for. It will only look for these handlers.
 	 */
 	private final Map<VBoxEventType, Class<? extends org.virtualbox_6_0.IEvent>> eventMap;
+	private boolean enabled = true;
 
 	protected EventHandlerBase(Map<VBoxEventType, Class<? extends org.virtualbox_6_0.IEvent>> eventMap) {
 		//this.eventMap = eventMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().value(), Map.Entry::getValue));
@@ -31,6 +32,8 @@ public abstract class EventHandlerBase extends COMObjectBase implements IEventLi
 	@Override
 	public final void handleEvent(IEvent iEvent) {
 		//val cl=eventMap.get((int)iEvent.getType()); - We can afford to search through the events for this handler
+		if (!enabled)
+			return;
 		val kv = eventMap.entrySet().stream().filter(e -> e.getKey().value() == iEvent.getType()).findAny();
 		if (!kv.isPresent()) return; //Event not supported
 		val cl = kv.get().getValue();
@@ -50,7 +53,11 @@ public abstract class EventHandlerBase extends COMObjectBase implements IEventLi
 		}
 	}
 
-	public <T extends EventHandlerBase> void registerTo(IEventSource source) {
-		Utils.registerListener(source, this, new ArrayList<>(eventMap.keySet()));
+	public <T extends EventHandlerBase> org.virtualbox_6_0.IEventListener registerTo(IEventSource source) {
+		return Utils.registerListener(source, this, new ArrayList<>(eventMap.keySet()));
+	}
+
+	public void disable() {
+		enabled = false;
 	}
 }
