@@ -1,6 +1,7 @@
 package sznp.virtualcomputer;
 
 import jnr.ffi.LibraryLoader;
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -92,7 +93,9 @@ public class PluginMain extends JavaPlugin {
 				ccs.sendMessage("§6Compatibility error, using slower renderer");
 			}
 			ccs.sendMessage("§bLoaded!");
-			mousetask = getServer().getScheduler().runTaskTimer(this, new MouseLockerPlayerListener(), 0, 0);
+			val mlpl = new MouseLockerPlayerListener();
+			mousetask = getServer().getScheduler().runTaskTimer(this, mlpl, 0, 0);
+			getServer().getPluginManager().registerEvents(mlpl, this);
 
 		} catch (final Exception e) {
 			e.printStackTrace();

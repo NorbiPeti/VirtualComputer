@@ -113,13 +113,7 @@ public class Commands implements CommandExecutor {
 								+ " [\"\",{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlLeft\"}},{\"text\":\" [Alt]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltLeft\"}},{\"text\":\" [Space]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key Space\"}},{\"text\":\" [AltGr]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key AltRight\"}},{\"text\":\" [Ctrl]\",\"color\":\"green\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/computer key ControlRight\"}}]");
 						break;
 					case "mouse":
-						if (!MouseLockerPlayerListener.LockedPlayers.containsKey(sender)) {
-							MouseLockerPlayerListener.LockedPlayers.put((Player) sender, ((Player) sender).getLocation());
-							sender.sendMessage("§aMouse locked.");
-						} else {
-							MouseLockerPlayerListener.LockedPlayers.remove(sender);
-							sender.sendMessage("§bMouse unlocked.");
-						}
+						MouseLockerPlayerListener.toggleLock((Player) sender);
 						break;
 					case "mspeed":
 					case "mousespeed":

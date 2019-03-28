@@ -31,7 +31,7 @@ public final class Computer {
         this.plugin = plugin;
 	    this.session = session;
 	    this.vbox = vbox;
-        if(instance!=null) throw new IllegalStateException("A computer already exists!");
+	    if (instance != null) throw new IllegalStateException("A computer already exists!");
 	    instance = this;
     }
 
@@ -76,19 +76,18 @@ public final class Computer {
     public void onLock(CommandSender sender) {
         machine = session.getMachine(); // This is the Machine object we can work with
         final IConsole console = session.getConsole();
-        handler = new MachineEventHandler(Computer.this);
+	    handler = new MachineEventHandler(Computer.this, sender);
         listener = handler.registerTo(console.getEventSource());
         IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
 	    handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
         console.getDisplay().attachFramebuffer(0L,
                 new IFramebuffer(new MCFrameBuffer(console.getDisplay(), true)));
-        sendMessage(sender, "§eComputer started.");
     }
 
     private void sendMessage(@Nullable CommandSender sender, String message) {
-        if(sender!=null)
-        sender.sendMessage(message);
-        plugin.getLogger().warning((sender==null?"":sender.getName() + ": ") + ChatColor.stripColor(message));
+	    if (sender != null)
+		    sender.sendMessage(message);
+	    plugin.getLogger().warning((sender == null ? "" : sender.getName() + ": ") + ChatColor.stripColor(message));
     }
 
     public void Stop(CommandSender sender) {
@@ -192,20 +191,20 @@ public final class Computer {
         UpdateMouse(sender, x, y, z, w, mbs, false);
     }
 
-	public void onMachineStop() {
-        System.out.println("Unlocking machine...");
+	public void onMachineStart(CommandSender sender) {
+		sendMessage(sender, "§eComputer started.");
+	}
+
+	public void onMachineStop(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (session.getState() == SessionState.Locked) {
-                System.out.println("Unlocking...");
                 session.unlockMachine(); //Needs to be outside of the event handler
-                System.out.println("Machine unlocked.");
             }
         });
-        System.out.println("Setting pixels...");
         GPURendererInternal.setPixels(new byte[1], 0, 0); //Black screen
-        System.out.println("Stopping events...");
         stopEvents();
-        plugin.getLogger().info("Computer powered off.");
+		MouseLockerPlayerListener.computerStop();
+		sendMessage(sender, "§eComputer powered off.");
     }
 
     public void stopEvents() {
