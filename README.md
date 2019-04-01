@@ -1,15 +1,16 @@
 # The Computer
 A working modern computer in Minecraft made using VirtualBox and Java. No clientside mods required.
 
-I started working on this project on 2015. december 5. However I did not write much code in that time as I had to figure out how things work.
-I plan on making a series where I show the whole process of creating this project.
-
 ## Video
 
 [![Original video](https://img.youtube.com/vi/VxSyDfxPd3s/0.jpg)](https://www.youtube.com/watch?v=VxSyDfxPd3s)
 
 ## Installation requirements
 *Note: only the server host has to meet these requirements.*
+
+* A non-Windows OS
+* Root (sudo) privileges
+* Enough resources to run another OS
 
 ### Tested versions:
 *If you don't meet these requirements, you may need to compile the files for yourself. If you do please send the compiled version to me so more people can download it.*
@@ -19,11 +20,12 @@ I plan on making a series where I show the whole process of creating this projec
 * Spgiot/Bukkit 1.8/1.9/1.12
 * Java 8
 
-### Untested:
-* Other Linux versions
-* Other VirtualBox versions (code modifications are probably necessary)
-* Other Spigot/Bukkit versions
-* Other Java versions
+### Tested on:
+*The requirements vary greatly depending on what OS you want to run ingame but here are my specs that can run Overwatch in Minecraft.*
+
+* CPU: Intel 3.5 GHz
+* RAM: 8 GB
+* GPU: NVidia GeForce GTX 650
 
 *Due to VirtualBox Java binding support limitations the plugin does not support Windows currently.*
 
@@ -31,10 +33,10 @@ I plan on making a series where I show the whole process of creating this projec
 **Warning:** The first loaded world on the server (the one specified in server.properties) will temporarily **lose** the first 20 maps, although it will be back to normal if the server is loaded without the plugin.
 
 * Install VirtualBox
-* Add a virtual PC if you don't have any (the first one will be started)
+* *Using sudo,* add a virtual PC if you don't have any (the first one will be started by default)
     * Install an OS and Guest Additions, if you haven't already
 * Put the jar file into <server>/plugins directory
-* Start your server
+* *Using sudo,* start your server
 
 ## Usage
 *Please give appropriate credit and link to this page if you use this machine in one of your videos/creations/etc.*
@@ -58,7 +60,14 @@ You can "lock" the physical mouse to the virtual one with /computer input mouse,
 
 To set the locked mouse speed, use /computer input mspeed \<integer\>. The difference in look position will be multiplied with this number. Recommended values are between 1 and 10 (inclusive). Default: 1.
 
-You can press a mouse button with /computer mouse <buttonname>. For example: /computer mouse leftbutton. You can find all the button names [here](https://github.com/NorbiPeti/VirtualComputer/blob/master/VirtualComputerSender/MouseBS.cs).
+You can press a mouse button with /computer mouse <buttonname>. For example: /computer mouse leftbutton. Usable key names:
+* LeftButton
+* RightButton
+* MiddleButton
+* WheelUp
+* WheelDown
+* XButton1
+* XButton2
 
 #### Sounds
 Due to the way it works, it automatically plays every sound from the virtual machine **on the host computer**. This is built into the VM, it seems. In order to make the sounds play for every connected player, we'd need a clientside mod.
