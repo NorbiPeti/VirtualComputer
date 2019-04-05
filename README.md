@@ -17,15 +17,17 @@ A working modern computer in Minecraft made using VirtualBox and Java. No client
 
 * OS X; Ubuntu 16.04/18.04
 * VirtualBox 6.0
-* Spgiot/Bukkit 1.8/1.9/1.12
+* Spgiot/Bukkit 1.12
 * Java 8
+
+*The fast rendering method currently only supports 1.12.2.*
 
 ### Tested on:
 *The requirements vary greatly depending on what OS you want to run ingame but here are my specs that can run Overwatch in Minecraft.*
 
-* CPU: Intel 3.5 GHz
+* CPU: Intel® Pentium(R) CPU G3460 @ 3.50GHz × 2
 * RAM: 8 GB
-* GPU: NVidia GeForce GTX 650
+* GPU: NVidia GeForce GTX 650 1 GB
 
 *Due to VirtualBox Java binding support limitations the plugin does not support Windows currently.*
 
@@ -74,7 +76,7 @@ Due to the way it works, it automatically plays every sound from the virtual mac
 
 ### Special thanks:
 * The creators of VirtualBox for making it open-source and kind of easy to use (though I had minor issues as the documentation doesn't really tell me how to write a new frontend :P and that I needed to learn how machines work - especially keyboards)
-* @iiegit for testing and more testing for the non-Windows version
+* @iiegit for testing and more testing for the non-Windows version and helping a lot to get it on /r/sequence
 
 # Known issues
 ## Port remains open (cannot bind to port)

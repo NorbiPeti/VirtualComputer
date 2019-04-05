@@ -79,6 +79,7 @@ public final class Computer {
 	    handler = new MachineEventHandler(Computer.this, sender);
         listener = handler.registerTo(console.getEventSource());
         IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
+	    handler.setProgress(progress);
 	    handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
         console.getDisplay().attachFramebuffer(0L,
                 new IFramebuffer(new MCFrameBuffer(console.getDisplay(), true)));
@@ -199,6 +200,8 @@ public final class Computer {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (session.getState() == SessionState.Locked) {
                 session.unlockMachine(); //Needs to be outside of the event handler
+	            handler = null;
+	            machine = null;
             }
         });
         GPURendererInternal.setPixels(new byte[1], 0, 0); //Black screen
