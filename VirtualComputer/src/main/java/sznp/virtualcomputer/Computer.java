@@ -25,11 +25,13 @@ public final class Computer {
     private IMachine machine;
     private MachineEventHandler handler;
     private IEventListener listener;
+    private VirtualBoxManager manager;
 
     @java.beans.ConstructorProperties({"plugin"})
-    public Computer(PluginMain plugin, ISession session, IVirtualBox vbox) {
+    public Computer(PluginMain plugin, VirtualBoxManager manager, IVirtualBox vbox) {
         this.plugin = plugin;
-	    this.session = session;
+        this.manager = manager;
+        session = manager.getSessionObject();
 	    this.vbox = vbox;
 	    if (instance != null) throw new IllegalStateException("A computer already exists!");
 	    instance = this;
@@ -94,14 +96,13 @@ public final class Computer {
     public void Stop(CommandSender sender) {
         if (checkMachineNotRunning(sender)) {
             if (session.getState().equals(SessionState.Locked)) {
-                session.unlockMachine();
-                sendMessage(sender, "§eComputer powered off, released it.");
+                onMachineStop(sender); //Needed for session reset
+                sendMessage(sender, "§eComputer was already off, released it.");
             }
             return;
         }
         sendMessage(sender, "§eStopping computer...");
-        session.getConsole().powerDown().waitForCompletion(2000);
-        sendMessage(sender, "§eComputer stopped.");
+        session.getConsole().powerDown();
     }
 
     public void PowerButton(CommandSender sender, int index) {
@@ -202,12 +203,13 @@ public final class Computer {
                 session.unlockMachine(); //Needs to be outside of the event handler
 	            handler = null;
 	            machine = null;
+                session = manager.getSessionObject();
+                sendMessage(sender, "§eComputer powered off."); //This block runs later
             }
         });
         GPURendererInternal.setPixels(new byte[1], 0, 0); //Black screen
         stopEvents();
 		MouseLockerPlayerListener.computerStop();
-		sendMessage(sender, "§eComputer powered off.");
     }
 
     public void stopEvents() {
@@ -216,5 +218,15 @@ public final class Computer {
         if (listener != null)
             handler.disable();
         listener = null;
+    }
+
+    public void pluginDisable(CommandSender ccs) {
+        if (session.getState() == SessionState.Locked) {
+            if (session.getMachine().getState().equals(MachineState.Running)) {
+                ccs.sendMessage("§aSaving machine state...");
+                session.getMachine().saveState().waitForCompletion(10000);
+            }
+            session.unlockMachine();
+        }
     }
 }

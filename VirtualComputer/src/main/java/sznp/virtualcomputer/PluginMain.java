@@ -6,7 +6,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.virtualbox_6_0.*;
+import org.virtualbox_6_0.IEventListener;
+import org.virtualbox_6_0.IVirtualBox;
+import org.virtualbox_6_0.VirtualBoxManager;
 import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.BukkitRenderer;
 import sznp.virtualcomputer.renderer.GPURenderer;
@@ -21,15 +23,10 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class PluginMain extends JavaPlugin {
-	public static final int MCX = 5;
-	public static final int MCY = 4;
-	private IVirtualBox vbox;
-	private ISession session;
-	private IMachine machine;
-	private BukkitTask screenupdatetask;
+	private static final int MCX = 5;
+	private static final int MCY = 4;
 	private BukkitTask mousetask;
 	private IEventListener listener;
-	private IEventSource source;
 
 	public static PluginMain Instance;
 	//public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
@@ -37,7 +34,7 @@ public class PluginMain extends JavaPlugin {
 	 * Only used if {@link #direct} is false.
 	 */
 	public static ByteBuffer allpixels; // It's set on each change
-	public static ArrayList<IRenderer> renderers = new ArrayList<>();
+	private static ArrayList<IRenderer> renderers = new ArrayList<>();
 	/*
 	 * Only used if {@link #direct} is true.
 	 */
@@ -72,10 +69,9 @@ public class PluginMain extends JavaPlugin {
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
 			vbl.RTR3InitExe(0, "", 0);
-			vbox = manager.getVBox();
-			listener = new VBoxEventHandler().registerTo(source = vbox.getEventSource());
-			session = manager.getSessionObject();
-			new Computer(this, session, vbox); //Saves itself
+			IVirtualBox vbox = manager.getVBox();
+			listener = new VBoxEventHandler().registerTo(vbox.getEventSource());
+			new Computer(this, manager, vbox); //Saves itself
 			ccs.sendMessage("§bLoading Screen...");
 			try {
 				//throw new NoClassDefFoundError("Test error pls ignore");
@@ -121,14 +117,7 @@ public class PluginMain extends JavaPlugin {
 		}*/
 		((VBoxEventHandler) listener.getTypedWrapped()).disable(); //The save progress wait locks with the event
 		if (Computer.getInstance() != null)
-			Computer.getInstance().stopEvents();
-		if (session.getState() == SessionState.Locked) {
-			if (session.getMachine().getState().equals(MachineState.Running)) {
-				ccs.sendMessage("§aSaving machine state...");
-				session.getMachine().saveState().waitForCompletion(10000);
-			}
-			session.unlockMachine();
-		}
+			Computer.getInstance().pluginDisable(ccs);
 		ccs.sendMessage("§aHuh.");
 		saveConfig();
 	}

@@ -90,4 +90,26 @@
 			<version>3.0.0</version>
 		</dependency>
 	</dependencies>
+	<!-- <profiles>
+		<profile>
+			<id>XPCOM</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.virtualbox</groupId>
+					<artifactId>VirtualBox</artifactId>
+					<version>6.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>MSCOM</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.virtualbox</groupId>
+					<artifactId>VirtualBox-MSCOM</artifactId>
+					<version>6.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles> -->
 </project>
