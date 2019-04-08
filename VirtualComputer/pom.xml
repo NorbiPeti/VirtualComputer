@@ -57,11 +57,16 @@
 			<version>6.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>1.12.2-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
+            <groupId>org.virtualbox</groupId>
+            <artifactId>VirtualBox-MSCOM</artifactId>
+            <version>6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
 		<!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
@@ -90,26 +95,56 @@
 			<version>3.0.0</version>
 		</dependency>
 	</dependencies>
-	<!-- <profiles>
+    <profiles>
 		<profile>
 			<id>XPCOM</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.virtualbox</groupId>
-					<artifactId>VirtualBox</artifactId>
-					<version>6.0</version>
-				</dependency>
-			</dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactSet>
+                                        <excludes>
+                                            <exclude>org.virtualbox:VirtualBox-MSCOM</exclude>
+                                        </excludes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
 		</profile>
 		<profile>
 			<id>MSCOM</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.virtualbox</groupId>
-					<artifactId>VirtualBox-MSCOM</artifactId>
-					<version>6.0</version>
-				</dependency>
-			</dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactSet>
+                                        <excludes>
+                                            <exclude>org.virtualbox:VirtualBox</exclude>
+                                        </excludes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
 		</profile>
-	</profiles> -->
+    </profiles>
 </project>
