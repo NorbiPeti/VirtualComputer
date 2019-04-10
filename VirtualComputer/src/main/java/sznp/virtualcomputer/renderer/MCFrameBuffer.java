@@ -106,7 +106,7 @@ public class MCFrameBuffer implements IFramebuffer {
 					pointer = new Pointer(ptr[0]);
 					this.width = (int) w[0];
 					this.height = (int) h[0];
-					GPURendererInternal.setPixels(pointer.getByteArray(0L, (int) (w[0] * h[0] * 4)), (int) w[0], (int) h[0]);
+					GPURenderer.update(pointer.getByteArray(0L, (int) (w[0] * h[0] * 4)), (int) w[0], (int) h[0], 0, 0, this.width, this.height);
 				} else {
 					PluginMain.allpixels = new Pointer(ptr[0]).getByteBuffer(0L, width * height * 4);
 					if (width * height > 640 * 480)
@@ -129,7 +129,7 @@ public class MCFrameBuffer implements IFramebuffer {
 	@Override
 	public void notifyUpdate(long x, long y, long width, long height) {
 		Timing t = new Timing();
-		GPURendererInternal.setPixels(pointer.getByteArray(0L, (this.width * this.height * 4)), this.width, this.height); //TODO: Only copy changed part
+		GPURenderer.update(pointer.getByteArray(0L, this.width * this.height * 4), this.width, this.height, (int) x, (int) y, (int) width, (int) height);
 		if (t.elapsedMS() > 60) //Typically 1ms max
 			System.out.println("Update took " + t.elapsedMS() + "ms");
 	}

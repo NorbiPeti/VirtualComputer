@@ -16,8 +16,10 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 	private byte[] buffer;
 	private GPURendererInternal kernel;
 	private WorldMap wmap;
+	private int mapx, mapy;
 	//Store at central location after conversion
 	private static int[] colors_;
+	private static int changedX, changedY, changedWidth, changedHeight;
 
 	public GPURenderer(short id, World world, int mapx, int mapy) throws Exception {
 		MapView map = IRenderer.prepare(id, world);
@@ -32,6 +34,8 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 				colors_[i] = cs[i].getRGB();
 			}
 		}
+		this.mapx = mapx;
+		this.mapy = mapy;
 		Field field = map.getClass().getDeclaredField("worldMap");
 		field.setAccessible(true);
 		wmap = (WorldMap) field.get(map);
@@ -46,19 +50,34 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 	public void render(MapView map, MapCanvas canvas, Player player) {
 		Timing t = new Timing();
 		try {
-			if (kernel.isRendered()) return; //TODO: Stop rendering after computer is stopped
+			if (kernel.isRendered()) return;
 			if (buffer == null) { //The buffer remains the same, as the canvas remains the same
 				Field field = canvas.getClass().getDeclaredField("buffer");
 				field.setAccessible(true);
 				buffer = (byte[]) field.get(canvas);
 			}
+			if (changedX >= (mapx + 1) * 128 || changedY >= (mapy + 1) * 128
+					|| changedX + changedWidth < mapx * 128 || changedY + changedHeight < mapy * 128)
+				return; //No change for this map - TODO: Test
+			int x = changedX % 128;
+			int y = changedY % 128;
+			int w = x + changedWidth >= 128 ? 128 - x - 1 : changedWidth;
+			int h = y + changedHeight >= 128 ? 128 - y - 1 : changedHeight;
 			kernel.render(buffer);
-			wmap.flagDirty(0, 0);
-			wmap.flagDirty(127, 127); // Send the whole image - TODO: Only send changes
+			wmap.flagDirty(x, y);
+			wmap.flagDirty(x + w, y + h); // Send the changes only
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		if (t.elapsedMS() > 60)
 			System.out.println("Map rendering took " + t.elapsedMS() + "ms");
+	}
+
+	public static void update(byte[] pixels, int width, int height, int changedX, int changedY, int changedWidth, int changedHeight) {
+		GPURenderer.changedX = changedX;
+		GPURenderer.changedY = changedY;
+		GPURenderer.changedWidth = changedWidth;
+		GPURenderer.changedHeight = changedHeight;
+		GPURendererInternal.setPixels(pixels, width, height);
 	}
 }
