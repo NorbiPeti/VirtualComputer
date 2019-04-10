@@ -176,17 +176,17 @@ public final class Computer {
         }
     }
 
-    public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs, boolean down) {
+    public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs, boolean down) throws Exception {
         if (checkMachineNotRunning(sender))
             return;
         int state = 0;
         if (mbs.length() > 0 && down)
             state = Arrays.stream(MouseButtonState.values()).filter(mousebs -> mousebs.name().equalsIgnoreCase(mbs))
-                    .findAny().orElseThrow(() -> new RuntimeException("Unknown mouse button")).value();
+                    .findAny().orElseThrow(() -> new Exception("Unknown mouse button")).value();
         session.getConsole().getMouse().putMouseEvent(x, y, z, w, state);
     }
 
-    public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs) {
+    public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs) throws Exception {
         if (checkMachineNotRunning(sender))
             return;
         UpdateMouse(sender, x, y, z, w, mbs, true);

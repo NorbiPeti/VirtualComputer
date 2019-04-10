@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.virtualbox_6_0.VBoxException;
 
 public class Commands implements CommandExecutor {
 
@@ -65,20 +66,27 @@ public class Commands implements CommandExecutor {
 			case "mouse":
 				boolean showusage = true;
 				if (args.length < 6) {
-					// Command overloading, because I can :P
-					if (args.length > 4) // 4<x<6
-					{
-						Computer.getInstance().UpdateMouse(sender, Integer.parseInt(args[1]), Integer.parseInt(args[2]),
-								Integer.parseInt(args[3]), Integer.parseInt(args[4]), "", false);
-						showusage = false;
-					} else {
-						if (args.length == 3) {
-							Computer.getInstance().UpdateMouse(sender, 0, 0, 0, 0, args[1], args[2].equals("down"));
+					try {
+						// Command overloading, because I can :P
+						if (args.length > 4) // 4<x<6
+						{
+							Computer.getInstance().UpdateMouse(sender, Integer.parseInt(args[1]), Integer.parseInt(args[2]),
+									Integer.parseInt(args[3]), Integer.parseInt(args[4]), "", false);
 							showusage = false;
-						} else if (args.length == 2) {
-							Computer.getInstance().UpdateMouse(sender, 0, 0, 0, 0, args[1]);
-							showusage = false;
+						} else {
+							if (args.length == 3) {
+								Computer.getInstance().UpdateMouse(sender, 0, 0, 0, 0, args[1], args[2].equals("down"));
+								showusage = false;
+							} else if (args.length == 2) {
+								Computer.getInstance().UpdateMouse(sender, 0, 0, 0, 0, args[1]);
+								showusage = false;
+							}
 						}
+					}
+					catch (VBoxException e) {
+						e.printStackTrace();
+					}
+					catch (Exception ignored) { //It will show the usage here
 					}
 				}
 				if (showusage) {
@@ -118,10 +126,15 @@ public class Commands implements CommandExecutor {
 					case "mspeed":
 					case "mousespeed":
 						if (args.length < 3) {
-							sender.sendMessage("§cUsage: /computer input mspeed <integer>");
+							sender.sendMessage("§cUsage: /computer input mspeed <number>");
 							return true;
 						}
-						MouseLockerPlayerListener.LockedSpeed = Float.parseFloat(args[2]);
+						try {
+							MouseLockerPlayerListener.LockedSpeed = Float.parseFloat(args[2]);
+						} catch(NumberFormatException e) {
+							sender.sendMessage("§cThe speed must be a number.");
+							break;
+						}
 						sender.sendMessage("§aMouse speed set to " + MouseLockerPlayerListener.LockedSpeed);
 				}
 				break;

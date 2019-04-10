@@ -25,8 +25,12 @@ public class MouseLockerPlayerListener implements Runnable, Listener {
 			if (yaw2 - yaw1 == 0 || pitch2 - pitch1 == 0)
 				return;
 
-			Computer.getInstance().UpdateMouse(null, (int) ((yaw2 - yaw1) * LockedSpeed),
-					(int) ((pitch2 - pitch1) * LockedSpeed), 0, 0, "");
+			try {
+				Computer.getInstance().UpdateMouse(null, (int) ((yaw2 - yaw1) * LockedSpeed),
+						(int) ((pitch2 - pitch1) * LockedSpeed), 0, 0, "");
+			} catch (Exception e) { //Should not happen
+				e.printStackTrace();
+			}
 
 			entry.getKey().teleport(entry.getValue(), TeleportCause.PLUGIN);
 		}

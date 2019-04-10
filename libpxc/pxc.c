@@ -14,15 +14,15 @@
 
 typedef long long int addr;
 typedef struct { //RGB
-	int red : 8;
-	int green : 8;
-	int blue : 8;
+	unsigned int red : 8;
+	unsigned int green : 8;
+	unsigned int blue : 8;
 } Color; //Used for Bukkit's initializers (for simplicity)
 typedef struct { //BGRA
-	int blue : 8;
-	int green : 8;
-	int red : 8;
-	int alpha : 8;
+	unsigned int blue : 8;
+	unsigned int green : 8;
+	unsigned int red : 8;
+	unsigned int alpha : 8;
 } NativeColor; //Used for the screen data
 
 char matchColor(NativeColor nc);
@@ -55,34 +55,17 @@ char* getMapColor(int x, int y) {
 //May return 0
 void* updateAndGetMap(int x, int y, int w, int h, int** out_changed) { //TODO: Support the parameters
 	if(image==NULL || maps==NULL) return 0;
-	char* mapp = maps;
-	NativeColor* imgp = image;
-	printf("PXC: mapp=%p imgp=%p\n", mapp, imgp);
-	for(int k=0; k<mapcx; k++) {
-		printf("PXC: k=%d\n", k);
-		for(int l=0; l<mapcy; l++) {
-			printf("PXC: l=%d\n", l);
-			mapp = maps + MAPSIZE*k + MAPSIZE*mapcx*MAPSIZE*l; //Go to the start of the map
-			printf("PXC: mapp=%p imgp=%p - %d\n", mapp, imgp, *mapp);
-			for(short i=0; i<MAPSIZE; i++) { //We need to jump
-				for(short j=0; j<MAPSIZE; j++) {
-					//*mapp=matchColor(*imgp); - TODO
-					NativeColor x={.red=0, .green=0, .blue=255};
-					*mapp=matchColor(x);
-					printf("PXC: imgp: %ld - %x\n", (void*)imgp-image, *imgp); //TODO: The bottom of the image
-					printf("PXC: mapcx: %d mapcy: %d\n", k, l); //TODO: Has nothing
-					imgp++; //Increment by the size of NativeColor so 4
-					mapp++;
-				}
-				imgp+=width-MAPSIZE; //Go back to the first column
-				//printf("Row done, imgp=%p\n", imgp);
-			}
-			imgp+=MAPSIZE; //Go to the next map, kind of - TODO: Use X and Y coords!
-			if((void*)mapp - maps     >    MAPSIZE * MAPSIZE * mapcx * mapcy ||
-			   (void*)imgp - image    >    width   * height  * sizeof(NativeColor)) {
-				mapp = maps;  //Start over
-				imgp = image; //Start over
-			}
+	for(int l=y; l<y+h; l++) {
+		//printf("PXC: l=%d\n", l);
+		for(int k=x; k<x+w; k++) {
+			//printf("PXC: k=%d\n", k);
+			char *mapp=getMapColor(k, l);
+			char color=matchColor(*getNativeColor(k, l));
+			//NativeColor x={.red=0, .green=0, .blue=255, .alpha=255};
+			//*mapp=matchColor(x);
+			*mapp=color;
+			//printf("PXC: mapp: %d %d - %x\n", k, l, *mapp);	//TODO: The bottom of the image
+			//printf("PXC: mapcx: %d mapcy: %d\n", k, l); 		//TODO: Has nothing
 		}
 	}
 	printf("PXC: ret maps=%p\n", maps);
@@ -159,7 +142,7 @@ double getDistance(Color c1, Color c2) {
 
 //Code from Bukkit's MapPalette class
 char matchColor(NativeColor nc) {
-	if (nc.alpha < 128) return 0;
+	//if (nc.alpha < 128) return 0;
 	Color color={.red=nc.red, .green=nc.green, .blue=nc.blue};
 
 	char index = 0;
