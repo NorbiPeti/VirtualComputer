@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.virtualbox_6_0.*;
 import sznp.virtualcomputer.events.MachineEventHandler;
 import sznp.virtualcomputer.events.VBoxEventHandler;
+import sznp.virtualcomputer.renderer.GPURenderer;
 import sznp.virtualcomputer.renderer.GPURendererInternal;
 import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.Scancode;
@@ -207,7 +208,7 @@ public final class Computer {
                 sendMessage(sender, "§eComputer powered off."); //This block runs later
             }
         });
-        GPURendererInternal.setPixels(new byte[1], 0, 0); //Black screen
+        GPURenderer.update(new byte[1], 0, 0, 0, 0, 640, 480); //Black screen
         stopEvents();
 		MouseLockerPlayerListener.computerStop();
     }

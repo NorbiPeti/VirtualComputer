@@ -67,7 +67,7 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("java.library.path", vbpath);
 			Utils.addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
-			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
+			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom"); //TODO: Test for MSCOM
 			vbl.RTR3InitExe(0, "", 0);
 			IVirtualBox vbox = manager.getVBox();
 			listener = new VBoxEventHandler().registerTo(vbox.getEventSource());

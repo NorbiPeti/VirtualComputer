@@ -95,7 +95,7 @@ public class GPURendererInternal extends Kernel {
 	private static final int BLUE = 0;
 
 	@SuppressWarnings("Convert2Lambda") //Aparapi fails with lambdas
-	public static void setPixels(byte[] pixels, int width, int height) {
+	static void setPixels(byte[] pixels, int width, int height) {
 		renderers.forEach(new Consumer<GPURendererInternal>() {
 			@Override //IT'S THE LAMBDAS (exception)
 			public void accept(GPURendererInternal r) {
