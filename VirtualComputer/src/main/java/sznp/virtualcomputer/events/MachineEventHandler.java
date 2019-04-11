@@ -37,7 +37,7 @@ public class MachineEventHandler extends EventHandlerBase {
 			case PoweredOff:
 			case Saved:
 				if (starting) {
-					sender.sendMessage("§cFailed to start computer! See the VM's log for more details.");
+					sender.sendMessage("§cFailed to start computer! See the console for more details.");
 					sender.sendMessage("§cMake sure that 2D and 3D acceleration is disabled.");
 					starting = false;
 					Bukkit.getScheduler().runTaskAsynchronously(PluginMain.Instance, () -> {

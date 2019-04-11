@@ -9,7 +9,6 @@ import org.virtualbox_6_0.*;
 import sznp.virtualcomputer.events.MachineEventHandler;
 import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.GPURenderer;
-import sznp.virtualcomputer.renderer.GPURendererInternal;
 import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.Scancode;
 
@@ -79,6 +78,8 @@ public final class Computer {
     public void onLock(CommandSender sender) {
         machine = session.getMachine(); // This is the Machine object we can work with
         final IConsole console = session.getConsole();
+        if (handler != null)
+            handler.disable();
 	    handler = new MachineEventHandler(Computer.this, sender);
         listener = handler.registerTo(console.getEventSource());
         IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
@@ -222,6 +223,7 @@ public final class Computer {
     }
 
     public void pluginDisable(CommandSender ccs) {
+        stopEvents();
         if (session.getState() == SessionState.Locked) {
             if (session.getMachine().getState().equals(MachineState.Running)) {
                 ccs.sendMessage("§aSaving machine state...");

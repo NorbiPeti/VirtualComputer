@@ -4,9 +4,6 @@ import com.aparapi.Kernel;
 import com.aparapi.Range;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.function.Consumer;
-
 //Accessing the GPURenderer results in ArrayIndexOutOfBoundsExceptions - IT'S THE LAMBDAS
 public class GPURendererInternal extends Kernel {
 	private int mapx;
@@ -21,7 +18,6 @@ public class GPURendererInternal extends Kernel {
 	private Range range;
 	@Getter
 	private boolean rendered;
-	private static ArrayList<GPURendererInternal> renderers = new ArrayList<>();
 
 	//public static byte[] test=new byte[1]; - LAMBDAS
 	public GPURendererInternal(int mapx, int mapy, int[] colors) {
@@ -34,8 +30,6 @@ public class GPURendererInternal extends Kernel {
 		pixels = new byte[1];
 		width = height = 0;
 		rendered = false;
-
-		renderers.add(this);
 	}
 
 	@Override
@@ -94,23 +88,22 @@ public class GPURendererInternal extends Kernel {
 	private static final int GREEN = 1;
 	private static final int BLUE = 0;
 
-	@SuppressWarnings("Convert2Lambda") //Aparapi fails with lambdas
-	static void setPixels(byte[] pixels, int width, int height) {
-		renderers.forEach(new Consumer<GPURendererInternal>() {
-			@Override //IT'S THE LAMBDAS (exception)
-			public void accept(GPURendererInternal r) {
-				r.pixels = pixels;
-				r.width = width;
-				r.height = height;
-				r.rendered = false;
-			}
-		});
+	//Aparapi fails with lambdas
+	void setPixels(byte[] pixels, int width, int height) {
+		this.pixels = pixels;
+		this.width = width;
+		this.height = height;
+		rendered = false;
 	}
 
 	void render(byte[] buffer) {
 		if (pixels == null || rendered) return;
 		this.buffer = buffer;
 		put(buffer).put(pixels).execute(range).get(buffer);
+		rendered = true;
+	}
+
+	void ignoreChange() {
 		rendered = true;
 	}
 }

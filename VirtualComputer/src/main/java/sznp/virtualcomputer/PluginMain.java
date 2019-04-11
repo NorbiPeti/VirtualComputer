@@ -40,6 +40,7 @@ public class PluginMain extends JavaPlugin {
 	 */
 	//public static PXCLib pxc;
 	public static boolean direct;
+	public static boolean sendAll;
 
 	// Fired when plugin is first enabled
 	@Override
@@ -48,6 +49,7 @@ public class PluginMain extends JavaPlugin {
 		try {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			this.getCommand("computer").setExecutor(new Commands());
+			sendAll = getConfig().getBoolean("sendAll", true);
 			ccs.sendMessage("§bInitializing VirtualBox...");
 			String vbpath = System.getProperty("os.name").toLowerCase().contains("mac")
 					? "/Applications/VirtualBox.app/Contents/MacOS"
@@ -109,13 +111,15 @@ public class PluginMain extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
-		mousetask.cancel();
+		if (mousetask != null)
+			mousetask.cancel();
 		/*try {
 			source.unregisterListener(listener);
 		} catch (VBoxException e) { //"Listener was never registered"
 			e.printStackTrace(); - VBox claims the listener was never registered (can double register as well)
 		}*/
-		((VBoxEventHandler) listener.getTypedWrapped()).disable(); //The save progress wait locks with the event
+		if (listener != null)
+			((VBoxEventHandler) listener.getTypedWrapped()).disable(); //The save progress wait locks with the event
 		if (Computer.getInstance() != null)
 			Computer.getInstance().pluginDisable(ccs);
 		ccs.sendMessage("§aHuh.");
