@@ -83,3 +83,12 @@ Due to the way it works, it automatically plays every sound from the virtual mac
 **Fix:** Close all VirtualBox instances and wait 10 seconds.
 
 **Cause:** Possibly it happens because the plugin creates the VBoxSVC process, which thus inherits file descriptors such as the open server port.
+
+## OpenCL error
+
+```
+Check your environment. Failed to load codegen native library  or possibly failed to locate opencl native library (opencl.dll/opencl.so). Ensure that OpenCL is in your PATH (windows) or in LD_LIBRARY_PATH (linux).
+```
+
+**Fix:** On Ubuntu you can install the needed library with `sudo apt install ocl-icd-opencl-dev`
+
