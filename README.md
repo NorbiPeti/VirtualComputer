@@ -3,12 +3,12 @@ A working modern computer in Minecraft made using VirtualBox and Java. No client
 
 ## Video
 
-[![Original video](https://img.youtube.com/vi/VxSyDfxPd3s/0.jpg)](https://www.youtube.com/watch?v=VxSyDfxPd3s)
+[![Video](https://img.youtube.com/vi/K4t98YUIm4M/0.jpg)](https://www.youtube.com/watch?v=K4t98YUIm4M)
 
 ## Installation requirements
 *Note: only the server host has to meet these requirements.*
 
-* A non-Windows OS
+* A non-Windows OS supported by VirtualBox
 * Root (sudo) privileges
 * Enough resources to run another OS
 
@@ -44,7 +44,7 @@ A working modern computer in Minecraft made using VirtualBox and Java. No client
 *Please give appropriate credit and link to this page if you use this machine in one of your videos/creations/etc.*
 
 ### Display
-*Note:* You can create as many displays as you want, but all of them will show the same currently.
+*Note: You can create as many displays as you want, but all of them will show the same currently.*
 
 To create a display, make a 5 wide 4 high wall of item frames, then put the maps 0-19 on them starting from the top left and going downwards. You can give the maps with this command:
 
