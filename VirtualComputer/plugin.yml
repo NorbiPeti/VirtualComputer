@@ -1,8 +1,0 @@
-name: VirtualComputer
-main: sznp.virtualcomputer.PluginMain
-version: 1.1
-commands:
-    computer:
-        usage: Use /computer start|stop
-        alias: c
-softdepend: [Movecraft]
