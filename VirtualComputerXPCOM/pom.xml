@@ -11,5 +11,12 @@
 
     <artifactId>VirtualComputer-XPCOM</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.virtualbox</groupId>
+            <artifactId>VirtualBox</artifactId>
+            <version>6.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -1,6 +1,6 @@
 package sznp.virtualcomputer.renderer;
 
-import net.minecraft.server.v1_12_R1.WorldMap;
+import lombok.val;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
@@ -10,18 +10,22 @@ import org.bukkit.map.MapView;
 import sznp.virtualcomputer.PluginMain;
 import sznp.virtualcomputer.util.Timing;
 
+import java.awt.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 
 public class GPURenderer extends MapRenderer implements IRenderer {
 	private byte[] buffer;
 	private final GPURendererInternal kernel;
-	private WorldMap wmap;
 	private int mapx, mapy;
 	//Store at central location after conversion
 	private static int[] colors_;
 	private int changedX = 0, changedY = 0, changedWidth = 640, changedHeight = 480;
+	private BiConsumer<Integer, Integer> flagDirty; //This way it's version independent, as long as it's named the same
 	private static ArrayList<GPURenderer> renderers = new ArrayList<>();
+	private static Method flagDirtyMethod;
 
 	public GPURenderer(short id, World world, int mapx, int mapy) throws Exception {
 		MapView map = IRenderer.prepare(id, world);
@@ -43,7 +47,16 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 		this.mapy = mapy;
 		Field field = map.getClass().getDeclaredField("worldMap");
 		field.setAccessible(true);
-		wmap = (WorldMap) field.get(map);
+		val wmap = field.get(map);
+		if (flagDirtyMethod == null)
+			flagDirtyMethod = wmap.getClass().getMethod("flagDirty", int.class, int.class);
+		flagDirty = (x, y) -> {
+			try {
+				flagDirtyMethod.invoke(wmap, x, y);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
 		kernel = new GPURendererInternal(mapx, mapy, colors_);
 		renderers.add(this);
 
@@ -78,16 +91,16 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 				int yy = y + changedHeight >= 128 ? 127 : y + changedHeight;
 				//System.out.println("local: ("+x+", "+y+") "+w+"x"+h);
 				kernel.render(buffer);
-				wmap.flagDirty(x, y);
-				wmap.flagDirty(xx, yy); // Send the changes only
+				flagDirty.accept(x, y);
+				flagDirty.accept(xx, yy); // Send the changes only
 				changedX = Integer.MAX_VALUE; //Finished rendering
 				changedY = Integer.MAX_VALUE; //TODO: Render as soon as we receive new image
 				changedWidth = -1; //Finished rendering
 				changedHeight = -1;
 			} else {
 				kernel.render(buffer);
-				wmap.flagDirty(0, 0);
-				wmap.flagDirty(127, 127); // Send everything
+				flagDirty.accept(0, 0);
+				flagDirty.accept(127, 127); // Send everything
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

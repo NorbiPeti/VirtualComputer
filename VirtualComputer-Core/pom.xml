@@ -51,22 +51,12 @@
 			<version>1.12-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.virtualbox</groupId>
-			<artifactId>VirtualBox</artifactId>
-			<version>6.0</version>
-		</dependency>
-		<dependency>
-            <groupId>org.virtualbox</groupId>
-            <artifactId>VirtualBox-MSCOM</artifactId>
-            <version>6.0</version>
-        </dependency>
-        <dependency>
+		<!-- <dependency> - Not using anything from here directly so we're not that dependent on versions
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
             <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency> -->
 		<!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
