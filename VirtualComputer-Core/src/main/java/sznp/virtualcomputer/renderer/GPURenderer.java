@@ -10,7 +10,6 @@ import org.bukkit.map.MapView;
 import sznp.virtualcomputer.PluginMain;
 import sznp.virtualcomputer.util.Timing;
 
-import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
