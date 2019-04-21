@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class PluginMain extends JavaPlugin {
-	public static final boolean MSCOM = true; //TODO: Implement
 	private static final int MCX = 5;
 	private static final int MCY = 4;
 	private BukkitTask mousetask;

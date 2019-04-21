@@ -61,11 +61,6 @@
             <artifactId>VirtualBox-MSCOM</artifactId>
             <version>6.0</version>
         </dependency>
-		<dependency>
-			<groupId>com.jacob</groupId>
-			<artifactId>Jacob</artifactId>
-			<version>1.19</version>
-		</dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>

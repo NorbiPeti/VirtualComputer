@@ -1,13 +1,16 @@
 package sznp.virtualcomputer.events;
 
+import lombok.val;
+import org.bukkit.Bukkit;
 import org.mozilla.interfaces.IEvent;
 import org.mozilla.interfaces.IEventListener;
 import org.virtualbox_6_0.IEventSource;
 import org.virtualbox_6_0.VBoxEventType;
-import sznp.virtualcomputer.PluginMain;
 import sznp.virtualcomputer.util.COMObjectBase;
 import sznp.virtualcomputer.util.Utils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -28,16 +31,30 @@ public abstract class EventHandlerBase extends COMObjectBase implements IEventLi
 
 	@Override
 	public final void handleEvent(IEvent iEvent) {
+		//val cl=eventMap.get((int)iEvent.getType()); - We can afford to search through the events for this handler
 		if (!enabled)
 			return;
-		Utils.handleEvent(this, eventMap, iEvent, false);
+		val kv = eventMap.entrySet().stream().filter(e -> e.getKey().value() == iEvent.getType()).findAny();
+		if (!kv.isPresent()) return; //Event not supported
+		val cl = kv.get().getValue();
+		for (Method method : getClass().getMethods()) {
+			if (method.isAnnotationPresent(org.bukkit.event.EventHandler.class)
+					&& method.getParameterCount() == 1 && method.getParameterTypes()[0] == cl) {
+				try {
+					method.invoke(this, Utils.getEvent(iEvent, cl));
+					return;
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					Bukkit.getLogger().warning("Error while handling VirtualBox event!");
+					e.getCause().printStackTrace();
+				}
+			}
+		}
 	}
 
 	public <T extends EventHandlerBase> org.virtualbox_6_0.IEventListener registerTo(IEventSource source) {
-		if (PluginMain.MSCOM)
-			return Utils.registerListenerMSCOM(source, this, new ArrayList<>(eventMap.keySet()));
-		else
-			return Utils.registerListener(source, this, new ArrayList<>(eventMap.keySet()));
+		return Utils.registerListener(source, this, new ArrayList<>(eventMap.keySet()));
 	}
 
 	public void disable() {
