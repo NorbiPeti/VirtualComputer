@@ -9,7 +9,6 @@ import org.virtualbox_6_0.*;
 import sznp.virtualcomputer.events.MachineEventHandler;
 import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.GPURenderer;
-import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.Scancode;
 
 import javax.annotation.Nullable;
@@ -61,7 +60,7 @@ public final class Computer {
                     //TODO: If we have VirtualBox open, it won't close the server's port
                     //TODO: "The object in question already exists." on second start
                     //machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); //No privileges, start the 'old' way
-                    //session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new MCFrameBuffer(session.getConsole().getDisplay(), false)));
+	                //session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new COMFrameBuffer(session.getConsole().getDisplay(), false)));
                     //sendMessage(sender, "§6Computer started with slower screen. Run as root to use a faster method.");
                 } else {
                     sendMessage(sender, "§cFailed to start computer: " + e.getMessage());
@@ -86,7 +85,7 @@ public final class Computer {
 	    handler.setProgress(progress);
 	    handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
         console.getDisplay().attachFramebuffer(0L,
-                new IFramebuffer(new MCFrameBuffer(console.getDisplay(), true)));
+		        new IFramebuffer(new COMFrameBuffer(console.getDisplay(), true)));
     }
 
     private void sendMessage(@Nullable CommandSender sender, String message) {

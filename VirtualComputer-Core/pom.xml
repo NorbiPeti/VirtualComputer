@@ -1,9 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.github.NorbiPeti</groupId>
 	<artifactId>VirtualComputer-Core</artifactId>
 	<version>2.1-SNAPSHOT</version>
+	<parent>
+		<groupId>io.github.NorbiPeti</groupId>
+		<artifactId>VirtualComputer</artifactId>
+		<version>2.1-SNAPSHOT</version>
+	</parent>
 	<build>
 		<plugins>
 			<plugin>
@@ -34,40 +38,11 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>spigot-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-		</repository>
-		<repository>
-			<id>repo</id>
-			<url>file://${basedir}/repo</url>
-		</repository>
-	</repositories>
 	<dependencies>
-		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-api</artifactId>
-			<version>1.12-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- <dependency> - Not using anything from here directly so we're not that dependent on versions
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency> -->
-		<!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
-		<dependency>
-			<groupId>net.java.dev.jna</groupId>
-			<artifactId>jna</artifactId>
-			<version>4.4.0</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.github.jnr/jnr-ffi -->
-		<dependency>
-			<groupId>com.github.jnr</groupId>
-			<artifactId>jnr-ffi</artifactId>
-			<version>2.1.7</version>
+		<dependency> <!-- This has the least additional (platform-dependent) code -->
+			<groupId>org.virtualbox</groupId>
+			<artifactId>VirtualBox-MSCOM</artifactId>
+			<version>6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aparapi</groupId>
@@ -75,14 +50,14 @@
 			<version>1.10.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.16.16</version>
+			<groupId>io.github.NorbiPeti</groupId>
+			<artifactId>VirtualComputer-XPCOM</artifactId>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
-		<dependency> <!-- javax.annotations.Nullable -->
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>3.0.0</version>
+		<dependency>
+			<groupId>sznp.virtualcomputer</groupId>
+			<artifactId>VirtualComputer-MSCOM</artifactId>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
     <profiles>
@@ -102,6 +77,7 @@
                                     <artifactSet>
                                         <excludes>
                                             <exclude>org.virtualbox:VirtualBox-MSCOM</exclude>
+											<exclude>sznp.virtualcomputer.VirtualComputer-MSCOM</exclude>
                                         </excludes>
                                     </artifactSet>
                                 </configuration>
@@ -127,6 +103,7 @@
                                     <artifactSet>
                                         <excludes>
                                             <exclude>org.virtualbox:VirtualBox</exclude>
+											<exclude>sznp.virtualcomputer.VirtualComputer-XPCOM</exclude>
                                         </excludes>
                                     </artifactSet>
                                 </configuration>

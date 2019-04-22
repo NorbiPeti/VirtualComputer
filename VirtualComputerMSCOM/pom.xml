@@ -19,6 +19,8 @@
             <groupId>org.virtualbox</groupId>
             <artifactId>VirtualBox-MSCOM</artifactId>
             <version>6.0</version>
+            <optional>true
+            </optional> <!-- https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html -->
         </dependency>
     </dependencies>
 

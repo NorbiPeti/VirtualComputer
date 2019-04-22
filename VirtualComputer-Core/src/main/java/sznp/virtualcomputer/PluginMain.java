@@ -13,7 +13,7 @@ import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.BukkitRenderer;
 import sznp.virtualcomputer.renderer.GPURenderer;
 import sznp.virtualcomputer.renderer.IRenderer;
-import sznp.virtualcomputer.util.Utils;
+import sznp.virtualcomputer.util.COMUtils;
 import sznp.virtualcomputer.util.VBoxLib;
 
 import java.io.File;
@@ -67,7 +67,7 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("sun.boot.library.path", vbpath);
 			if (System.getProperty("java.library.path") == null || System.getProperty("java.library.path").isEmpty())
 				System.setProperty("java.library.path", vbpath);
-			Utils.addLibraryPath(vbpath);
+			COMUtils.addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom"); //TODO: Test for MSCOM
 			vbl.RTR3InitExe(0, "", 0);
