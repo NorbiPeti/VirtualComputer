@@ -6,14 +6,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.virtualbox_6_0.IEventListener;
 import org.virtualbox_6_0.IVirtualBox;
 import org.virtualbox_6_0.VirtualBoxManager;
 import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.BukkitRenderer;
 import sznp.virtualcomputer.renderer.GPURenderer;
 import sznp.virtualcomputer.renderer.IRenderer;
-import sznp.virtualcomputer.util.COMUtils;
+import sznp.virtualcomputer.util.Utils;
 import sznp.virtualcomputer.util.VBoxLib;
 
 import java.io.File;
@@ -26,7 +25,7 @@ public class PluginMain extends JavaPlugin {
 	private static final int MCX = 5;
 	private static final int MCY = 4;
 	private BukkitTask mousetask;
-	private IEventListener listener;
+	private VBoxEventHandler listener;
 
 	public static PluginMain Instance;
 	//public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
@@ -67,12 +66,12 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("sun.boot.library.path", vbpath);
 			if (System.getProperty("java.library.path") == null || System.getProperty("java.library.path").isEmpty())
 				System.setProperty("java.library.path", vbpath);
-			COMUtils.addLibraryPath(vbpath);
+			Utils.addLibraryPath(vbpath);
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom"); //TODO: Test for MSCOM
 			vbl.RTR3InitExe(0, "", 0);
 			IVirtualBox vbox = manager.getVBox();
-			listener = new VBoxEventHandler().registerTo(vbox.getEventSource());
+			(listener = new VBoxEventHandler()).registerTo(vbox.getEventSource());
 			new Computer(this, manager, vbox); //Saves itself
 			ccs.sendMessage("§bLoading Screen...");
 			try {
@@ -119,7 +118,7 @@ public class PluginMain extends JavaPlugin {
 			e.printStackTrace(); - VBox claims the listener was never registered (can double register as well)
 		}*/
 		if (listener != null)
-			((VBoxEventHandler) listener.getTypedWrapped()).disable(); //The save progress wait locks with the event
+			listener.disable(); //The save progress wait locks with the event
 		if (Computer.getInstance() != null)
 			Computer.getInstance().pluginDisable(ccs);
 		ccs.sendMessage("§aHuh.");
