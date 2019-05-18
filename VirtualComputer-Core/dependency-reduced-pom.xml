@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>VirtualComputer</artifactId>
     <groupId>io.github.NorbiPeti</groupId>
+        <version>2.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>VirtualComputer-Core</artifactId>
     <version>2.1-SNAPSHOT</version>
     <build>
@@ -50,6 +54,7 @@
                                     <artifactSet>
                                         <excludes>
                                             <exclude>org.virtualbox:VirtualBox-MSCOM</exclude>
+                                            <exclude>sznp.virtualcomputer:VirtualComputer-MSCOM</exclude>
                                         </excludes>
                                     </artifactSet>
                                 </configuration>
@@ -75,6 +80,7 @@
                                     <artifactSet>
                                         <excludes>
                                             <exclude>org.virtualbox:VirtualBox</exclude>
+                                            <exclude>sznp.virtualcomputer:VirtualComputer-XPCOM</exclude>
                                         </excludes>
                                     </artifactSet>
                                 </configuration>
@@ -85,17 +91,31 @@
             </build>
         </profile>
     </profiles>
-    <repositories>
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>repo</id>
-            <url>file://${basedir}/repo</url>
-        </repository>
-    </repositories>
     <dependencies>
+        <dependency>
+            <groupId>org.virtualbox</groupId>
+            <artifactId>VirtualBox-MSCOM</artifactId>
+            <version>6.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>sznp.virtualcomputer</groupId>
+            <artifactId>VirtualComputer-MSCOM</artifactId>
+            <version>2.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hamcrest-core</artifactId>
+                    <groupId>org.hamcrest</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -127,12 +147,6 @@
                     <groupId>net.md-5</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.virtualbox</groupId>
-            <artifactId>VirtualBox-MSCOM</artifactId>
-            <version>6.0</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

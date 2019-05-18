@@ -9,6 +9,7 @@ import org.virtualbox_6_0.*;
 import sznp.virtualcomputer.events.MachineEventHandler;
 import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.GPURenderer;
+import sznp.virtualcomputer.renderer.MCFrameBuffer;
 import sznp.virtualcomputer.util.COMUtils;
 import sznp.virtualcomputer.util.Scancode;
 
@@ -86,7 +87,7 @@ public final class Computer {
 	    handler.setProgress(progress);
 	    handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
         console.getDisplay().attachFramebuffer(0L,
-                COMUtils.gimmeAFramebuffer(new COMFrameBuffer(console.getDisplay(), true)));
+                COMUtils.gimmeAFramebuffer(new MCFrameBuffer(console.getDisplay())));
     }
 
     private void sendMessage(@Nullable CommandSender sender, String message) {

@@ -1,11 +1,9 @@
 package sznp.virtualcomputer.util;
 
 import lombok.val;
-import org.virtualbox_6_0.IEvent;
-import org.virtualbox_6_0.IEventSource;
-import org.virtualbox_6_0.IFramebuffer;
-import org.virtualbox_6_0.VBoxEventType;
+import org.virtualbox_6_0.*;
 import org.virtualbox_6_0.xpcom.IUnknown;
+import sznp.virtualcomputer.COMFrameBuffer;
 import sznp.virtualcomputer.EventHandler;
 
 import java.lang.reflect.InvocationTargetException;
@@ -34,6 +32,10 @@ public final class COMUtils {
     }
 
     public static IFramebuffer gimmeAFramebuffer(IMCFrameBuffer frameBuffer) {
-        return new IFramebuffer(frameBuffer); //TODO
+        return new IFramebuffer(new COMFrameBuffer(frameBuffer));
+    }
+
+    public static void queryBitmapInfo(IDisplaySourceBitmap bitmap, long[] ptr, long[] w, long[] h, long[] bpp, long[] bpl, long[] pf) {
+        bitmap.getTypedWrapped().queryBitmapInfo(ptr, w, h, bpp, bpl, pf);
     }
 }

@@ -9,6 +9,7 @@ import org.virtualbox_6_0.IDisplay;
 import org.virtualbox_6_0.IDisplaySourceBitmap;
 import org.virtualbox_6_0.VBoxException;
 import sznp.virtualcomputer.PluginMain;
+import sznp.virtualcomputer.util.COMUtils;
 import sznp.virtualcomputer.util.IMCFrameBuffer;
 import sznp.virtualcomputer.util.Timing;
 
@@ -29,7 +30,7 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 			try {
 				display.querySourceBitmap(0L, holder);
 				long[] ptr = new long[1], w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
-				holder.value.getTypedWrapped().queryBitmapInfo(ptr, w, h, bpp, bpl, pf);
+				COMUtils.queryBitmapInfo(holder.value, ptr, w, h, bpp, bpl, pf);
 				if (PluginMain.direct) {
 					pointer = new Pointer(ptr[0]);
 					this.width = (int) w[0];

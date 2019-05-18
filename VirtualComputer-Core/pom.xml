@@ -77,7 +77,7 @@
                                     <artifactSet>
                                         <excludes>
                                             <exclude>org.virtualbox:VirtualBox-MSCOM</exclude>
-											<exclude>sznp.virtualcomputer.VirtualComputer-MSCOM</exclude>
+											<exclude>sznp.virtualcomputer:VirtualComputer-MSCOM</exclude>
                                         </excludes>
                                     </artifactSet>
                                 </configuration>
@@ -103,7 +103,7 @@
                                     <artifactSet>
                                         <excludes>
                                             <exclude>org.virtualbox:VirtualBox</exclude>
-											<exclude>sznp.virtualcomputer.VirtualComputer-XPCOM</exclude>
+											<exclude>sznp.virtualcomputer:VirtualComputer-XPCOM</exclude>
                                         </excludes>
                                     </artifactSet>
                                 </configuration>
