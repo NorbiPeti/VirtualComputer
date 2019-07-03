@@ -80,6 +80,16 @@
 											<exclude>sznp.virtualcomputer:VirtualComputer-MSCOM</exclude>
                                         </excludes>
                                     </artifactSet>
+									<minimizeJar>true</minimizeJar>
+									<filters>
+										<filter>
+											<artifact>io.github.NorbiPeti:VirtualComputer-XPCOM</artifact>
+											<includes>
+												<include>**
+												</include> <!-- Don't delete org.mozilla.interfaces.internal when minimizing -->
+											</includes>
+										</filter>
+									</filters>
                                 </configuration>
                             </execution>
                         </executions>

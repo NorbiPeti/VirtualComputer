@@ -100,8 +100,18 @@ public class COMFrameBuffer implements IFramebuffer {
 	public void setVisibleRegion(byte arg0, long arg1) {
 	}
 
+	/**
+	 * Posts a Video HW Acceleration Command to the frame buffer for processing.<br />
+	 * <br />
+	 * The commands used for 2D video acceleration (DDraw surface creation/destroying, blitting, scaling, color conversion, overlaying, etc.) are posted from quest to the host to be processed by the host hardware.
+	 *
+	 * @param command   Pointer to VBOXVHWACMD containing the command to execute.
+	 * @param enmCmd    The validated VBOXVHWACMD::enmCmd value from the command.
+	 * @param fromGuest Set when the command origins from the guest, clear if host.
+	 */ //https://www.virtualbox.org/browser/vbox/trunk/src/VBox/Frontends/VirtualBox/src/VBoxFBOverlay.cpp#L4645
 	@Override
-	public void processVHWACommand(byte b, int i, boolean b1) {
+	public void processVHWACommand(byte command, int enmCmd, boolean fromGuest) {
+
 	}
 
 	@Override
