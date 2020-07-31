@@ -24,7 +24,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.4.2</version>
+				<version>3.2.4</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -42,7 +42,7 @@
 		<dependency> <!-- This has the least additional (platform-dependent) code -->
 			<groupId>org.virtualbox</groupId>
 			<artifactId>VirtualBox-MSCOM</artifactId>
-			<version>6.0</version>
+			<version>6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aparapi</groupId>

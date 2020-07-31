@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.virtualbox_6_0.*;
+import org.virtualbox_6_1.*;
 import sznp.virtualcomputer.events.MachineEventHandler;
 import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.GPURenderer;
@@ -136,7 +136,7 @@ public final class Computer {
             return;
         sendMessage(sender, "§eFixing screen...");
         session.getConsole().getDisplay().setSeamlessMode(false);
-        session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L);
+        session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, true);
         sendMessage(sender, "§eScreen fixed.");
     }
 

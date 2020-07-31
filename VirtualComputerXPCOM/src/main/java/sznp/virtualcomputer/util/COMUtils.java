@@ -1,8 +1,8 @@
 package sznp.virtualcomputer.util;
 
 import lombok.val;
-import org.virtualbox_6_0.*;
-import org.virtualbox_6_0.xpcom.IUnknown;
+import org.virtualbox_6_1.*;
+import org.virtualbox_6_1.xpcom.IUnknown;
 import sznp.virtualcomputer.COMFrameBuffer;
 import sznp.virtualcomputer.EventHandler;
 
@@ -14,8 +14,8 @@ public final class COMUtils {
     }
 
     //public static void registerListener(IEventSource source, IEventListener listener, VBoxEventType... types) {
-    public static org.virtualbox_6_0.IEventListener registerListener(IEventSource source, IEventHandler listener, List<VBoxEventType> types) {
-        val ret = new org.virtualbox_6_0.IEventListener(new EventHandler(listener));
+    public static org.virtualbox_6_1.IEventListener registerListener(IEventSource source, IEventHandler listener, List<VBoxEventType> types) {
+        val ret = new org.virtualbox_6_1.IEventListener(new EventHandler(listener));
         source.registerListener(ret, types, true);
         return ret;
     }

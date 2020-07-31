@@ -6,9 +6,9 @@ import lombok.experimental.var;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
-import org.virtualbox_6_0.IProgress;
-import org.virtualbox_6_0.IStateChangedEvent;
-import org.virtualbox_6_0.VBoxEventType;
+import org.virtualbox_6_1.IProgress;
+import org.virtualbox_6_1.IStateChangedEvent;
+import org.virtualbox_6_1.VBoxEventType;
 import sznp.virtualcomputer.Computer;
 import sznp.virtualcomputer.PluginMain;
 

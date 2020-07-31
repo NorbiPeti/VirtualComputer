@@ -5,8 +5,8 @@ import org.mozilla.interfaces.IFramebuffer;
 import org.mozilla.interfaces.IFramebufferOverlay;
 import org.mozilla.interfaces.nsISupports;
 import org.mozilla.xpcom.Mozilla;
-import org.virtualbox_6_0.BitmapFormat;
-import org.virtualbox_6_0.FramebufferCapabilities;
+import org.virtualbox_6_1.BitmapFormat;
+import org.virtualbox_6_1.FramebufferCapabilities;
 import sznp.virtualcomputer.util.IMCFrameBuffer;
 
 import java.util.Arrays;

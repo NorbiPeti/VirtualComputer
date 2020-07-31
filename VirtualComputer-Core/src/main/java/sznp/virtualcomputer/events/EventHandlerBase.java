@@ -2,9 +2,9 @@ package sznp.virtualcomputer.events;
 
 import lombok.val;
 import org.bukkit.Bukkit;
-import org.virtualbox_6_0.IEvent;
-import org.virtualbox_6_0.IEventSource;
-import org.virtualbox_6_0.VBoxEventType;
+import org.virtualbox_6_1.IEvent;
+import org.virtualbox_6_1.IEventSource;
+import org.virtualbox_6_1.VBoxEventType;
 import sznp.virtualcomputer.util.COMUtils;
 import sznp.virtualcomputer.util.IEventHandler;
 
@@ -20,10 +20,10 @@ public abstract class EventHandlerBase implements IEventHandler {
 	/**
 	 * The events to listen for. It will only look for these handlers.
 	 */
-	private final Map<VBoxEventType, Class<? extends org.virtualbox_6_0.IEvent>> eventMap;
+	private final Map<VBoxEventType, Class<? extends org.virtualbox_6_1.IEvent>> eventMap;
 	private boolean enabled = true;
 
-	protected EventHandlerBase(Map<VBoxEventType, Class<? extends org.virtualbox_6_0.IEvent>> eventMap) {
+	protected EventHandlerBase(Map<VBoxEventType, Class<? extends org.virtualbox_6_1.IEvent>> eventMap) {
 		this.eventMap = eventMap;
 	}
 
@@ -50,7 +50,7 @@ public abstract class EventHandlerBase implements IEventHandler {
 		}
 	}
 
-	public <T extends EventHandlerBase> org.virtualbox_6_0.IEventListener registerTo(IEventSource source) {
+	public <T extends EventHandlerBase> org.virtualbox_6_1.IEventListener registerTo(IEventSource source) {
 		return COMUtils.registerListener(source, this, new ArrayList<>(eventMap.keySet()));
 	}
 

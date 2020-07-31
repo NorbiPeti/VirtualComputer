@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
-import org.virtualbox_6_0.ISessionStateChangedEvent;
-import org.virtualbox_6_0.SessionState;
-import org.virtualbox_6_0.VBoxEventType;
+import org.virtualbox_6_1.ISessionStateChangedEvent;
+import org.virtualbox_6_1.SessionState;
+import org.virtualbox_6_1.VBoxEventType;
 import sznp.virtualcomputer.Computer;
 
 public class VBoxEventHandler extends EventHandlerBase {

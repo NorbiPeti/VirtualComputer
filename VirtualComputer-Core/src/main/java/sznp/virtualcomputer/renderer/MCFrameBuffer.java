@@ -4,10 +4,10 @@ import com.sun.jna.Pointer;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
-import org.virtualbox_6_0.Holder;
-import org.virtualbox_6_0.IDisplay;
-import org.virtualbox_6_0.IDisplaySourceBitmap;
-import org.virtualbox_6_0.VBoxException;
+import org.virtualbox_6_1.Holder;
+import org.virtualbox_6_1.IDisplay;
+import org.virtualbox_6_1.IDisplaySourceBitmap;
+import org.virtualbox_6_1.VBoxException;
 import sznp.virtualcomputer.PluginMain;
 import sznp.virtualcomputer.util.COMUtils;
 import sznp.virtualcomputer.util.IMCFrameBuffer;
@@ -16,7 +16,7 @@ import sznp.virtualcomputer.util.Timing;
 @RequiredArgsConstructor
 public class MCFrameBuffer implements IMCFrameBuffer {
 	private final IDisplay display;
-	private Holder<IDisplaySourceBitmap> holder = new Holder<>();
+	private final Holder<IDisplaySourceBitmap> holder = new Holder<>();
 	private BukkitTask tt;
 	private Pointer pointer;
 	private int width;

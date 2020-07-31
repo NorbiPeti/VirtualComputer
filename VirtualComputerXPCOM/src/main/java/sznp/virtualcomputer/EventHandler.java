@@ -25,7 +25,7 @@ public final class EventHandler extends COMObjectBase implements IEventListener 
 	public final void handleEvent(IEvent iEvent) {
 		if (!enabled)
 			return;
-        handler.handleEvent(new org.virtualbox_6_0.IEvent(iEvent));
+        handler.handleEvent(new org.virtualbox_6_1.IEvent(iEvent));
 	}
 
 	public void disable() {

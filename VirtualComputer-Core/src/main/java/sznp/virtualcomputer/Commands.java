@@ -5,7 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.virtualbox_6_0.VBoxException;
+import org.virtualbox_6_1.VBoxException;
 
 public class Commands implements CommandExecutor {
 
