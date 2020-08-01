@@ -1,7 +1,8 @@
 name: VirtualComputer
 main: sznp.virtualcomputer.PluginMain
-version: 2.0
+version: '2.1'
 commands:
     computer:
         usage: Use /computer start|stop|reset|key|mouse|input|fix
         aliases: c
+api-version: '1.13'

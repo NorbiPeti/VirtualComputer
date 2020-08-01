@@ -47,8 +47,13 @@ public class MachineEventHandler extends EventHandlerBase {
 							l.warning("Result code: " + Integer.toHexString(progress.getResultCode()));
 							for (var info = progress.getErrorInfo(); info != null; info = info.getNext()) {
 								l.warning("----------------");
-								l.warning("VBox: " + info.getText());
-								l.warning("Component: " + info.getComponent());
+								if (info.getResultCode() == 0x80004005 && info.getResultDetail() == 0xFFFFF88B)
+									l.warning("The server cannot access the VirtualBox driver, run it with sudo. Make sure to only run plugins you trust.");
+								else {
+									l.warning("VBox: " + info.getText());
+									l.warning("Component: " + info.getComponent());
+									l.warning("Error codes: " + Integer.toHexString(info.getResultCode()) + " " + Integer.toHexString(info.getResultDetail()));
+								}
 							}
 						}
 					});

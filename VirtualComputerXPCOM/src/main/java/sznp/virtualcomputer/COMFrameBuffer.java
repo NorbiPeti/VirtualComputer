@@ -78,7 +78,8 @@ public class COMFrameBuffer implements IFramebuffer {
 	}
 
 	@Override
-	public void notify3DEvent(long arg0, byte[] arg1) {
+	public void notify3DEvent(long type, byte[] data) {
+		System.out.println("3D event! " + type + " - " + Arrays.toString(data));
 	}
 
 	@Override
