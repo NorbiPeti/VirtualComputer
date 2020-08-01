@@ -1,13 +1,31 @@
 package sznp.virtualcomputer;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.tree.CommandNode;
+import lombok.val;
+import me.lucko.commodore.Commodore;
+import me.lucko.commodore.CommodoreProvider;
+import me.lucko.commodore.file.CommodoreFileFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.virtualbox_6_1.MouseButtonState;
 import org.virtualbox_6_1.VBoxException;
+import sznp.virtualcomputer.util.Scancode;
 
-public class Commands implements CommandExecutor {
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class Commands implements CommandExecutor, TabCompleter {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -24,6 +42,9 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				Computer.getInstance().Start(sender, c);
+				break;
+			case "list":
+				Computer.getInstance().List(sender);
 				break;
 			case "stop":
 			case "poweroff":
@@ -82,11 +103,9 @@ public class Commands implements CommandExecutor {
 								showusage = false;
 							}
 						}
-					}
-					catch (VBoxException e) {
+					} catch (VBoxException e) {
 						e.printStackTrace();
-					}
-					catch (Exception ignored) { //It will show the usage here
+					} catch (Exception ignored) { //It will show the usage here
 					}
 				}
 				if (showusage) {
@@ -131,7 +150,7 @@ public class Commands implements CommandExecutor {
 						}
 						try {
 							MouseLockerPlayerListener.LockedSpeed = Float.parseFloat(args[2]);
-						} catch(NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							sender.sendMessage("§cThe speed must be a number.");
 							break;
 						}
@@ -141,6 +160,49 @@ public class Commands implements CommandExecutor {
 			}
 		}
 		return true;
+	}
+
+	private boolean tabSetup = true;
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		if (CommodoreProvider.isSupported() && tabSetup) {
+			tabSetup = false;
+			new Object() {
+				private void setup(Command command) {
+					val com = CommodoreProvider.getCommodore(PluginMain.Instance);
+					try {
+						val node = CommodoreFileFormat.parse(PluginMain.Instance.getResource("computer.commodore"));
+						CommandNode<Object> arg = RequiredArgumentBuilder.argument("index", IntegerArgumentType.integer()).build();
+						replaceChildren(node.getChild("start"), arg);
+						replaceChildren(node.getChild("on"), arg);
+						arg = RequiredArgumentBuilder.argument("key", StringArgumentType.word())
+								.suggests((context, builder) -> {
+									Arrays.stream(Scancode.values()).map(Scancode::name)
+											.map(name -> name.replace("sc_", "")).forEach(builder::suggest);
+									return builder.buildFuture();
+								}).build();
+						replaceChildren(node.getChild("key"), arg);
+						replaceChildren(node.getChild("press"), arg);
+						arg = RequiredArgumentBuilder.argument("button", StringArgumentType.word())
+								.suggests((context, builder) -> {
+									Arrays.stream(MouseButtonState.values()).map(MouseButtonState::name).forEach(builder::suggest);
+									return builder.buildFuture();
+								}).build();
+						replaceChildren(node.getChild("mouse"), arg);
+						com.register(command, node);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+				private void replaceChildren(CommandNode<Object> target, CommandNode<Object> node) {
+					target.getChildren().clear();
+					target.addChild(node);
+				}
+			}.setup(command);
+		}
+		return Collections.emptyList();
 	}
 
 	/**

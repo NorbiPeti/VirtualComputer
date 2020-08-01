@@ -1,0 +1,35 @@
+computer {
+  start {
+    index brigadier:integer;
+  }
+  on {
+    index brigadier:integer;
+  }
+  list;
+  stop;
+  off;
+  shutdown;
+  kill;
+  powerbutton;
+  reset;
+  restart;
+  fix;
+  fixscreen;
+  key {
+    key brigadier:string single_word;
+  }
+  press {
+    key brigadier:string single_word;
+  }
+  mouse {
+    button brigadier:string single_word;
+  }
+  input {
+    key;
+    mouse;
+  }
+  show {
+    key;
+    mouse;
+  }
+}
