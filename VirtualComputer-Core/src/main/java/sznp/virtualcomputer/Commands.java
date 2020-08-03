@@ -67,9 +67,16 @@ public class Commands implements CommandExecutor, TabCompleter {
 			case "restart":
 				Computer.getInstance().Reset(sender);
 				break;
+			case "save":
+			case "savestate":
+				Computer.getInstance().SaveState(sender);
+				break;
 			case "fix":
 			case "fixscreen":
-				Computer.getInstance().FixScreen(sender);
+				Boolean seamless;
+				if (args.length < 2) seamless = null;
+				else seamless = args[1].equalsIgnoreCase("true");
+				Computer.getInstance().FixScreen(sender, seamless);
 				break;
 			case "key":
 			case "press":

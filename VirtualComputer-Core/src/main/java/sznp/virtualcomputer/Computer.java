@@ -100,6 +100,7 @@ public final class Computer {
 		handler.setProgress(progress);
 		handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
 		val fb = new MCFrameBuffer(console.getDisplay());
+		fb.start();
 		String fbid = console.getDisplay().attachFramebuffer(0L,
 				COMUtils.gimmeAFramebuffer(fb));
 		fb.setId(fbid);
@@ -153,7 +154,16 @@ public final class Computer {
 		sendMessage(sender, "§eComputer reset.");
 	}
 
-	public void FixScreen(CommandSender sender) {
+	public void SaveState(CommandSender sender) {
+		if (checkMachineNotRunning(sender))
+			return;
+		sendMessage(sender, "§eSaving computer state...");
+		synchronized (session) {
+			session.getMachine().saveState();
+		}
+	}
+
+	public void FixScreen(CommandSender sender, Boolean seamless) {
 		if (checkMachineNotRunning(sender))
 			return;
 		if (framebuffer == null) {
@@ -166,15 +176,20 @@ public final class Computer {
 		sendMessage(sender, "§eFixing screen...");
 		try {
 			synchronized (session) {
-				session.getConsole().getDisplay().setSeamlessMode(false);
-				session.getConsole().getDisplay().detachFramebuffer(0L, framebuffer.getId());
-				session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, true);
-				framebuffer.setId(session.getConsole().getDisplay().attachFramebuffer(0L, COMUtils.gimmeAFramebuffer(framebuffer)));
-			}
+				if (seamless == null)
+					session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, false);
+			} //Last param: notify - send PnP notification - stops updates but not changes for some reason
+			Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
+				synchronized (session) {
+					sendMessage(sender, "Needs host cursor: " + session.getConsole().getMouse().getNeedsHostCursor());
+					session.getConsole().getMouse().putMouseEventAbsolute(-1, -1, 0, 0, 0);
+					session.getConsole().getMouse().putMouseEvent(0, 0, 0, 0, 0); //Switch to relative mode
+					sendMessage(sender, "§eScreen fixed.");
+				}
+			}, 20);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		sendMessage(sender, "§eScreen fixed.");
 		status = session.getConsole().getGuest().getFacilityStatus(AdditionsFacilityType.Seamless, lastUpdated);
 		sendMessage(sender, "Seamless status: " + status);
 	}
@@ -258,6 +273,7 @@ public final class Computer {
 		GPURenderer.update(new byte[1], 0, 0, 0, 0, 640, 480); //Black screen
 		stopEvents();
 		MouseLockerPlayerListener.computerStop();
+		framebuffer.stop();
 	}
 
 	public void stopEvents() {
@@ -270,6 +286,7 @@ public final class Computer {
 
 	public void pluginDisable(CommandSender ccs) {
 		stopEvents();
+		framebuffer.stop();
 		if (session.getState() == SessionState.Locked) {
 			if (session.getMachine().getState().equals(MachineState.Running)) {
 				ccs.sendMessage("§aSaving machine state...");
