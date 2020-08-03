@@ -3,6 +3,7 @@ package sznp.virtualcomputer;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.val;
+import lombok.var;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -28,6 +29,7 @@ public final class Computer {
 	private MachineEventHandler handler;
 	private IEventListener listener;
 	private VirtualBoxManager manager;
+	private MCFrameBuffer framebuffer;
 
 	@java.beans.ConstructorProperties({"plugin"})
 	public Computer(PluginMain plugin, VirtualBoxManager manager, IVirtualBox vbox) {
@@ -45,7 +47,7 @@ public final class Computer {
 			return;
 		}
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			if (vbox.getMachines().size() <= index) {
+			if (index < 0 || vbox.getMachines().size() <= index) {
 				sendMessage(sender, "§cMachine not found!");
 				return;
 			}
@@ -54,7 +56,9 @@ public final class Computer {
 				machine = vbox.getMachines().get(index);
 				session.setName("minecraft");
 				// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
-				machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
+				synchronized (session) {
+					machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
+				}
 				VBoxEventHandler.getInstance().setup(machine.getId(), sender); //TODO: Sometimes null
 			} catch (VBoxException e) {
 				if (e.getResultCode() == 0x80070005) { //lockMachine: "The object functionality is limited"
@@ -95,8 +99,11 @@ public final class Computer {
 		IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
 		handler.setProgress(progress);
 		handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
-		console.getDisplay().attachFramebuffer(0L,
-				COMUtils.gimmeAFramebuffer(new MCFrameBuffer(console.getDisplay())));
+		val fb = new MCFrameBuffer(console.getDisplay());
+		String fbid = console.getDisplay().attachFramebuffer(0L,
+				COMUtils.gimmeAFramebuffer(fb));
+		fb.setId(fbid);
+		framebuffer = fb;
 	}
 
 	private void sendMessage(@Nullable CommandSender sender, String message) {
@@ -114,7 +121,9 @@ public final class Computer {
 			return;
 		}
 		sendMessage(sender, "§eStopping computer...");
-		session.getConsole().powerDown();
+		synchronized (session) {
+			session.getConsole().powerDown();
+		}
 	}
 
 	public void PowerButton(CommandSender sender, int index) {
@@ -125,7 +134,9 @@ public final class Computer {
 				if (session.getState() != SessionState.Locked || session.getMachine() == null) {
 					Start(sender, index);
 				} else {
-					session.getConsole().powerButton();
+					synchronized (session) {
+						session.getConsole().powerButton();
+					}
 					sendMessage(sender, "§ePowerbutton pressed.");
 				}
 			}
@@ -136,17 +147,36 @@ public final class Computer {
 		if (checkMachineNotRunning(sender))
 			return;
 		sendMessage(sender, "§eResetting computer...");
-		session.getConsole().reset();
+		synchronized (session) {
+			session.getConsole().reset();
+		}
 		sendMessage(sender, "§eComputer reset.");
 	}
 
 	public void FixScreen(CommandSender sender) {
 		if (checkMachineNotRunning(sender))
 			return;
+		if (framebuffer == null) {
+			sender.sendMessage("§cFramebuffer is null...");
+			return;
+		}
+		val lastUpdated = new Holder<Long>();
+		var status = session.getConsole().getGuest().getFacilityStatus(AdditionsFacilityType.Seamless, lastUpdated);
+		sendMessage(sender, "Seamless status: " + status);
 		sendMessage(sender, "§eFixing screen...");
-		session.getConsole().getDisplay().setSeamlessMode(false);
-		session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, true);
+		try {
+			synchronized (session) {
+				session.getConsole().getDisplay().setSeamlessMode(false);
+				session.getConsole().getDisplay().detachFramebuffer(0L, framebuffer.getId());
+				session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, true);
+				framebuffer.setId(session.getConsole().getDisplay().attachFramebuffer(0L, COMUtils.gimmeAFramebuffer(framebuffer)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		sendMessage(sender, "§eScreen fixed.");
+		status = session.getConsole().getGuest().getFacilityStatus(AdditionsFacilityType.Seamless, lastUpdated);
+		sendMessage(sender, "Seamless status: " + status);
 	}
 
 	public boolean checkMachineNotRunning(@Nullable CommandSender sender) {
@@ -177,14 +207,16 @@ public final class Computer {
 		}
 		// Release key scan code concept taken from VirtualBox source code (KeyboardImpl.cpp:putCAD())
 		// +128
-		if (durationorstate != -2)
-			session.getConsole().getKeyboard().putScancode(code);
-		Runnable sendrelease = () -> session.getConsole().getKeyboard().putScancodes(Lists.newArrayList(code + 128,
-				Scancode.sc_controlLeft.Code + 128, Scancode.sc_shiftLeft.Code + 128, Scancode.sc_altLeft.Code + 128));
-		if (durationorstate == 0 || durationorstate == -2)
-			sendrelease.run();
-		if (durationorstate > 0) {
-			Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, sendrelease, durationorstate);
+		synchronized (session) {
+			if (durationorstate != -2)
+				session.getConsole().getKeyboard().putScancode(code);
+			Runnable sendrelease = () -> session.getConsole().getKeyboard().putScancodes(Lists.newArrayList(code + 128,
+					Scancode.sc_controlLeft.Code + 128, Scancode.sc_shiftLeft.Code + 128, Scancode.sc_altLeft.Code + 128));
+			if (durationorstate == 0 || durationorstate == -2)
+				sendrelease.run();
+			if (durationorstate > 0) {
+				Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, sendrelease, durationorstate * 20);
+			}
 		}
 	}
 
@@ -195,7 +227,9 @@ public final class Computer {
 		if (mbs.length() > 0 && down)
 			state = Arrays.stream(MouseButtonState.values()).filter(mousebs -> mousebs.name().equalsIgnoreCase(mbs))
 					.findAny().orElseThrow(() -> new Exception("Unknown mouse button")).value();
-		session.getConsole().getMouse().putMouseEvent(x, y, z, w, state);
+		synchronized (session) {
+			session.getConsole().getMouse().putMouseEvent(x, y, z, w, state);
+		}
 	}
 
 	public void UpdateMouse(CommandSender sender, int x, int y, int z, int w, String mbs) throws Exception {
@@ -212,7 +246,9 @@ public final class Computer {
 	public void onMachineStop(CommandSender sender) {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			if (session.getState() == SessionState.Locked) {
-				session.unlockMachine(); //Needs to be outside of the event handler
+				synchronized (session) {
+					session.unlockMachine(); //Needs to be outside of the event handler
+				}
 				handler = null;
 				machine = null;
 				session = manager.getSessionObject();
