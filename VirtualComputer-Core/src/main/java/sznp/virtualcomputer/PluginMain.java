@@ -33,7 +33,7 @@ public class PluginMain extends JavaPlugin {
 	 * Only used if {@link #direct} is false.
 	 */
 	public static ByteBuffer allpixels; // It's set on each change
-	private static ArrayList<IRenderer> renderers = new ArrayList<>();
+	private static final ArrayList<IRenderer> renderers = new ArrayList<>();
 	/*
 	 * Only used if {@link #direct} is true.
 	 */
@@ -50,14 +50,23 @@ public class PluginMain extends JavaPlugin {
 			this.getCommand("computer").setExecutor(new Commands());
 			sendAll = getConfig().getBoolean("sendAll", true);
 			ccs.sendMessage("§bInitializing VirtualBox...");
-			String vbpath = System.getProperty("os.name").toLowerCase().contains("mac")
-					? "/Applications/VirtualBox.app/Contents/MacOS"
-					: "/opt/virtualbox";
+			String osname = System.getProperty("os.name").toLowerCase();
+			final boolean windows;
+			String vbpath;
+			{
+				boolean win = false;
+				vbpath = osname.contains("mac")
+						? "/Applications/VirtualBox.app/Contents/MacOS"
+						: (win = osname.contains("windows"))
+						? "C:\\Program Files\\Oracle\\VirtualBox"
+						: "/opt/virtualbox";
+				windows = win;
+			}
 			//noinspection ConstantConditions
-			Predicate<File> notGoodDir= ff->!ff.isDirectory() || Arrays.stream(ff.list()).noneMatch(s -> s.contains("xpcom"));
+			Predicate<File> notGoodDir = ff -> !ff.isDirectory() || (!windows && Arrays.stream(ff.list()).noneMatch(s -> s.contains("xpcom")));
 			if (notGoodDir.test(new File(vbpath)))
 				vbpath = "/usr/lib/virtualbox";
-			if(notGoodDir.test(new File(vbpath)))
+			if (notGoodDir.test(new File(vbpath)))
 				error("Could not find VirtualBox! Download from https://www.virtualbox.org/wiki/Downloads");
 			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
 				System.setProperty("vbox.home", vbpath);
@@ -66,10 +75,12 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("sun.boot.library.path", vbpath);
 			if (System.getProperty("java.library.path") == null || System.getProperty("java.library.path").isEmpty())
 				System.setProperty("java.library.path", vbpath);
-			Utils.addLibraryPath(vbpath);
+			Utils.addLibraryPath(vbpath); //TODO: Jacob DLL must be in the server folder
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
-			VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom"); //TODO: Test for MSCOM
-			vbl.RTR3InitExe(0, "", 0);
+			if (!windows) {
+				VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
+				vbl.RTR3InitExe(0, "", 0);
+			}
 			IVirtualBox vbox = manager.getVBox();
 			(listener = new VBoxEventHandler()).registerTo(vbox.getEventSource());
 			new Computer(this, manager, vbox); //Saves itself
@@ -80,12 +91,12 @@ public class PluginMain extends JavaPlugin {
 					for (short j = 0; j < MCY; j++)
 						renderers.add(new GPURenderer((short) (j * 5 + i), Bukkit.getWorlds().get(0), i, j));
 				//pxc = LibraryLoader.create(PXCLib.class).search(getDataFolder().getAbsolutePath()).load("pxc");
-				direct=true;
+				direct = true;
 				ccs.sendMessage("§bUsing Direct Renderer, all good");
 			} catch (NoClassDefFoundError | Exception e) {
 				for (short i = 0; i < 20; i++)
 					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
-				direct=false;
+				direct = false;
 				e.printStackTrace();
 				ccs.sendMessage("§6Compatibility error, using slower renderer");
 			}

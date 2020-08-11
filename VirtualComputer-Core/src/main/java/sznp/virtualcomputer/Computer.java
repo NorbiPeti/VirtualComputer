@@ -273,7 +273,8 @@ public final class Computer {
 		GPURenderer.update(new byte[1], 0, 0, 0, 0, 640, 480); //Black screen
 		stopEvents();
 		MouseLockerPlayerListener.computerStop();
-		framebuffer.stop();
+		if (framebuffer != null)
+			framebuffer.stop();
 	}
 
 	public void stopEvents() {
@@ -286,7 +287,8 @@ public final class Computer {
 
 	public void pluginDisable(CommandSender ccs) {
 		stopEvents();
-		framebuffer.stop();
+		if (framebuffer != null)
+			framebuffer.stop();
 		if (session.getState() == SessionState.Locked) {
 			if (session.getMachine().getState().equals(MachineState.Running)) {
 				ccs.sendMessage("§aSaving machine state...");

@@ -1,5 +1,7 @@
 package sznp.virtualcomputer.util;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
@@ -11,6 +13,14 @@ public class Utils {
      * @throws Exception
      */
     public static void addLibraryPath(String pathToAdd) throws Exception {
+        try {
+            addLibraryPathOld(pathToAdd);
+        } catch (Throwable t) {
+            addLibraryPathNew(pathToAdd);
+        }
+    }
+
+    private static void addLibraryPathOld(String pathToAdd) throws Exception {
         final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
         usrPathsField.setAccessible(true);
 
@@ -28,5 +38,15 @@ public class Utils {
         final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
         newPaths[newPaths.length - 1] = pathToAdd;
         usrPathsField.set(null, newPaths);
+    }
+
+    private static void addLibraryPathNew(String pathToAdd) throws Exception {
+        MethodHandles.Lookup cl = MethodHandles.privateLookupIn(ClassLoader.class, MethodHandles.lookup());
+        VarHandle sys_paths = cl.findStaticVarHandle(ClassLoader.class, "sys_paths", String[].class);
+        final String[] paths = (String[]) sys_paths.get();
+
+        final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+        newPaths[newPaths.length - 1] = pathToAdd;
+        sys_paths.set((Object) newPaths);
     }
 }

@@ -4,7 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>sznp.virtualcomputer</groupId>
     <artifactId>VirtualComputer-MSCOM</artifactId>
     <version>2.1-SNAPSHOT</version>
 
@@ -21,6 +20,11 @@
             <version>6.1</version>
             <optional>true
             </optional> <!-- https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html -->
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jacob-project</groupId>
+            <artifactId>jacob</artifactId>
+            <version>1.19</version>
         </dependency>
     </dependencies>
 
