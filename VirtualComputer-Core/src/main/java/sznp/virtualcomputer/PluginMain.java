@@ -1,10 +1,10 @@
 package sznp.virtualcomputer;
 
+import buttondevteam.lib.architecture.ButtonPlugin;
 import jnr.ffi.LibraryLoader;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.virtualbox_6_1.IVirtualBox;
 import org.virtualbox_6_1.VirtualBoxManager;
@@ -21,33 +21,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-public class PluginMain extends JavaPlugin {
+public class PluginMain extends ButtonPlugin {
 	private static final int MCX = 5;
 	private static final int MCY = 4;
 	private BukkitTask mousetask;
 	private VBoxEventHandler listener;
 
 	public static PluginMain Instance;
-	//public static ByteBuffer allpixels = ByteBuffer.allocate(640 * 480 * 4); // It's set on each change
 	/**
 	 * Only used if {@link #direct} is false.
 	 */
 	public static ByteBuffer allpixels; // It's set on each change
 	private static final ArrayList<IRenderer> renderers = new ArrayList<>();
-	/*
-	 * Only used if {@link #direct} is true.
-	 */
-	//public static PXCLib pxc;
 	public static boolean direct;
 	public static boolean sendAll;
 
-	// Fired when plugin is first enabled
 	@Override
-	public void onEnable() {
+	public void pluginEnable() {
 		Instance = this;
 		try {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
-			this.getCommand("computer").setExecutor(new Commands());
+			getCommand2MC().registerCommand(new ComputerCommand());
 			sendAll = getConfig().getBoolean("sendAll", true);
 			ccs.sendMessage("§bInitializing VirtualBox...");
 			String osname = System.getProperty("os.name").toLowerCase();
@@ -106,8 +100,9 @@ public class PluginMain extends JavaPlugin {
 			getServer().getPluginManager().registerEvents(mlpl, this);
 
 		} catch (final Exception e) {
-			e.printStackTrace();
-			error(e.getMessage());
+			getLogger().severe("A fatal error occured, disabling plugin!");
+			Bukkit.getPluginManager().disablePlugin(this);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -117,9 +112,8 @@ public class PluginMain extends JavaPlugin {
 		throw new RuntimeException(message);
 	}
 
-	// Fired when plugin is disabled
 	@Override
-	public void onDisable() {
+	public void pluginDisable() {
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
 		if (mousetask != null)
 			mousetask.cancel();

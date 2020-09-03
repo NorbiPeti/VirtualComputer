@@ -2,12 +2,9 @@ package sznp.virtualcomputer;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import lombok.val;
-import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import me.lucko.commodore.file.CommodoreFileFormat;
 import org.bukkit.Bukkit;
@@ -76,7 +73,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 				Boolean seamless;
 				if (args.length < 2) seamless = null;
 				else seamless = args[1].equalsIgnoreCase("true");
-				Computer.getInstance().FixScreen(sender, seamless);
+				Computer.getInstance().FixScreen(sender);
 				break;
 			case "key":
 			case "press":

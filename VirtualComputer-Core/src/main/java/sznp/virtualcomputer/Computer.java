@@ -163,25 +163,20 @@ public final class Computer {
 		}
 	}
 
-	public void FixScreen(CommandSender sender, Boolean seamless) {
+	public void FixScreen(CommandSender sender) {
 		if (checkMachineNotRunning(sender))
 			return;
 		if (framebuffer == null) {
 			sender.sendMessage("§cFramebuffer is null...");
 			return;
 		}
-		val lastUpdated = new Holder<Long>();
-		var status = session.getConsole().getGuest().getFacilityStatus(AdditionsFacilityType.Seamless, lastUpdated);
-		sendMessage(sender, "Seamless status: " + status);
 		sendMessage(sender, "§eFixing screen...");
 		try {
 			synchronized (session) {
-				if (seamless == null)
-					session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, false);
+				session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, false);
 			} //Last param: notify - send PnP notification - stops updates but not changes for some reason
 			Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
 				synchronized (session) {
-					sendMessage(sender, "Needs host cursor: " + session.getConsole().getMouse().getNeedsHostCursor());
 					session.getConsole().getMouse().putMouseEventAbsolute(-1, -1, 0, 0, 0);
 					session.getConsole().getMouse().putMouseEvent(0, 0, 0, 0, 0); //Switch to relative mode
 					sendMessage(sender, "§eScreen fixed.");
@@ -190,8 +185,6 @@ public final class Computer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		status = session.getConsole().getGuest().getFacilityStatus(AdditionsFacilityType.Seamless, lastUpdated);
-		sendMessage(sender, "Seamless status: " + status);
 	}
 
 	public boolean checkMachineNotRunning(@Nullable CommandSender sender) {
