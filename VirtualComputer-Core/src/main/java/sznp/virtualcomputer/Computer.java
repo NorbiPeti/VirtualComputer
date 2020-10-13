@@ -17,6 +17,7 @@ import sznp.virtualcomputer.util.Scancode;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public final class Computer {
 	@Getter
@@ -24,14 +25,13 @@ public final class Computer {
 
 	private final PluginMain plugin;
 	private ISession session;
-	private IVirtualBox vbox;
+	private final IVirtualBox vbox;
 	private IMachine machine;
 	private MachineEventHandler handler;
 	private IEventListener listener;
-	private VirtualBoxManager manager;
+	private final VirtualBoxManager manager;
 	private MCFrameBuffer framebuffer;
 
-	@java.beans.ConstructorProperties({"plugin"})
 	public Computer(PluginMain plugin, VirtualBoxManager manager, IVirtualBox vbox) {
 		this.plugin = plugin;
 		this.manager = manager;
@@ -54,12 +54,16 @@ public final class Computer {
 			try {
 				sendMessage(sender, "§eStarting computer...");
 				machine = vbox.getMachines().get(index);
+				if (!machine.getAccessible()) {
+					sendMessage(sender, "§cMachine is not accessible! " + machine.getAccessError().getText());
+					return;
+				}
 				session.setName("minecraft");
+				VBoxEventHandler.getInstance().setup(machine.getId(), sender); //TODO: Sometimes null
 				// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
 				synchronized (session) {
 					machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
 				}
-				VBoxEventHandler.getInstance().setup(machine.getId(), sender); //TODO: Sometimes null
 			} catch (VBoxException e) {
 				if (e.getResultCode() == 0x80070005) { //lockMachine: "The object functionality is limited"
 					sendMessage(sender, "§6Cannot start computer, the machine may be inaccessible");
@@ -77,10 +81,14 @@ public final class Computer {
 	}
 
 	public void List(CommandSender sender) {
+		sender.sendMessage("§bAvailable machines:");
 		val machines = vbox.getMachines();
 		for (int i = 0; i < machines.size(); i++) {
 			val m = machines.get(i);
-			sender.sendMessage("[" + i + "] " + m.getName() + " - " + m.getState());
+			if (m.getAccessible())
+				sender.sendMessage("[" + i + "] " + m.getName() + " - " + m.getState());
+			else
+				sender.sendMessage("[" + i + "] <Inaccessible, check VirtualBox>");
 		}
 	}
 
@@ -245,6 +253,72 @@ public final class Computer {
 			return;
 		UpdateMouse(sender, x, y, z, w, mbs, true);
 		UpdateMouse(sender, x, y, z, w, mbs, false);
+	}
+
+	public void Status(CommandSender sender) {
+		switch (session.getState()) {
+			case Spawning:
+				sender.sendMessage("§bThe computer session is currently starting.");
+				break;
+			case Unlocking:
+				sender.sendMessage("§bThe computer session is currently stopping.");
+				break;
+			case Unlocked:
+				sender.sendMessage("§bThe computer is currently powered off. Use /c start to start it.");
+				break;
+			case Null:
+				sender.sendMessage("§bUnknown state! Try /c stop if the machine isn't running.");
+				break;
+			case Locked:
+				sender.sendMessage("§bThe computer session is active.");
+				break;
+		}
+		if (machine == null)
+			return;
+		switch (machine.getState()) {
+			case Aborted:
+				sender.sendMessage("§bThe computer is powered off. It was unexpectedly shut down last time.");
+				return;
+			case Paused:
+				sender.sendMessage("§bThe machine is currently paused.");
+				return;
+			case PoweredOff:
+				sender.sendMessage("§bThe computer is currently powered off.");
+				return;
+			case Restoring:
+				sender.sendMessage("§bThe computer is restoring a saved state. This can take a while...");
+				return;
+			case Running:
+				sender.sendMessage("§bThe computer is currently running.");
+				return;
+			case Saving:
+				sender.sendMessage("§bThe computer is saving the current state. This can take a while...");
+				return;
+			case Saved:
+				sender.sendMessage("§bThe computer is powered off. It has a saved state it will load on start.");
+				return;
+			case Starting:
+				sender.sendMessage("§bThe computer is currently starting...");
+				return;
+			case Stopping:
+				sender.sendMessage("§bThe computer is currently stopping...");
+				return;
+			case SettingUp:
+				sender.sendMessage("§bThe computer is setting up...");
+				break;
+			case Stuck:
+				sender.sendMessage("§bThe computer is stuck. Use /c stop.");
+				break;
+		}
+		if (session.getState() == SessionState.Locked && machine.getState() == MachineState.Running) {
+			var con = session.getConsole();
+			Holder<Long> w = new Holder<>(), h = new Holder<>(), bpp = new Holder<>();
+			Holder<Integer> xo = new Holder<>(), yo = new Holder<>();
+			var gms = new Holder<GuestMonitorStatus>();
+			con.getDisplay().getScreenResolution(0L, w, h, bpp, xo, yo, gms);
+			sender.sendMessage("§bScreen info: " + w.value + "x" + h.value + " (" + bpp.value + ") at " + xo.value + " " + yo.value + " - " + gms.value);
+			sender.sendMessage("§bKeyboard LEDs: " + con.getKeyboard().getKeyboardLEDs().stream().map(Enum::toString).collect(Collectors.joining(", ")));
+		}
 	}
 
 	public void onMachineStart(CommandSender sender) {

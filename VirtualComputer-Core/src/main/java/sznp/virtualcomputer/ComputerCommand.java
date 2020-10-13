@@ -7,21 +7,38 @@ import lombok.var;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.material.Wool;
 import org.javatuples.Tuple;
 import org.virtualbox_6_1.VBoxException;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
-@CommandClass
+@CommandClass(helpText = {
+		"Computer plugin",
+		"§bTo see the computer's status do /c status",
+		"§bTo see the available machines do /c list",
+		"§bTo start one of them do /c start <index>",
+		"§bYou can only have one machine running at a time."
+}, permGroup = "computer")
 public class ComputerCommand extends ICommand2MC {
 	@Command2.Subcommand
 	public void status(CommandSender sender) {
-		//TODO
+		Computer.getInstance().Status(sender);
 	}
 
-	@Command2.Subcommand(aliases = {"poweron", "on"})
+	@Command2.Subcommand(aliases = {"poweron", "on"}, helpText = {
+			"Start",
+			"Starts the given virtual machine or the first one by default.",
+			"Use /c list to see the index of the machines."
+	})
 	public void start(CommandSender sender, @Command2.OptionalArg int index) {
 		Computer.getInstance().Start(sender, index);
 	}
@@ -46,12 +63,12 @@ public class ComputerCommand extends ICommand2MC {
 		Computer.getInstance().Reset(sender);
 	}
 
-	@Command2.Subcommand(aliases = "savestate")
+	@Command2.Subcommand(aliases = "save state")
 	public void save(CommandSender sender) {
 		Computer.getInstance().SaveState(sender);
 	}
 
-	@Command2.Subcommand(aliases = "fixscreen")
+	@Command2.Subcommand(aliases = "fix screen")
 	public void fix(CommandSender sender) {
 		Computer.getInstance().FixScreen(sender);
 	}
@@ -133,5 +150,35 @@ public class ComputerCommand extends ICommand2MC {
 	public void lock_speed(CommandSender sender, float speed) {
 		MouseLockerPlayerListener.LockedSpeed = speed;
 		sender.sendMessage("§aMouse speed set to " + MouseLockerPlayerListener.LockedSpeed);
+	}
+
+	@Command2.Subcommand(helpText = {
+			"Spawn screen",
+			"Spawns a computer screen near you. All of them show the same thing."
+	})
+	public void spawn(Player player) {
+		var loc = player.getLocation();
+		System.out.println("Player location: " + loc);
+		var world = Objects.requireNonNull(loc.getWorld());
+		short id = PluginMain.Instance.startID.get();
+		for (int i = 0; i < PluginMain.MCX; i++) {
+			for (int j = PluginMain.MCY - 1; j >= 0; j--) {
+				var block = world.getBlockAt(loc.getBlockX() + i, loc.getBlockY() + j, loc.getBlockZ());
+				block.setType(Material.BLACK_WOOL);
+				/*var ws = block.getState();
+				var wool = (Wool) ws.getData();
+				wool.setColor(DyeColor.BLACK);
+				ws.setData(wool);
+				ws.update();*/
+				var frameLoc = block.getLocation().add(0, 0, 1);
+				System.out.println("Setting " + frameLoc + " to " + id);
+				var map = new ItemStack(Material.FILLED_MAP, 1);
+				var meta = ((MapMeta) map.getItemMeta());
+				if (meta == null) throw new NullPointerException("Map meta is null for " + frameLoc);
+				meta.setMapId(id++);
+				map.setItemMeta(meta);
+				world.spawn(frameLoc, ItemFrame.class).setItem(map);
+			}
+		}
 	}
 }

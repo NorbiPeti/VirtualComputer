@@ -1,6 +1,7 @@
 name: VirtualComputer
 main: sznp.virtualcomputer.PluginMain
 version: '3.0'
+author: 'NorbiPeti'
 commands:
     computer:
         usage: Use /computer start|stop|reset|key|mouse|input|fix

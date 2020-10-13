@@ -1,6 +1,9 @@
 package sznp.virtualcomputer.renderer;
 
+import com.aparapi.device.Device;
+import com.aparapi.internal.kernel.KernelManager;
 import lombok.val;
+import lombok.var;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
@@ -26,6 +29,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 	private BiConsumer<Integer, Integer> flagDirty; //This way it's version independent, as long as it's named the same
 	private static ArrayList<GPURenderer> renderers = new ArrayList<>();
 	private static Method flagDirtyMethod;
+	private static boolean enabled = true;
 
 	public GPURenderer(short id, World world, int mapx, int mapy) throws Exception {
 		MapView map = IRenderer.prepare(id, world);
@@ -58,6 +62,9 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 			}
 		};
 		kernel = new GPURendererInternal(mapx, mapy, colors_);
+		var dev = kernel.getTargetDevice();
+		if (mapx == mapy && mapx == 0)
+			PluginMain.Instance.getLogger().info("Using device: " + dev.getShortDescription());
 		renderers.add(this);
 
 		map.addRenderer(this);
@@ -65,6 +72,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 
 	@Override
 	public void render(MapView map, MapCanvas canvas, Player player) {
+		if (!enabled) return;
 		Timing t = new Timing();
 		try {
 			if (kernel.isRendered()) return;
@@ -72,6 +80,13 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 				Field field = canvas.getClass().getDeclaredField("buffer");
 				field.setAccessible(true);
 				buffer = (byte[]) field.get(canvas);
+			}
+			if (mapx == 0 && mapy == 0) { //Only print once
+				if (kernel.getTargetDevice().getType() != Device.TYPE.GPU) {
+					PluginMain.Instance.getLogger().warning("Cannot use GPU! Target device: " + kernel.getTargetDevice().getShortDescription()
+							+ " - Best device: " + KernelManager.instance().bestDevice().getShortDescription());
+					PluginMain.Instance.getLogger().warning("Server performance may be affected"); //TODO: Index 0 out of range 0
+				}
 			}
 			if (!PluginMain.sendAll) {
 				synchronized (kernel) {
@@ -106,7 +121,12 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 			e.printStackTrace();
 		}
 		if (t.elapsedMS() > 60)
-			System.out.println("Map rendering took " + t.elapsedMS() + "ms");
+			PluginMain.Instance.getLogger().warning("Map rendering took " + t.elapsedMS() + "ms");
+		if (t.elapsedMS() > 2000) {
+			PluginMain.Instance.getLogger().severe("Map rendering is taking too long! Disabling rendering to prevent the server from crashing.");
+			PluginMain.Instance.getLogger().severe("Make sure the server has root privileges or disable GPU rendering.");
+			enabled = false;
+		}
 	}
 
 	public static void update(byte[] pixels, int width, int height, int changedX, int changedY, int changedWidth, int changedHeight) {

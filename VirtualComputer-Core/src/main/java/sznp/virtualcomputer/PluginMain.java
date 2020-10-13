@@ -1,9 +1,11 @@
 package sznp.virtualcomputer;
 
 import buttondevteam.lib.architecture.ButtonPlugin;
+import buttondevteam.lib.architecture.ConfigData;
 import jnr.ffi.LibraryLoader;
 import lombok.val;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.scheduler.BukkitTask;
 import org.virtualbox_6_1.IVirtualBox;
@@ -22,8 +24,8 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class PluginMain extends ButtonPlugin {
-	private static final int MCX = 5;
-	private static final int MCY = 4;
+	public static final int MCX = 5;
+	public static final int MCY = 4;
 	private BukkitTask mousetask;
 	private VBoxEventHandler listener;
 
@@ -36,12 +38,22 @@ public class PluginMain extends ButtonPlugin {
 	public static boolean direct;
 	public static boolean sendAll;
 
+	/**
+	 * The first map ID to use for the screen.
+	 * The maps with IDs in the range startID -> startID+19 will be temporarily replaced with the screen.
+	 */
+	public final ConfigData<Short> startID = getIConfig().getData("startID", (short) 0);
+	/**
+	 * If true, uses the GPU to accelerate screen rendering. Requires root on Linux.
+	 */
+	private final ConfigData<Boolean> useGPU = getIConfig().getData("useGPU", true);
+
 	@Override
 	public void pluginEnable() {
 		Instance = this;
 		try {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
-			getCommand2MC().registerCommand(new ComputerCommand());
+			registerCommand(new ComputerCommand());
 			sendAll = getConfig().getBoolean("sendAll", true);
 			ccs.sendMessage("§bInitializing VirtualBox...");
 			String osname = System.getProperty("os.name").toLowerCase();
@@ -80,19 +92,13 @@ public class PluginMain extends ButtonPlugin {
 			new Computer(this, manager, vbox); //Saves itself
 			ccs.sendMessage("§bLoading Screen...");
 			try {
-				//throw new NoClassDefFoundError("Test error pls ignore");
-				for (short i = 0; i < MCX; i++)
-					for (short j = 0; j < MCY; j++)
-						renderers.add(new GPURenderer((short) (j * 5 + i), Bukkit.getWorlds().get(0), i, j));
-				//pxc = LibraryLoader.create(PXCLib.class).search(getDataFolder().getAbsolutePath()).load("pxc");
-				direct = true;
-				ccs.sendMessage("§bUsing Direct Renderer, all good");
+				if (useGPU.get())
+					setupDirectRendering(ccs);
+				else
+					setupBukkitRendering(ccs);
 			} catch (NoClassDefFoundError | Exception e) {
-				for (short i = 0; i < 20; i++)
-					renderers.add(new BukkitRenderer(i, Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
-				direct = false;
 				e.printStackTrace();
-				ccs.sendMessage("§6Compatibility error, using slower renderer");
+				setupBukkitRendering(ccs);
 			}
 			ccs.sendMessage("§bLoaded!");
 			val mlpl = new MouseLockerPlayerListener();
@@ -104,6 +110,21 @@ public class PluginMain extends ButtonPlugin {
 			Bukkit.getPluginManager().disablePlugin(this);
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void setupDirectRendering(CommandSender ccs) throws Exception {
+		for (short i = 0; i < MCX; i++)
+			for (short j = 0; j < MCY; j++)
+				renderers.add(new GPURenderer((short) (startID.get() + j * MCX + i), Bukkit.getWorlds().get(0), i, j));
+		direct = true;
+		ccs.sendMessage("§bUsing Direct Renderer, all good");
+	}
+
+	private void setupBukkitRendering(CommandSender ccs) {
+		for (short i = 0; i < MCX * MCY; i++)
+			renderers.add(new BukkitRenderer((short) (startID.get() + i), Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
+		direct = false;
+		ccs.sendMessage("§6Compatibility error, using slower renderer");
 	}
 
 	private void error(String message) {

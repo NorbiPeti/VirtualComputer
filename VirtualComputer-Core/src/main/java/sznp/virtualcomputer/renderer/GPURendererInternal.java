@@ -2,7 +2,11 @@ package sznp.virtualcomputer.renderer;
 
 import com.aparapi.Kernel;
 import com.aparapi.Range;
+import com.aparapi.device.Device;
+import com.aparapi.internal.kernel.KernelManager;
 import lombok.Getter;
+import lombok.var;
+import sznp.virtualcomputer.PluginMain;
 
 //Accessing the GPURenderer results in ArrayIndexOutOfBoundsExceptions - IT'S THE LAMBDAS
 public class GPURendererInternal extends Kernel {
@@ -24,7 +28,12 @@ public class GPURendererInternal extends Kernel {
 		this.mapx = mapx;
 		this.mapy = mapy;
 		this.colors = colors;
+		//range = Range.create2D(128, 128);
+		//var dev = KernelManager.instance().bestDevice();
 		range = Range.create2D(128, 128);
+		/*var dev = getTargetDevice();
+		if (mapx == mapy && mapx == 0)
+			PluginMain.Instance.getLogger().info("Using device: " + dev.getShortDescription());*/
 
 		//Do an intial draw of a black screen with Aparapi so it doesn't lag at start
 		pixels = new byte[1];
