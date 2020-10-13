@@ -73,11 +73,6 @@
 			<artifactId>commodore</artifactId>
 			<version>1.8</version>
 		</dependency> -->
-		<dependency>
-			<groupId>com.github.PandacubeFr</groupId>
-			<artifactId>commodore</artifactId>
-			<version>patch-custom-suggests-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
     <profiles>
 		<profile>

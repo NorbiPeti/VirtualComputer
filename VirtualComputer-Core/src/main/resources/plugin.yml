@@ -1,8 +1,10 @@
 name: VirtualComputer
 main: sznp.virtualcomputer.PluginMain
-version: '2.1'
+version: '3.0'
 commands:
     computer:
         usage: Use /computer start|stop|reset|key|mouse|input|fix
         aliases: c
 api-version: '1.13'
+depend:
+    - ChromaCore
