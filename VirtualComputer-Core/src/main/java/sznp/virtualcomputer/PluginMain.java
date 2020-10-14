@@ -47,6 +47,11 @@ public class PluginMain extends ButtonPlugin {
 	 * If true, uses the GPU to accelerate screen rendering. Requires root on Linux.
 	 */
 	private final ConfigData<Boolean> useGPU = getIConfig().getData("useGPU", true);
+	/**
+	 * Determines the keyboard layout to use for /c show keyboard. Layouts can be defined in VirtualComputer/layouts/.
+	 */
+	private final ConfigData<String> kbLayout = getIConfig().getData("kbLayout", "en");
+	public File layoutFolder = new File(getDataFolder(), "layouts");
 
 	@Override
 	public void pluginEnable() {

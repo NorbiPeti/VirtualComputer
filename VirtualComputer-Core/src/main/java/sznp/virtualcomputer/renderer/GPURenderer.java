@@ -30,6 +30,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 	private static ArrayList<GPURenderer> renderers = new ArrayList<>();
 	private static Method flagDirtyMethod;
 	private static boolean enabled = true;
+	private static boolean warned = false;
 
 	public GPURenderer(short id, World world, int mapx, int mapy) throws Exception {
 		MapView map = IRenderer.prepare(id, world);
@@ -81,7 +82,8 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 				field.setAccessible(true);
 				buffer = (byte[]) field.get(canvas);
 			}
-			if (mapx == 0 && mapy == 0) { //Only print once
+			if (!warned) { //Only print once
+				warned = true;
 				if (kernel.getTargetDevice().getType() != Device.TYPE.GPU) {
 					PluginMain.Instance.getLogger().warning("Cannot use GPU! Target device: " + kernel.getTargetDevice().getShortDescription()
 							+ " - Best device: " + KernelManager.instance().bestDevice().getShortDescription());

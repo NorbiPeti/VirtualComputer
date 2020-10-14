@@ -137,17 +137,14 @@ public final class Computer {
 
 	public void PowerButton(CommandSender sender, int index) {
 		sendMessage(sender, "§ePressing powerbutton...");
-		Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			@Override
-			public void run() {
-				if (session.getState() != SessionState.Locked || session.getMachine() == null) {
-					Start(sender, index);
-				} else {
-					synchronized (session) {
-						session.getConsole().powerButton();
-					}
-					sendMessage(sender, "§ePowerbutton pressed.");
+		Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+			if (session.getState() != SessionState.Locked || session.getMachine() == null) {
+				Start(sender, index);
+			} else {
+				synchronized (session) {
+					session.getConsole().powerButton();
 				}
+				sendMessage(sender, "§ePowerbutton pressed.");
 			}
 		});
 	}
@@ -310,14 +307,18 @@ public final class Computer {
 				sender.sendMessage("§bThe computer is stuck. Use /c stop.");
 				break;
 		}
-		if (session.getState() == SessionState.Locked && machine.getState() == MachineState.Running) {
-			var con = session.getConsole();
-			Holder<Long> w = new Holder<>(), h = new Holder<>(), bpp = new Holder<>();
-			Holder<Integer> xo = new Holder<>(), yo = new Holder<>();
-			var gms = new Holder<GuestMonitorStatus>();
-			con.getDisplay().getScreenResolution(0L, w, h, bpp, xo, yo, gms);
-			sender.sendMessage("§bScreen info: " + w.value + "x" + h.value + " (" + bpp.value + ") at " + xo.value + " " + yo.value + " - " + gms.value);
-			sender.sendMessage("§bKeyboard LEDs: " + con.getKeyboard().getKeyboardLEDs().stream().map(Enum::toString).collect(Collectors.joining(", ")));
+		if (session.getState() == SessionState.Locked) {
+			if (machine.getState() == MachineState.Running) {
+				var con = session.getConsole();
+				Holder<Long> w = new Holder<>(), h = new Holder<>(), bpp = new Holder<>();
+				Holder<Integer> xo = new Holder<>(), yo = new Holder<>();
+				var gms = new Holder<GuestMonitorStatus>();
+				con.getDisplay().getScreenResolution(0L, w, h, bpp, xo, yo, gms);
+				sender.sendMessage("§bScreen info: " + w.value + "x" + h.value + " (" + bpp.value + ") at " + xo.value + " " + yo.value + " - " + gms.value);
+				sender.sendMessage("§bKeyboard LEDs: " + con.getKeyboard().getKeyboardLEDs().stream().map(Enum::toString).collect(Collectors.joining(", ")));
+			} else if (machine.getState().value() < MachineState.FirstOnline.value()
+					|| machine.getState().value() > MachineState.LastOnline.value())
+				sender.sendMessage("§bUse /c stop to fix the computer.");
 		}
 	}
 

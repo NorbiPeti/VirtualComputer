@@ -7,18 +7,17 @@ import lombok.var;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.material.Wool;
-import org.javatuples.Tuple;
 import org.virtualbox_6_1.VBoxException;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.util.Objects;
 
 @CommandClass(helpText = {
@@ -158,20 +157,13 @@ public class ComputerCommand extends ICommand2MC {
 	})
 	public void spawn(Player player) {
 		var loc = player.getLocation();
-		System.out.println("Player location: " + loc);
 		var world = Objects.requireNonNull(loc.getWorld());
 		short id = PluginMain.Instance.startID.get();
-		for (int i = 0; i < PluginMain.MCX; i++) {
-			for (int j = PluginMain.MCY - 1; j >= 0; j--) {
+		for (int j = PluginMain.MCY - 1; j >= 0; j--) {
+			for (int i = 0; i < PluginMain.MCX; i++) {
 				var block = world.getBlockAt(loc.getBlockX() + i, loc.getBlockY() + j, loc.getBlockZ());
 				block.setType(Material.BLACK_WOOL);
-				/*var ws = block.getState();
-				var wool = (Wool) ws.getData();
-				wool.setColor(DyeColor.BLACK);
-				ws.setData(wool);
-				ws.update();*/
 				var frameLoc = block.getLocation().add(0, 0, 1);
-				System.out.println("Setting " + frameLoc + " to " + id);
 				var map = new ItemStack(Material.FILLED_MAP, 1);
 				var meta = ((MapMeta) map.getItemMeta());
 				if (meta == null) throw new NullPointerException("Map meta is null for " + frameLoc);
@@ -179,6 +171,33 @@ public class ComputerCommand extends ICommand2MC {
 				map.setItemMeta(meta);
 				world.spawn(frameLoc, ItemFrame.class).setItem(map);
 			}
+		}
+	}
+
+	@Command2.Subcommand(helpText = {
+			"Set layout",
+			"This command sets the keyboard layout used for /c show keyboard.",
+			"Valid options are files in the layouts folder in the plugin's directory."
+	})
+	public void set_layout(CommandSender sender, String layout) {
+		var lf = PluginMain.Instance.layoutFolder;
+		if (!lf.mkdirs()) {
+			sender.sendMessage("§cFailed to create layouts folder!");
+			return;
+		}
+		var l = new File(lf, layout + ".yml");
+		if (!l.exists()) {
+			sender.sendMessage("§cThe file " + l + " does not exist.");
+			return;
+		}
+		var yc = YamlConfiguration.loadConfiguration(l);
+		var list = yc.getList("keyboard");
+		if (list == null) {
+			sender.sendMessage("§cThe 'keyboard' key is missing.");
+			return;
+		}
+		for (var item : list) {
+			System.out.println("item: " + item);
 		}
 	}
 }
