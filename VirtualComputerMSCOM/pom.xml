@@ -20,11 +20,22 @@
             <version>6.1</version>
             <optional>true
             </optional> <!-- https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html -->
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/Interop.VirtualBox.j4n.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>net.sf.jacob-project</groupId>
-            <artifactId>jacob</artifactId>
-            <version>1.19</version>
+            <groupId>net.sf.jni4net</groupId>
+            <artifactId>clr</artifactId>
+            <version>0.8.9.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/jni4net.j-0.8.9.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>io.github.NorbiPeti</groupId>
+            <artifactId>VirtualComputer-Windows</artifactId>
+            <version>0.8.9.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/VirtualComputerWindows.j4n.jar</systemPath>
         </dependency>
     </dependencies>
 

@@ -17,7 +17,7 @@ namespace VirtualComputerWindows
 
         private static VirtualBoxClient vbc;
 
-        public static async Task<IVirtualBox> Init() => await Task.Run(() =>
+        public static void Init()
         {
             try
             {
@@ -27,7 +27,7 @@ namespace VirtualComputerWindows
                 //https://www.virtualbox.org/svn/vbox/trunk/src/VBox/HostDrivers/Support/win/SUPDrv-win.cpp
                 vbc = new VirtualBoxClientClass();
                 var vbox = vbc.VirtualBox;
-                RTR3InitExe(0, "", 0);
+                //RTR3InitExe(0, "", 0);
                 var ses = vbc.Session;
                 var machine = vbox.Machines.GetValue(0) as IMachine;
                 ses.Name = "minecraft";
@@ -38,22 +38,39 @@ namespace VirtualComputerWindows
                 machine = ses.Machine;
                 Console.WriteLine("Powering up...");
                 ses.Console.PowerUp().WaitForCompletion(10000);
-                Console.WriteLine("Framebuffer attach");
-                ses.Console.Display.AttachFramebuffer(0, new VBFB(ses.Console.Display));
-                return vbox;
             }
             catch(Exception e)
             {
                 Console.WriteLine(e);
                 Console.ReadLine();
-                return null;
             }
-        });
+        }
 
         public static void Main()
         {
             Init();
             Console.ReadLine();
+        }
+
+        public static int[] ConvertArrayInt(Array array)
+        {
+            return (int[]) array;
+        }
+
+        public static byte[] ConvertArrayByte(Array array)
+        {
+            return (byte[]) array;
+        }
+
+        public static uint[] ConvertArrayUint(Array array)
+        {
+            return (uint[]) array;
+        }
+
+        public static int ConvertEnum(object someEnum)
+        {
+            BitmapFormat.BitmapFormat_RGBA;
+            return (int) someEnum;
         }
     }
 }

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VirtualComputerWindows</RootNamespace>
     <AssemblyName>VirtualComputerWindows</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <DllExportNamespace>VirtualComputerWindows</DllExportNamespace>
@@ -93,7 +93,6 @@
   <ItemGroup>
     <Compile Include="Exports.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VBFB.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

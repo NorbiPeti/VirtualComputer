@@ -1,41 +1,44 @@
 package sznp.virtualcomputer;
 
 import lombok.RequiredArgsConstructor;
+import net.sf.jni4net.Ref;
 import org.virtualbox_6_1.BitmapFormat;
-import org.virtualbox_6_1.FramebufferCapabilities;
+import org.virtualbox_6_1.IFramebuffer;
 import org.virtualbox_6_1.IFramebufferOverlay;
+import system.Array;
 import sznp.virtualcomputer.util.IMCFrameBuffer;
+import virtualcomputerwindows.Exports;
 
 import java.util.Arrays;
 
 @RequiredArgsConstructor
-public class COMFrameBuffer {
+public class COMFrameBuffer implements IFramebuffer {
 	private final IMCFrameBuffer frameBuffer;
 
-	public long getBitsPerPixel() {
+	public int getBitsPerPixel() {
 		return 32;
 	}
 
-	public long getBytesPerLine() {
-		return 640L;
+	public int getBytesPerLine() {
+		return 640;
 	}
 
-	public long[] getCapabilities(long[] arg0) {
+	public Array getCapabilities_FixIt() {
 		try {
 			System.out.println("Capabilities queried");
-			System.out.println("Capabilities: " + Arrays.toString(arg0));
-			return new long[]{FramebufferCapabilities.UpdateImage.value()};
+			//return new long[]{FramebufferCapabilities.UpdateImage.value()};
+			return Array.CreateInstance(system.Type.GetType("System.Int32"), 0);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new long[]{};
+			return Array.CreateInstance(system.Type.GetType("System.Int32"), 0);
 		}
 	}
 
-	public long getHeight() {
+	public int getHeight() {
 		return 480;
 	}
 
-	public long getHeightReduction() {
+	public int getHeightReduction() {
 		return 0;
 	}
 
@@ -43,15 +46,16 @@ public class COMFrameBuffer {
 		return null;
 	}
 
-	public long getPixelFormat() {
-		return BitmapFormat.BGRA.value();
+	public BitmapFormat getPixelFormat_FixIt() {
+		//return BitmapFormat.BGRA.value();
+		return null;
 	}
 
-	public long getVisibleRegion(byte arg0, long arg1) {
+	public int getVisibleRegion(Ref<Byte> arg0, int arg1) {
 		return 0;
 	}
 
-	public long getWidth() {
+	public int getWidth() {
 		return 640;
 	}
 
@@ -59,23 +63,23 @@ public class COMFrameBuffer {
 		return 0; // Zero means no win id
 	}
 
-	public void notify3DEvent(long type, byte[] data) {
-		System.out.println("3D event! " + type + " - " + Arrays.toString(data));
+	public void notify3DEvent_FixIt(int type, Array data) {
+		System.out.println("3D event! " + type + " - " + Arrays.toString(Exports.ConvertArrayByte(data)));
 	}
 
-	public void notifyChange(long screenId, long xOrigin, long yOrigin, long width, long height) {
+	public void notifyChange(int screenId, int xOrigin, int yOrigin, int width, int height) {
 		frameBuffer.notifyChange(screenId, xOrigin, yOrigin, width, height);
 	}
 
-	public void notifyUpdate(long x, long y, long width, long height) {
+	public void notifyUpdate(int x, int y, int width, int height) {
 		frameBuffer.notifyUpdate(x, y, width, height);
 	}
 
-	public void notifyUpdateImage(long arg0, long arg1, long arg2, long arg3, byte[] arg4) {
-		frameBuffer.notifyUpdateImage(arg0, arg1, arg2, arg3, arg4);
+	public void notifyUpdateImage_FixIt(int arg0, int arg1, int arg2, int arg3, Array arg4) {
+		frameBuffer.notifyUpdateImage(arg0, arg1, arg2, arg3, Exports.ConvertArrayByte(arg4));
 	}
 
-	public void setVisibleRegion(byte arg0, long arg1) {
+	public void setVisibleRegion(Ref<Byte> arg0, int arg1) {
 	}
 
 	/**
@@ -87,11 +91,11 @@ public class COMFrameBuffer {
 	 * @param enmCmd    The validated VBOXVHWACMD::enmCmd value from the command.
 	 * @param fromGuest Set when the command origins from the guest, clear if host.
 	 */ //https://www.virtualbox.org/browser/vbox/trunk/src/VBox/Frontends/VirtualBox/src/VBoxFBOverlay.cpp#L4645
-	public void processVHWACommand(byte command, int enmCmd, boolean fromGuest) {
+	public void processVHWACommand(Ref<Byte> command, int enmCmd, int fromGuest) {
 
 	}
 
-	public boolean videoModeSupported(long arg0, long arg1, long arg2) {
-		return true;
+	public int videoModeSupported(int arg0, int arg1, int arg2) {
+		return 1;
 	}
 }

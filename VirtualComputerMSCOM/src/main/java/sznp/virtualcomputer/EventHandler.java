@@ -1,13 +1,13 @@
 package sznp.virtualcomputer;
 
 import org.virtualbox_6_1.IEvent;
-import sznp.virtualcomputer.util.COMObjectBase;
+import org.virtualbox_6_1.IEventListener;
 import sznp.virtualcomputer.util.IEventHandler;
 
 /**
  * A Bukkit-like event system which calls the appropriate methods on an event.
  */
-public final class EventHandler extends COMObjectBase {
+public final class EventHandler implements IEventListener {
     private final IEventHandler handler;
 	private boolean enabled = true;
 
@@ -20,6 +20,7 @@ public final class EventHandler extends COMObjectBase {
 		this.handler = handler;
 	}
 
+	@Override
 	public final void handleEvent(IEvent iEvent) {
 		if (!enabled)
 			return;
