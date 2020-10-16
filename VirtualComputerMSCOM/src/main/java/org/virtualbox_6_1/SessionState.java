@@ -1,5 +1,9 @@
 package org.virtualbox_6_1;
 
 public enum SessionState {
-	Locked
+	Null,
+	Unlocked,
+	Locked,
+	Spawning,
+	Unlocking,
 }

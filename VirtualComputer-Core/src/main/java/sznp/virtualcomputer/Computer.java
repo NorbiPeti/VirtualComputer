@@ -101,8 +101,7 @@ public final class Computer {
 		handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
 		val fb = new MCFrameBuffer(console.getDisplay());
 		fb.start();
-		String fbid = console.getDisplay().attachFramebuffer(0L,
-				COMUtils.gimmeAFramebuffer(fb));
+		String fbid = console.getDisplay().attachFramebuffer(0, COMUtils.gimmeAFramebuffer(fb));
 		fb.setId(fbid);
 		framebuffer = fb;
 	}
@@ -171,13 +170,14 @@ public final class Computer {
 			return;
 		}
 		val lastUpdated = new Holder<Long>();
-		var status = session.getConsole().getGuest().getFacilityStatus(AdditionsFacilityType.Seamless, lastUpdated);
-		sendMessage(sender, "Seamless status: " + status);
 		sendMessage(sender, "§eFixing screen...");
 		try {
 			synchronized (session) {
 				if (seamless == null)
-					session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, false);
+					session.getConsole().getDisplay().setVideoModeHint(COMUtils.convertFromLong(0L),
+							COMUtils.convertFromBool(true), COMUtils.convertFromBool(false),
+							0, 0, COMUtils.convertFromLong(640L), COMUtils.convertFromLong(480L),
+							COMUtils.convertFromLong(32L), COMUtils.convertFromBool(false));
 			} //Last param: notify - send PnP notification - stops updates but not changes for some reason
 			Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
 				synchronized (session) {
@@ -190,8 +190,6 @@ public final class Computer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		status = session.getConsole().getGuest().getFacilityStatus(AdditionsFacilityType.Seamless, lastUpdated);
-		sendMessage(sender, "Seamless status: " + status);
 	}
 
 	public boolean checkMachineNotRunning(@Nullable CommandSender sender) {

@@ -11,6 +11,7 @@ import org.virtualbox_6_1.IStateChangedEvent;
 import org.virtualbox_6_1.VBoxEventType;
 import sznp.virtualcomputer.Computer;
 import sznp.virtualcomputer.PluginMain;
+import sznp.virtualcomputer.util.COMUtils;
 
 import java.util.logging.Logger;
 
@@ -42,7 +43,7 @@ public class MachineEventHandler extends EventHandlerBase {
 					starting = false;
 					Bukkit.getScheduler().runTaskAsynchronously(PluginMain.Instance, () -> {
 						progress.waitForCompletion(-1);
-						if (progress != null && progress.getCompleted() && progress.getResultCode() != 0) {
+						if (progress != null && COMUtils.convertToBool(progress.getCompleted()) && progress.getResultCode() != 0) {
 							Logger l = PluginMain.Instance.getLogger();
 							l.warning("Result code: " + Integer.toHexString(progress.getResultCode()));
 							for (var info = progress.getErrorInfo(); info != null; info = info.getNext()) {

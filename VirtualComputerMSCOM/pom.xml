@@ -20,8 +20,6 @@
             <version>6.1</version>
             <optional>true
             </optional> <!-- https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html -->
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/Interop.VirtualBox.j4n.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>net.sf.jni4net</groupId>

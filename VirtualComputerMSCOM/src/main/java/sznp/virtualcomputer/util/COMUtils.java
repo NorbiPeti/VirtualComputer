@@ -42,7 +42,7 @@ public final class COMUtils {
 
 	public static void queryBitmapInfo(IDisplaySourceBitmap bitmap, long[] ptr, long[] w, long[] h, long[] bpp, long[] bpl, long[] pf) {
 		Out<Integer> wo = new Out<>(), ho = new Out<>(), bppo = new Out<>(), bplo = new Out<>();
-		val pfo = new Out<BitmapFormat>();
+		val pfo = new Out<org.virtualbox_6_1_FixIt.BitmapFormat>();
 		val ptro = new Out<Long>();
 		bitmap.queryBitmapInfo(ptro, wo, ho, bppo, bplo, pfo);
 		ptr[0] = ptro.getValue();
@@ -50,6 +50,24 @@ public final class COMUtils {
 		h[0] = ho.getValue();
 		bpp[0] = bppo.getValue();
 		bpl[0] = bplo.getValue();
-		pf[0] = Exports.ConvertEnum(pfo.getValue());
+		pf[0] = Exports.convertEnum(pfo.getValue());
+	}
+
+	public static void querySourceBitmap(IDisplay display, Holder<IDisplaySourceBitmap> holder) {
+		val out = new Out<IDisplaySourceBitmap>();
+		display.querySourceBitmap(0, out);
+		holder.value = out.getValue();
+	}
+
+	public static boolean convertToBool(int bool) {
+		return bool != 0;
+	}
+
+	public static int convertFromBool(boolean bool) {
+		return bool ? 1 : 0;
+	}
+
+	public static int convertFromLong(long l) {
+		return (int) l;
 	}
 }

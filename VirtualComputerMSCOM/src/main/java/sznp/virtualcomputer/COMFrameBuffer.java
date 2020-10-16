@@ -2,10 +2,11 @@ package sznp.virtualcomputer;
 
 import lombok.RequiredArgsConstructor;
 import net.sf.jni4net.Ref;
-import org.virtualbox_6_1.BitmapFormat;
 import org.virtualbox_6_1.IFramebuffer;
 import org.virtualbox_6_1.IFramebufferOverlay;
+import org.virtualbox_6_1_FixIt.BitmapFormat;
 import system.Array;
+import system.Enum;
 import sznp.virtualcomputer.util.IMCFrameBuffer;
 import virtualcomputerwindows.Exports;
 
@@ -47,7 +48,7 @@ public class COMFrameBuffer implements IFramebuffer {
 	}
 
 	public BitmapFormat getPixelFormat_FixIt() {
-		//return BitmapFormat.BGRA.value();
+		Enum.ToObject(BitmapFormat.typeof(), org.virtualbox_6_1.BitmapFormat.BGRA.getValue());
 		return null;
 	}
 
@@ -64,7 +65,7 @@ public class COMFrameBuffer implements IFramebuffer {
 	}
 
 	public void notify3DEvent_FixIt(int type, Array data) {
-		System.out.println("3D event! " + type + " - " + Arrays.toString(Exports.ConvertArrayByte(data)));
+		System.out.println("3D event! " + type + " - " + Arrays.toString(Exports.convertArrayByte_FixIt(data)));
 	}
 
 	public void notifyChange(int screenId, int xOrigin, int yOrigin, int width, int height) {
@@ -76,7 +77,7 @@ public class COMFrameBuffer implements IFramebuffer {
 	}
 
 	public void notifyUpdateImage_FixIt(int arg0, int arg1, int arg2, int arg3, Array arg4) {
-		frameBuffer.notifyUpdateImage(arg0, arg1, arg2, arg3, Exports.ConvertArrayByte(arg4));
+		frameBuffer.notifyUpdateImage(arg0, arg1, arg2, arg3, Exports.convertArrayByte_FixIt(arg4));
 	}
 
 	public void setVisibleRegion(Ref<Byte> arg0, int arg1) {

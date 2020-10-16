@@ -9,19 +9,25 @@
 
 package org.virtualbox_6_1;
 
+import virtualcomputerwindows.Exports;
+
 @net.sf.jni4net.attributes.ClrInterface
 public interface ISession {
 
 	//<generated-interface>
 	@net.sf.jni4net.attributes.ClrMethod("()Lorg/virtualbox_6_1/SessionState;")
-	org.virtualbox_6_1.SessionState getState_FixIt();
+	org.virtualbox_6_1_FixIt.SessionState getState_FixIt();
 
 	default org.virtualbox_6_1.SessionState getState() {
-		return SessionState.Locked;
+		return SessionState.values()[Exports.convertEnum(getState_FixIt())];
 	}
 
 	@net.sf.jni4net.attributes.ClrMethod("()Lorg/virtualbox_6_1/SessionType;")
-	org.virtualbox_6_1.SessionType getType_FixIt();
+	org.virtualbox_6_1_FixIt.SessionType getType_FixIt();
+
+	default org.virtualbox_6_1.SessionType getType() {
+		return SessionType.values()[Exports.convertEnum(getType_FixIt())];
+	}
 
 	@net.sf.jni4net.attributes.ClrMethod("()LSystem/String;")
 	java.lang.String getName();

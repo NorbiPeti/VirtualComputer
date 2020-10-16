@@ -8,6 +8,7 @@
     <artifactId>VirtualComputer</artifactId>
     <version>2.1-SNAPSHOT</version>
     <modules>
+        <module>VirtualComputerMSCOM</module>
         <module>VirtualComputer-Core</module>
     </modules>
     <packaging>pom</packaging>
@@ -134,6 +135,17 @@
         </profile>
         <profile>
             <id>MSCOM</id>
+            <modules>
+                <module>VirtualComputerMSCOM</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>intellij-idea-only</id>
+            <activation>
+                <property>
+                    <name>idea.maven.embedder.version</name>
+                </property>
+            </activation>
             <modules>
                 <module>VirtualComputerMSCOM</module>
             </modules>

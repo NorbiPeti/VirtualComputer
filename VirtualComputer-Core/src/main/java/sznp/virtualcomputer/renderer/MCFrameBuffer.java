@@ -39,7 +39,7 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 			synchronized (this) { //If a change occurs twice, then wait for it
 				try {
 					//System.out.println("Change: " + xOrigin + " " + yOrigin + " - " + width + " " + height);
-					display.querySourceBitmap(0L, holder);
+					COMUtils.querySourceBitmap(display, holder);
 					long[] ptr = new long[1], w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
 					COMUtils.queryBitmapInfo(holder.value, ptr, w, h, bpp, bpl, pf);
 					if (PluginMain.direct) {

@@ -67,9 +67,13 @@ namespace VirtualComputerWindows
             return (uint[]) array;
         }
 
+        public static Array ConvertArray(int[] array)
+        {
+            return array;
+        }
+
         public static int ConvertEnum(object someEnum)
         {
-            BitmapFormat.BitmapFormat_RGBA;
             return (int) someEnum;
         }
     }
