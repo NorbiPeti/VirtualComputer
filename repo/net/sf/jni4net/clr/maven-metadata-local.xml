@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>net.sf.jni4net</groupId>
+  <artifactId>clr</artifactId>
+  <versioning>
+    <release>0.8.9.0</release>
+    <versions>
+      <version>0.8.9.0</version>
+    </versions>
+    <lastUpdated>20201121164514</lastUpdated>
+  </versioning>
+</metadata>

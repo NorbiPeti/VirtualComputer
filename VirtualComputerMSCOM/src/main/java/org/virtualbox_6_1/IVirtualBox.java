@@ -171,10 +171,10 @@ public interface IVirtualBox {
 	@net.sf.jni4net.attributes.ClrMethod("()Lorg/virtualbox_6_1/IUnattended;")
 	IUnattended createUnattendedInstaller();
 
-	@net.sf.jni4net.attributes.ClrMethod("(LSystem/String;LSystem/String;Lorg/virtualbox_6_1/AccessMode;Lorg/virtualbox_6_1/DeviceType;)Lorg/virtualbox_6_1/IMedium;")
+	@net.sf.jni4net.attributes.ClrMethod("(LSystem/String;LSystem/String;Lorg/virtualbox_6_1_FixIt/AccessMode;Lorg/virtualbox_6_1/DeviceType;)Lorg/virtualbox_6_1/IMedium;")
 	IMedium createMedium_FixIt(String aFormat, String aLocation, org.virtualbox_6_1_FixIt.AccessMode aAccessMode, org.virtualbox_6_1_FixIt.DeviceType aADeviceTypeType);
 
-	@net.sf.jni4net.attributes.ClrMethod("(LSystem/String;Lorg/virtualbox_6_1/DeviceType;Lorg/virtualbox_6_1/AccessMode;I)Lorg/virtualbox_6_1/IMedium;")
+	@net.sf.jni4net.attributes.ClrMethod("(LSystem/String;Lorg/virtualbox_6_1/DeviceType;Lorg/virtualbox_6_1_FixIt/AccessMode;I)Lorg/virtualbox_6_1/IMedium;")
 	IMedium openMedium_FixIt(String aLocation, org.virtualbox_6_1_FixIt.DeviceType aDeviceType, org.virtualbox_6_1_FixIt.AccessMode aAccessMode, int aForceNewUuid);
 
 	@net.sf.jni4net.attributes.ClrMethod("(LSystem/String;)Lorg/virtualbox_6_1/IGuestOSType;")

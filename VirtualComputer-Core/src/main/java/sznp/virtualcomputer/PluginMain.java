@@ -2,6 +2,7 @@ package sznp.virtualcomputer;
 
 import jnr.ffi.LibraryLoader;
 import lombok.val;
+import net.sf.jni4net.Bridge;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -75,7 +76,31 @@ public class PluginMain extends JavaPlugin {
 				System.setProperty("sun.boot.library.path", vbpath);
 			if (System.getProperty("java.library.path") == null || System.getProperty("java.library.path").isEmpty())
 				System.setProperty("java.library.path", vbpath);
-			Utils.addLibraryPath(vbpath); //TODO: Jacob DLL must be in the server folder
+			Utils.addLibraryPath(vbpath);
+			if (windows) {
+				ccs.sendMessage("§bExtracting Windows-specific libraries...");
+				final File[] libs = new File[]{
+						new File(getDataFolder(), "jni4net.n-0.8.9.0.dll"),
+						new File(getDataFolder(), "jni4net.n.w64.v40-0.8.9.0.dll"),
+						new File(getDataFolder(), "VirtualComputerWindows.j4n.dll"),
+						new File(getDataFolder(), "VirtualComputerWindows.dll"),
+						new File(getDataFolder(), "Interop.VirtualBox.dll"),
+						new File(getDataFolder(), "Interop.VirtualBox.j4n.dll")
+				};
+
+				for (final File lib : libs) {
+					if (!lib.exists()) {
+						JarUtils.extractFromJar(lib.getName(), lib.getAbsolutePath());
+					}
+				}
+				ccs.sendMessage("§bInitializing bridge...");
+				Bridge.setVerbose(true);
+				//Bridge.init(new File(getDataFolder(), "jni4net.n.w64.v40-0.8.9.0.dll").getAbsoluteFile());
+				Bridge.init(getDataFolder().getAbsoluteFile());
+				Bridge.getSetup().setVeryVerbose(true);
+				Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(), "VirtualComputerWindows.j4n.dll"));
+				Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(), "Interop.VirtualBox.j4n.dll"));
+			}
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			if (!windows) {
 				VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
