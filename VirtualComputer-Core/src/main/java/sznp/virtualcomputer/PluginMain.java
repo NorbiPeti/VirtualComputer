@@ -93,9 +93,7 @@ public class PluginMain extends JavaPlugin {
 					}
 				}
 				ccs.sendMessage("§bInitializing bridge...");
-				Bridge.setVerbose(true);
 				Bridge.init(getDataFolder().getAbsoluteFile());
-				Bridge.getSetup().setVeryVerbose(true);
 				Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(), "VirtualComputerWindows.j4n.dll"));
 			}
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());

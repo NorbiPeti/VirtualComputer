@@ -17,7 +17,7 @@ namespace VirtualComputerWindows
 
         private static VirtualBoxClient vbc;
 
-        public static void Init()
+        private static void Init()
         {
             try
             {
@@ -48,7 +48,9 @@ namespace VirtualComputerWindows
 
         private static void Main()
         {
-            Init();
+            //Init();
+            long asd = GetEventHandler(null);
+            Console.WriteLine("Returned: " + asd);
             Console.ReadLine();
         
         }
@@ -56,13 +58,13 @@ namespace VirtualComputerWindows
         public static long GetFrameBuffer(IMCFrameBuffer framebuffer)
         {
             var fb = new WinFrameBuffer(framebuffer);
-            return (long) Marshal.GetIDispatchForObject(fb);
+            return (long) Marshal.GetIUnknownForObject(fb);
         }
 
         public static long GetEventHandler(IEventHandler handler)
         {
             var han = new EventHandler(handler);
-            return (long) Marshal.GetIDispatchForObject(han);
+            return (long)Marshal.GetIUnknownForObject(han);
         }
     }
 }
