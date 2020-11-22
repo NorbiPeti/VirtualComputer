@@ -91,8 +91,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventHandler.cs" />
     <Compile Include="Exports.cs" />
+    <Compile Include="IEventHandler.cs" />
+    <Compile Include="IMCFrameBuffer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WinFrameBuffer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

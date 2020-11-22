@@ -84,8 +84,7 @@ public class PluginMain extends JavaPlugin {
 						new File(getDataFolder(), "jni4net.n.w64.v40-0.8.9.0.dll"),
 						new File(getDataFolder(), "VirtualComputerWindows.j4n.dll"),
 						new File(getDataFolder(), "VirtualComputerWindows.dll"),
-						new File(getDataFolder(), "Interop.VirtualBox.dll"),
-						new File(getDataFolder(), "Interop.VirtualBox.j4n.dll")
+						new File(getDataFolder(), "Interop.VirtualBox.dll")
 				};
 
 				for (final File lib : libs) {
@@ -95,11 +94,9 @@ public class PluginMain extends JavaPlugin {
 				}
 				ccs.sendMessage("§bInitializing bridge...");
 				Bridge.setVerbose(true);
-				//Bridge.init(new File(getDataFolder(), "jni4net.n.w64.v40-0.8.9.0.dll").getAbsoluteFile());
 				Bridge.init(getDataFolder().getAbsoluteFile());
 				Bridge.getSetup().setVeryVerbose(true);
 				Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(), "VirtualComputerWindows.j4n.dll"));
-				Bridge.LoadAndRegisterAssemblyFrom(new File(getDataFolder(), "Interop.VirtualBox.j4n.dll"));
 			}
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
 			if (!windows) {

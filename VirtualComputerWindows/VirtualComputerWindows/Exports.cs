@@ -25,8 +25,8 @@ namespace VirtualComputerWindows
                 //TODO: Only finds the VBoxVMM.dll when placed in the VirtualBox dir (regardless of working dir)
                 //Even then there are hardening issues: VERR_SUPDRV_NOT_BUDDING_VM_PROCESS_1
                 //https://www.virtualbox.org/svn/vbox/trunk/src/VBox/HostDrivers/Support/win/SUPDrv-win.cpp
-                vbc = new VirtualBoxClientClass();
-                var vbox = vbc.VirtualBox;
+                vbc = new VirtualBoxClientClass(); //GetObjectFromIUnknown
+                /*var vbox = vbc.VirtualBox;
                 //RTR3InitExe(0, "", 0);
                 var ses = vbc.Session;
                 var machine = vbox.Machines.GetValue(0) as IMachine;
@@ -37,44 +37,32 @@ namespace VirtualComputerWindows
                 Console.WriteLine("Locked");
                 machine = ses.Machine;
                 Console.WriteLine("Powering up...");
-                ses.Console.PowerUp().WaitForCompletion(10000);
+                ses.Console.PowerUp().WaitForCompletion(10000);*/
             }
             catch(Exception e)
             {
                 Console.WriteLine(e);
-                Console.ReadLine();
+                //Console.ReadLine();
             }
         }
 
-        public static void Main()
+        private static void Main()
         {
             Init();
             Console.ReadLine();
+        
         }
 
-        public static int[] ConvertArrayInt(Array array)
+        public static long GetFrameBuffer(IMCFrameBuffer framebuffer)
         {
-            return (int[]) array;
+            var fb = new WinFrameBuffer(framebuffer);
+            return (long) Marshal.GetIDispatchForObject(fb);
         }
 
-        public static byte[] ConvertArrayByte(Array array)
+        public static long GetEventHandler(IEventHandler handler)
         {
-            return (byte[]) array;
-        }
-
-        public static uint[] ConvertArrayUint(Array array)
-        {
-            return (uint[]) array;
-        }
-
-        public static Array ConvertArray(int[] array)
-        {
-            return array;
-        }
-
-        public static int ConvertEnum(object someEnum)
-        {
-            return (int) someEnum;
+            var han = new EventHandler(handler);
+            return (long) Marshal.GetIDispatchForObject(han);
         }
     }
 }
