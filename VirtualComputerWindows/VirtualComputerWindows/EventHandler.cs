@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using VirtualBox;
 
 namespace VirtualComputerWindows
 {
-	public class EventHandler
+	public class EventHandler : IEventListener
 	{
 		private readonly IEventHandler handler;
 		private bool enabled = true;
@@ -21,16 +23,16 @@ namespace VirtualComputerWindows
 			this.handler = handler;
 		}
 
-		public void handleEvent(long iEvent)
+		public void HandleEvent(IEvent aEvent)
 		{
 			if (!enabled)
 				return;
-			handler.handleEvent(iEvent);
+			handler.handleEvent((long)Marshal.GetIDispatchForObject(aEvent));
 		}
 
 		public void disable()
 		{
 			enabled = false;
 		}
-	}
+    }
 }

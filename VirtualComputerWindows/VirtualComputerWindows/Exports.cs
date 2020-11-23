@@ -49,22 +49,28 @@ namespace VirtualComputerWindows
         private static void Main()
         {
             //Init();
-            long asd = GetEventHandler(null);
-            Console.WriteLine("Returned: " + asd);
+            GetEventHandler(null, 0L);
             Console.ReadLine();
         
         }
 
-        public static long GetFrameBuffer(IMCFrameBuffer framebuffer)
+        private static WinFrameBuffer framebuffer;
+        public static long GetFrameBuffer(IMCFrameBuffer framebuffer, long addr)
         {
-            var fb = new WinFrameBuffer(framebuffer);
-            return (long) Marshal.GetIUnknownForObject(fb);
+            Exports.framebuffer = new WinFrameBuffer(framebuffer);
+            Marshal.GetNativeVariantForObject(Exports.framebuffer, (IntPtr)addr);
+            return (long)Marshal.GetIDispatchForObject(Exports.framebuffer);
         }
 
-        public static long GetEventHandler(IEventHandler handler)
+        private static EventHandler eventHandler;
+        private static DispatchWrapper handlerWrapper;
+        public static long GetEventHandler(IEventHandler handler, long addr)
         {
-            var han = new EventHandler(handler);
-            return (long)Marshal.GetIUnknownForObject(han);
+            eventHandler = new EventHandler(handler);
+            //handlerWrapper = new DispatchWrapper(eventHandler);
+            Marshal.GetNativeVariantForObject(eventHandler, (IntPtr)addr);
+            //return (long)Marshal.GetIDispatchForObject(eventHandler);
+            return addr;
         }
     }
 }

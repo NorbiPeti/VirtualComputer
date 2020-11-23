@@ -134,7 +134,9 @@ public class PluginMain extends JavaPlugin {
 	private void error(String message) {
 		getLogger().severe("A fatal error occured, disabling plugin!");
 		Bukkit.getPluginManager().disablePlugin(this);
-		throw new RuntimeException(message);
+		val ex = new RuntimeException(message);
+		ex.setStackTrace(new StackTraceElement[0]);
+		throw ex;
 	}
 
 	// Fired when plugin is disabled

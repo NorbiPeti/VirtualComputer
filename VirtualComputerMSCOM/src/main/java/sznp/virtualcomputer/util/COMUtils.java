@@ -1,6 +1,8 @@
 package sznp.virtualcomputer.util;
 
+import com.jacob.com.COMConverter;
 import com.jacob.com.Dispatch;
+import com.jacob.com.Variant;
 import lombok.SneakyThrows;
 import lombok.val;
 import lombok.var;
@@ -14,10 +16,10 @@ public final class COMUtils {
 	}
 
 	public static IEventListener registerListener(IEventSource source, IEventHandler listener, List<VBoxEventType> types) {
-		long handler = Exports.GetEventHandler(listener);
-		var dp = new Dispatch();
-		dp.m_pDispatch = handler;
-		var ret = new IEventListener(dp);
+		var variant = new Variant();
+		COMConverter.SetVariantAddress(variant, Exports.GetEventHandler(listener, COMConverter.GetVariantAddress(variant)));
+		System.out.println("Variant as int: "+variant.toInt());
+		var ret = new IEventListener(variant.changeType((short) 9).getDispatch()); //Object variant to dispatch variant
 		source.registerListener(ret, types, true);
 		return ret;
 	}
@@ -28,9 +30,9 @@ public final class COMUtils {
 	}
 
 	public static IFramebuffer gimmeAFramebuffer(IMCFrameBuffer frameBuffer) {
-		var dp = new Dispatch();
-		dp.m_pDispatch = Exports.GetFrameBuffer(frameBuffer);
-		return new IFramebuffer(dp);
+		var variant = new Variant();
+		COMConverter.SetVariantAddress(variant, Exports.GetFrameBuffer(frameBuffer, COMConverter.GetVariantAddress(variant)));
+		return new IFramebuffer(variant.toDispatch()); //Object variant
 	}
 
 	public static void queryBitmapInfo(IDisplaySourceBitmap bitmap, long[] ptr, long[] w, long[] h, long[] bpp, long[] bpl, long[] pf) {
