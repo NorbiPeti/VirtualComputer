@@ -83,7 +83,7 @@
         <dependency>
             <groupId>com.github.TBMCPlugins.ChromaCore</groupId>
             <artifactId>Chroma-Core</artifactId>
-            <version>master-SNAPSHOT</version>
+            <version>v1.0.0</version>
         </dependency>
     </dependencies>
 

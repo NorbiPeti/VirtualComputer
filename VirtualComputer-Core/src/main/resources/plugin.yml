@@ -8,4 +8,4 @@ commands:
         aliases: c
 api-version: '1.13'
 depend:
-    - ChromaCore
+    - Chroma-Core

@@ -364,5 +364,6 @@ public final class Computer {
 			}
 			session.unlockMachine();
 		}
+		instance = null; //Allow setting it again
 	}
 }

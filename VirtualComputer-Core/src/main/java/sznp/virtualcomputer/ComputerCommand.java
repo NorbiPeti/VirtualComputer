@@ -2,6 +2,7 @@ package sznp.virtualcomputer;
 
 import buttondevteam.lib.chat.Command2;
 import buttondevteam.lib.chat.CommandClass;
+import buttondevteam.lib.chat.CustomTabComplete;
 import buttondevteam.lib.chat.ICommand2MC;
 import lombok.var;
 import net.md_5.bungee.api.ChatColor;
@@ -30,6 +31,7 @@ import java.util.Objects;
 public class ComputerCommand extends ICommand2MC {
 	@Command2.Subcommand
 	public void status(CommandSender sender) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().Status(sender);
 	}
 
@@ -39,36 +41,43 @@ public class ComputerCommand extends ICommand2MC {
 			"Use /c list to see the index of the machines."
 	})
 	public void start(CommandSender sender, @Command2.OptionalArg int index) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().Start(sender, index);
 	}
 
 	@Command2.Subcommand
 	public void list(CommandSender sender) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().List(sender);
 	}
 
 	@Command2.Subcommand(aliases = {"poweroff", "off", "kill"})
 	public void stop(CommandSender sender) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().Stop(sender);
 	}
 
 	@Command2.Subcommand(aliases = {"powerbtn", "pwrbtn"})
 	public void powerbutton(CommandSender sender, @Command2.OptionalArg int index) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().PowerButton(sender, index);
 	}
 
 	@Command2.Subcommand(aliases = "restart")
 	public void reset(CommandSender sender) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().Reset(sender);
 	}
 
 	@Command2.Subcommand(aliases = "save state")
 	public void save(CommandSender sender) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().SaveState(sender);
 	}
 
 	@Command2.Subcommand(aliases = "fix screen")
 	public void fix(CommandSender sender) {
+		if (checkDisabled(sender)) return;
 		Computer.getInstance().FixScreen(sender);
 	}
 
@@ -77,6 +86,7 @@ public class ComputerCommand extends ICommand2MC {
 			"Presses the specified key. Valid values for the last param are 'down', 'up' and amount of ticks to hold."
 	})
 	public void key(CommandSender sender, String key, @Command2.OptionalArg String stateorduration) {
+		if (checkDisabled(sender)) return;
 		if (stateorduration == null) stateorduration = "";
 		Computer.getInstance().PressKey(sender, key, stateorduration);
 	}
@@ -86,6 +96,7 @@ public class ComputerCommand extends ICommand2MC {
 			"Move the mouse by the specified offset or press the given button."
 	})
 	public void mouse(CommandSender sender, String keyOrX, @Command2.OptionalArg int y, @Command2.OptionalArg int z, @Command2.OptionalArg int w) {
+		if (checkDisabled(sender)) return;
 		try {
 			if (y != 0 || z != 0 || w != 0) {
 				int x = Integer.parseInt(keyOrX);
@@ -139,6 +150,7 @@ public class ComputerCommand extends ICommand2MC {
 			"Locks the mouse to where you're looking. If you move your mouse, the computer's mouse will be moved."
 	})
 	public void lock_mouse(Player player) {
+		if (checkDisabled(player)) return;
 		MouseLockerPlayerListener.toggleLock(player);
 	}
 
@@ -147,6 +159,7 @@ public class ComputerCommand extends ICommand2MC {
 			"Sets the mouse speed when locked. The default is 5."
 	})
 	public void lock_speed(CommandSender sender, float speed) {
+		if (checkDisabled(sender)) return;
 		MouseLockerPlayerListener.LockedSpeed = speed;
 		sender.sendMessage("§aMouse speed set to " + MouseLockerPlayerListener.LockedSpeed);
 	}
@@ -156,6 +169,7 @@ public class ComputerCommand extends ICommand2MC {
 			"Spawns a computer screen near you. All of them show the same thing."
 	})
 	public void spawn(Player player) {
+		if (checkDisabled(player)) return;
 		var loc = player.getLocation();
 		var world = Objects.requireNonNull(loc.getWorld());
 		short id = PluginMain.Instance.startID.get();
@@ -199,5 +213,35 @@ public class ComputerCommand extends ICommand2MC {
 		for (var item : list) {
 			System.out.println("item: " + item);
 		}
+	}
+
+	@Command2.Subcommand(helpText = {
+			"Plugin enable/disable",
+			"Use this command to enable or disable the plugin.",
+			"This can be useful to save resources if it is unused."
+	})
+	public boolean plugin(CommandSender sender, @CustomTabComplete({"enable", "disable"}) String enableDisable) {
+		switch (enableDisable) {
+			case "enable":
+				sender.sendMessage("§bEnabling plugin...");
+				PluginMain.Instance.pluginEnableInternal();
+				sender.sendMessage("§bPlugin enabled! More info on console.");
+				break;
+			case "disable":
+				sender.sendMessage("§aDisabling plugin...");
+				PluginMain.Instance.pluginDisableInternal();
+				sender.sendMessage("§aPlugin disabled! More info on console.");
+				break;
+			default:
+				return false;
+		}
+		return true;
+	}
+
+	private boolean checkDisabled(CommandSender sender) {
+		boolean disabled = !PluginMain.isPluginEnabled();
+		if (disabled)
+			sender.sendMessage("The plugin is currently disabled. Do /c plugin enable to enable it.");
+		return disabled;
 	}
 }

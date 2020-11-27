@@ -3,6 +3,7 @@ package sznp.virtualcomputer;
 import buttondevteam.lib.architecture.ButtonPlugin;
 import buttondevteam.lib.architecture.ConfigData;
 import jnr.ffi.LibraryLoader;
+import lombok.Getter;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -28,6 +29,7 @@ public class PluginMain extends ButtonPlugin {
 	public static final int MCY = 4;
 	private BukkitTask mousetask;
 	private VBoxEventHandler listener;
+	private VirtualBoxManager manager;
 
 	public static PluginMain Instance;
 	/**
@@ -37,6 +39,8 @@ public class PluginMain extends ButtonPlugin {
 	private static final ArrayList<IRenderer> renderers = new ArrayList<>();
 	public static boolean direct;
 	public static boolean sendAll;
+	@Getter
+	private static boolean pluginEnabled; //The Bukkit plugin has to be enabled for the enable command to work
 
 	/**
 	 * The first map ID to use for the screen.
@@ -52,13 +56,28 @@ public class PluginMain extends ButtonPlugin {
 	 */
 	private final ConfigData<String> kbLayout = getIConfig().getData("kbLayout", "en");
 	public File layoutFolder = new File(getDataFolder(), "layouts");
+	/**
+	 * When set to false, the plugin will not initialize on server startup and its only valid command will be /c plugin enable.
+	 * This can be useful to save resources as the plugin keeps the VirtualBox interface running while enabled.
+	 */
+	private final ConfigData<Boolean> autoEnable = getIConfig().getData("autoEnable", true);
 
 	@Override
 	public void pluginEnable() {
+		registerCommand(new ComputerCommand());
+		if (autoEnable.get())
+			pluginEnableInternal();
+		else
+			getLogger().info("Auto-enable is disabled. Enable with /c plugin enable.");
+	}
+
+	void pluginEnableInternal() {
+		if (pluginEnabled)
+			return;
+		pluginEnabled = true;
 		Instance = this;
 		try {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
-			registerCommand(new ComputerCommand());
 			sendAll = getConfig().getBoolean("sendAll", true);
 			ccs.sendMessage("§bInitializing VirtualBox...");
 			String osname = System.getProperty("os.name").toLowerCase();
@@ -95,6 +114,7 @@ public class PluginMain extends ButtonPlugin {
 			IVirtualBox vbox = manager.getVBox();
 			(listener = new VBoxEventHandler()).registerTo(vbox.getEventSource());
 			new Computer(this, manager, vbox); //Saves itself
+			this.manager = manager;
 			ccs.sendMessage("§bLoading Screen...");
 			try {
 				if (useGPU.get())
@@ -140,6 +160,13 @@ public class PluginMain extends ButtonPlugin {
 
 	@Override
 	public void pluginDisable() {
+		pluginDisableInternal();
+	}
+
+	void pluginDisableInternal() {
+		if (!pluginEnabled)
+			return;
+		pluginEnabled = false;
 		ConsoleCommandSender ccs = getServer().getConsoleSender();
 		if (mousetask != null)
 			mousetask.cancel();
@@ -154,6 +181,8 @@ public class PluginMain extends ButtonPlugin {
 			Computer.getInstance().pluginDisable(ccs);
 		ccs.sendMessage("§aHuh.");
 		saveConfig();
+		renderers.clear();
+		manager.cleanup();
 	}
 
 }
