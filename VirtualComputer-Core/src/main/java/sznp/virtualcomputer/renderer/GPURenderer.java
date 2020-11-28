@@ -27,7 +27,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 	private static int[] colors_;
 	private int changedX = 0, changedY = 0, changedWidth = 640, changedHeight = 480;
 	private BiConsumer<Integer, Integer> flagDirty; //This way it's version independent, as long as it's named the same
-	private static ArrayList<GPURenderer> renderers = new ArrayList<>();
+	private static final ArrayList<GPURenderer> renderers = new ArrayList<>();
 	private static Method flagDirtyMethod;
 	private static boolean enabled = true;
 	private static boolean warned = false;

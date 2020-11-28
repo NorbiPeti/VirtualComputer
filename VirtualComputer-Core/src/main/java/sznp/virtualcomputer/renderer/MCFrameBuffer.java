@@ -76,7 +76,7 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 	public void notifyUpdate(long x, long y, long width, long height) {
 		/*if (this.width > 1024 || this.height > 768)
 			return;*/
-		if(shouldUpdate.get())
+		if (!PluginMain.direct || shouldUpdate.get())
 			return; //Don't wait for lock, ignore update since we're updating everything anyway - TODO: Not always
 		synchronized (this) {
 			shouldUpdate.set(true);
@@ -90,6 +90,8 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 	}
 
 	public void start() {
+		if (!PluginMain.direct)
+			return;
 		running = true;
 		Bukkit.getScheduler().runTaskAsynchronously(PluginMain.Instance, () -> {
 			try {

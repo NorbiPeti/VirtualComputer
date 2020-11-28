@@ -65,6 +65,7 @@ public class PluginMain extends ButtonPlugin {
 	@Override
 	public void pluginEnable() {
 		registerCommand(new ComputerCommand());
+		Instance = this;
 		if (autoEnable.get())
 			pluginEnableInternal();
 		else
@@ -75,7 +76,6 @@ public class PluginMain extends ButtonPlugin {
 		if (pluginEnabled)
 			return;
 		pluginEnabled = true;
-		Instance = this;
 		try {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
 			sendAll = getConfig().getBoolean("sendAll", true);
@@ -149,7 +149,7 @@ public class PluginMain extends ButtonPlugin {
 		for (short i = 0; i < MCX * MCY; i++)
 			renderers.add(new BukkitRenderer((short) (startID.get() + i), Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
 		direct = false;
-		ccs.sendMessage("§6Compatibility error, using slower renderer");
+		ccs.sendMessage("§6Using Bukkit renderer");
 	}
 
 	private void error(String message) {
