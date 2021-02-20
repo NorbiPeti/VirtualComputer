@@ -10,30 +10,33 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class BukkitRenderer extends MapRenderer implements IRenderer {
-	private ByteBuffer allpixels;
-	private BufferedImage image;
-	private int startindex;
+	private static ByteBuffer allpixels;
+	private final BufferedImage image;
+	private final int startindex;
+	private final Logger logger;
 
 	/**
-	 * The raw pixel data from the machine in BGRA format
+	 * Updates the screen.
+	 *
+	 * @param allpixels The raw pixel data from the machine in BGRA format
 	 */
-	public void setAllPixels(ByteBuffer allpixels) {
-		this.allpixels = allpixels;
+	public static void update(ByteBuffer allpixels, int x, int y, int width, int height) {
+		BukkitRenderer.allpixels = allpixels; //TODO: Only update what actually changes
 	}
 
 	/**
 	 * Generic implementation, should work on most versions
-	 * 
-	 * @param id
-	 *            The ID of the current map
-	 * @param world
-	 *            The world to create new maps in
-	 * @param startindex
-	 *            The index to start from in allpixels
+	 *
+	 * @param id         The ID of the current map
+	 * @param world      The world to create new maps in
+	 * @param startindex The index
+	 * @param logger     The plugin's logger
 	 */
-	public BukkitRenderer(short id, World world, int startindex) {
+	public BukkitRenderer(short id, World world, int startindex, Logger logger) {
+		this.logger = logger;
 		MapView map = IRenderer.prepare(id, world);
 		map.addRenderer(this);
 		this.startindex = startindex;
@@ -72,12 +75,12 @@ public class BukkitRenderer extends MapRenderer implements IRenderer {
 
 			long diff = System.nanoTime() - time;
 			if (TimeUnit.NANOSECONDS.toMillis(diff) > 40) {
-				System.out.println("Map rendering took " + TimeUnit.NANOSECONDS.toMillis(diff) + " ms");
+				logger.warning("Map rendering took " + TimeUnit.NANOSECONDS.toMillis(diff) + " ms");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Progess: " + progress);
-			System.out.println("UpdatePixels: " + updatepixels);
+			logger.warning("Progess: " + progress);
+			logger.warning("UpdatePixels: " + updatepixels);
 		}
 	}
 }

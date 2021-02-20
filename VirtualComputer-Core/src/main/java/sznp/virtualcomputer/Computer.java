@@ -32,12 +32,14 @@ public final class Computer {
 	private IEventListener listener;
 	private final VirtualBoxManager manager;
 	private MCFrameBuffer framebuffer;
+	private final boolean direct;
 
-	public Computer(PluginMain plugin, VirtualBoxManager manager, IVirtualBox vbox) {
+	public Computer(PluginMain plugin, VirtualBoxManager manager, IVirtualBox vbox, boolean direct) {
 		this.plugin = plugin;
 		this.manager = manager;
 		session = manager.getSessionObject();
 		this.vbox = vbox;
+		this.direct = direct;
 		if (instance != null) throw new IllegalStateException("A computer already exists!");
 		instance = this;
 	}
@@ -107,7 +109,7 @@ public final class Computer {
 		IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
 		handler.setProgress(progress);
 		handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
-		val fb = new MCFrameBuffer(console.getDisplay());
+		val fb = new MCFrameBuffer(console.getDisplay(), plugin, direct);
 		if (plugin.runEmbedded.get())
 			fb.start();
 		String fbid = console.getDisplay().attachFramebuffer(0L,

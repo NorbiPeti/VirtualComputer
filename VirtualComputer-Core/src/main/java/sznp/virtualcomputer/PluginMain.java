@@ -14,13 +14,10 @@ import org.virtualbox_6_1.VirtualBoxManager;
 import sznp.virtualcomputer.events.VBoxEventHandler;
 import sznp.virtualcomputer.renderer.BukkitRenderer;
 import sznp.virtualcomputer.renderer.GPURenderer;
-import sznp.virtualcomputer.renderer.IRenderer;
 import sznp.virtualcomputer.util.Utils;
 import sznp.virtualcomputer.util.VBoxLib;
 
 import java.io.File;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -32,13 +29,6 @@ public class PluginMain extends ButtonPlugin {
 	private VirtualBoxManager manager;
 
 	public static PluginMain Instance;
-	/**
-	 * Only used if {@link #direct} is false.
-	 */
-	public static ByteBuffer allpixels; // It's set on each change
-	private static final ArrayList<IRenderer> renderers = new ArrayList<>();
-	public static boolean direct;
-	public static boolean sendAll;
 	@Getter
 	private static boolean pluginEnabled; //The Bukkit plugin has to be enabled for the enable command to work
 
@@ -66,6 +56,14 @@ public class PluginMain extends ButtonPlugin {
 	 * This can be useful to save resources as the plugin keeps the VirtualBox interface running while enabled.
 	 */
 	private final ConfigData<Boolean> autoEnable = getIConfig().getData("autoEnable", true);
+	/**
+	 * The amount of rows to update if the slower, Bukkit renderer is being used.
+	 */
+	private final ConfigData<Integer> updateRows = getIConfig().getData("updateRows", 15, o -> (int) o, i -> BukkitRenderer.updatepixels = i);
+	/**
+	 * Experimental. Whether all of the image data should be sent even on small changes. Defaults to true.
+	 */
+	private final ConfigData<Boolean> sendAll = getIConfig().getData("sendAll", true);
 
 	@Override
 	public void pluginEnable() {
@@ -83,7 +81,6 @@ public class PluginMain extends ButtonPlugin {
 		pluginEnabled = true;
 		try {
 			ConsoleCommandSender ccs = getServer().getConsoleSender();
-			sendAll = getConfig().getBoolean("sendAll", true);
 			ccs.sendMessage("§bInitializing VirtualBox...");
 			String osname = System.getProperty("os.name").toLowerCase();
 			final boolean windows;
@@ -102,7 +99,7 @@ public class PluginMain extends ButtonPlugin {
 			if (notGoodDir.test(new File(vbpath)))
 				vbpath = "/usr/lib/virtualbox";
 			if (notGoodDir.test(new File(vbpath)))
-				error("Could not find VirtualBox! Download from https://www.virtualbox.org/wiki/Downloads");
+				error("Could not find VirtualBox! Download from https://www.virtualbox.org/wiki/Downloads", null);
 			if (System.getProperty("vbox.home") == null || System.getProperty("vbox.home").isEmpty())
 				System.setProperty("vbox.home", vbpath);
 			if (System.getProperty("sun.boot.library.path") == null
@@ -118,49 +115,53 @@ public class PluginMain extends ButtonPlugin {
 			}
 			IVirtualBox vbox = manager.getVBox();
 			(listener = new VBoxEventHandler()).registerTo(vbox.getEventSource());
-			new Computer(this, manager, vbox); //Saves itself
 			this.manager = manager;
 			ccs.sendMessage("§bLoading Screen...");
+			boolean direct;
 			try {
-				if (useGPU.get())
+				if (useGPU.get()) {
 					setupDirectRendering(ccs);
-				else
+					direct = true;
+				} else {
 					setupBukkitRendering(ccs);
+					direct = false;
+				}
 			} catch (NoClassDefFoundError | Exception e) {
 				e.printStackTrace();
 				setupBukkitRendering(ccs);
+				direct = false;
 			}
+			new Computer(this, manager, vbox, direct); //Saves itself
 			ccs.sendMessage("§bLoaded!");
 			val mlpl = new MouseLockerPlayerListener();
 			mousetask = getServer().getScheduler().runTaskTimer(this, mlpl, 0, 0);
 			getServer().getPluginManager().registerEvents(mlpl, this);
 
 		} catch (final Exception e) {
-			getLogger().severe("A fatal error occured, disabling plugin!");
-			Bukkit.getPluginManager().disablePlugin(this);
-			throw new RuntimeException(e);
+			error(null, e);
 		}
 	}
 
 	private void setupDirectRendering(CommandSender ccs) throws Exception {
 		for (short i = 0; i < MCX; i++)
 			for (short j = 0; j < MCY; j++)
-				renderers.add(new GPURenderer((short) (startID.get() + j * MCX + i), Bukkit.getWorlds().get(0), i, j));
-		direct = true;
+				new GPURenderer((short) (startID.get() + j * MCX + i), Bukkit.getWorlds().get(0), sendAll.get(), i, j);
 		ccs.sendMessage("§bUsing Direct Renderer, all good");
 	}
 
 	private void setupBukkitRendering(CommandSender ccs) {
 		for (short i = 0; i < MCX * MCY; i++)
-			renderers.add(new BukkitRenderer((short) (startID.get() + i), Bukkit.getWorlds().get(0), i * 128 * 128 * 4));
-		direct = false;
+			new BukkitRenderer((short) (startID.get() + i), Bukkit.getWorlds().get(0), i * 128 * 128 * 4, getLogger());
 		ccs.sendMessage("§6Using Bukkit renderer");
 	}
 
-	private void error(String message) {
+	private void error(String message, Exception e) { //Message OR exception
 		getLogger().severe("A fatal error occured, disabling plugin!");
 		Bukkit.getPluginManager().disablePlugin(this);
-		throw new RuntimeException(message);
+		if (message != null)
+			throw new RuntimeException(message);
+		else
+			throw new RuntimeException(e);
 	}
 
 	@Override
@@ -186,7 +187,6 @@ public class PluginMain extends ButtonPlugin {
 			Computer.getInstance().pluginDisable(ccs);
 		ccs.sendMessage("§aHuh.");
 		saveConfig();
-		renderers.clear();
 		manager.cleanup();
 	}
 

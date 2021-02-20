@@ -22,6 +22,7 @@ import java.util.function.BiConsumer;
 public class GPURenderer extends MapRenderer implements IRenderer {
 	private byte[] buffer;
 	private final GPURendererInternal kernel;
+	private final boolean sendAll;
 	private int mapx, mapy;
 	//Store at central location after conversion
 	private static int[] colors_;
@@ -32,7 +33,8 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 	private static boolean enabled = true;
 	private static boolean warned = false;
 
-	public GPURenderer(short id, World world, int mapx, int mapy) throws Exception {
+	public GPURenderer(short id, World world, boolean sendAll, int mapx, int mapy) throws Exception {
+		this.sendAll = sendAll;
 		MapView map = IRenderer.prepare(id, world);
 		if (map == null) {
 			kernel = null;
@@ -90,7 +92,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 					PluginMain.Instance.getLogger().warning("Server performance may be affected"); //TODO: Index 0 out of range 0
 				}
 			}
-			if (!PluginMain.sendAll) {
+			if (!sendAll) {
 				synchronized (kernel) {
 					if (changedX >= (mapx + 1) * 128 || changedY >= (mapy + 1) * 128
 							|| changedX + changedWidth < mapx * 128 || changedY + changedHeight < mapy * 128) {
@@ -134,7 +136,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 	public static void update(byte[] pixels, int width, int height, int changedX, int changedY, int changedWidth, int changedHeight) {
 		for (GPURenderer r : renderers) {
 			synchronized (r.kernel) {
-				if (!PluginMain.sendAll) {
+				if (!r.sendAll) {
 					if (changedX < r.changedX)
 						r.changedX = changedX;
 					if (changedY < r.changedY)
