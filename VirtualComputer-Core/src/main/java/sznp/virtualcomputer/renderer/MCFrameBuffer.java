@@ -25,7 +25,13 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 	private final Holder<IDisplaySourceBitmap> holder = new Holder<>();
 	private final Logger logger;
 	private final PluginMain plugin;
+	/**
+	 * Whether the VM is running inside the server
+	 */
 	private final boolean embedded;
+	/**
+	 * Whether the GPU is being used to render
+	 */
 	private final boolean direct;
 	private BukkitTask tt;
 	/**
@@ -103,9 +109,7 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 
 	@Override
 	public void notifyUpdate(long x, long y, long width, long height) {
-		/*if (this.width > 1024 || this.height > 768)
-			return;*/
-		if (!direct || shouldUpdate.get())
+		if (shouldUpdate.get())
 			return; //Don't wait for lock, ignore update since we're updating everything anyway - TODO: Not always
 		synchronized (this) {
 			shouldUpdate.set(true);
@@ -129,9 +133,7 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 		updateScreen((int) x, (int) y, (int) width, (int) height);
 	}
 
-	public void start() {
-		if (!direct)
-			return;
+	public void startEmbedded() {
 		running = true;
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			try {
@@ -140,7 +142,7 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 						while (!shouldUpdate.get())
 							wait(1000);
 						if (pointer == null) {
-							System.out.println("Screen pointer is null");
+							logger.warning("Embedded screen data pointer is null");
 							shouldUpdate.set(false);
 							continue;
 						}
@@ -155,18 +157,29 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 	}
 
 	private void updateScreenDirectInternal(byte[] pixels, int x, int y, int width, int height) {
+		if (pixels == null) {
+			logger.warning("Direct pixel data is null");
+			return;
+		}
 		Timing t = new Timing();
 		GPURenderer.update(pixels, this.width, this.height, x, y, width, height);
 		if (t.elapsedMS() > 60) //Typically 1ms max
-			logger.warning("Update took " + t.elapsedMS() + "ms");
+			logger.warning("Direct update took " + t.elapsedMS() + "ms");
 	}
 
 	private void updateScreenIndirectInternal(ByteBuffer buffer, int x, int y, int width, int height) {
+		if (buffer == null) {
+			logger.warning("Indirect pixel buffer is null");
+			return;
+		}
 		if (this.width * this.height > 640 * 480)
 			buffer.limit(640 * 480 * 4);
 		else
 			buffer.limit(this.width * this.height * 4);
+		Timing t = new Timing();
 		BukkitRenderer.update(buffer, x, y, width, height);
+		if (t.elapsedMS() > 60)
+			logger.warning("Indirect update took " + t.elapsedMS() + "ms");
 	}
 
 	/**

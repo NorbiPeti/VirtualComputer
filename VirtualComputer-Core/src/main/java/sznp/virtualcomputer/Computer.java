@@ -66,8 +66,10 @@ public final class Computer {
 				synchronized (session) {
 					if (plugin.runEmbedded.get())
 						machine.lockMachine(session, LockType.VM); //Run in our process <-- Need the VM type to have console access
-					else
-						machine.launchVMProcess(session, "headless", Collections.emptyList()); //Run in a separate process
+					else {
+						val progress = machine.launchVMProcess(session, "headless", Collections.emptyList()); //Run in a separate process
+						onStartSetProgress(progress, sender);
+					}
 				}
 			} catch (VBoxException e) {
 				if (e.getResultCode() == 0x80070005) { //lockMachine: "The object functionality is limited"
@@ -100,22 +102,35 @@ public final class Computer {
 	 * @param sender The sender which started the machine
 	 */
 	public void onLock(CommandSender sender) {
+		System.out.println("A");
 		machine = session.getMachine(); // This is the Machine object we can work with
 		final IConsole console = session.getConsole();
+		if (plugin.runEmbedded.get()) { //Otherwise it's set while starting the VM
+			IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
+			onStartSetProgress(progress, sender);
+		}
+		System.out.println("B");
+		System.out.println("State: " + console.getState());
+		listener = handler.registerTo(console.getEventSource());
+		System.out.println("State: " + console.getState());
+		val fb = new MCFrameBuffer(console.getDisplay(), plugin, direct);
+		System.out.println("C");
+		if (plugin.runEmbedded.get())
+			fb.startEmbedded();
+		String fbid = console.getDisplay().attachFramebuffer(0L,
+				COMUtils.gimmeAFramebuffer(fb));
+		System.out.println("State: " + console.getState());
+		System.out.println("D"); //TODO: No UpdateImage
+		fb.setId(fbid);
+		framebuffer = fb;
+	}
+
+	private void onStartSetProgress(IProgress progress, CommandSender sender) {
 		if (handler != null)
 			handler.disable();
 		handler = new MachineEventHandler(Computer.this, sender);
-		listener = handler.registerTo(console.getEventSource());
-		IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
 		handler.setProgress(progress);
 		handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
-		val fb = new MCFrameBuffer(console.getDisplay(), plugin, direct);
-		if (plugin.runEmbedded.get())
-			fb.start();
-		String fbid = console.getDisplay().attachFramebuffer(0L,
-				COMUtils.gimmeAFramebuffer(fb));
-		fb.setId(fbid);
-		framebuffer = fb;
 	}
 
 	private void sendMessage(@Nullable CommandSender sender, String message) {

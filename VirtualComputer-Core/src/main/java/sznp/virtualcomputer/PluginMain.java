@@ -109,7 +109,7 @@ public class PluginMain extends ButtonPlugin {
 				System.setProperty("java.library.path", vbpath);
 			Utils.addLibraryPath(vbpath); //TODO: Jacob DLL must be in the server folder
 			final VirtualBoxManager manager = VirtualBoxManager.createInstance(getDataFolder().getAbsolutePath());
-			if (!windows) {
+			if (!windows && runEmbedded.get()) {
 				VBoxLib vbl = LibraryLoader.create(VBoxLib.class).load("vboxjxpcom");
 				vbl.RTR3InitExe(0, "", 0);
 			}

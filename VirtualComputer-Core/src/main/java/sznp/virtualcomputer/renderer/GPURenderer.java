@@ -71,6 +71,7 @@ public class GPURenderer extends MapRenderer implements IRenderer {
 		renderers.add(this);
 
 		map.addRenderer(this);
+		enabled = true; //Enable at each plugin (re)enable
 	}
 
 	@Override
