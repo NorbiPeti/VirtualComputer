@@ -48,9 +48,14 @@ public class PluginMain extends ButtonPlugin {
 	 */
 	public final ConfigData<Short> startID = getIConfig().getData("startID", (short) 0);
 	/**
-	 * If true, uses the GPU to accelerate screen rendering. Requires root on Linux.
+	 * If true, uses the GPU to accelerate screen rendering. May require root on Linux.
 	 */
 	private final ConfigData<Boolean> useGPU = getIConfig().getData("useGPU", true);
+	/**
+	 * The virtual machine will be hosted inside the server process if this option is enabled.
+	 * This can improve performance but may cause stability and other issues.
+	 */
+	public final ConfigData<Boolean> runEmbedded = getIConfig().getData("runEmbedded", true);
 	/**
 	 * Determines the keyboard layout to use for /c show keyboard. Layouts can be defined in VirtualComputer/layouts/.
 	 */

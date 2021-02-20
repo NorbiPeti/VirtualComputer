@@ -22,7 +22,14 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 	private final IDisplay display;
 	private final Holder<IDisplaySourceBitmap> holder = new Holder<>();
 	private BukkitTask tt;
+	/**
+	 * Used when running embedded
+	 */
 	private Pointer pointer;
+	/**
+	 * Used when not running embedded
+	 */
+	private byte[] screenImage; //TODO: Remove PluginMain.allpixels (and other PluginMain references)
 	private int width;
 	private int height;
 	@Getter
@@ -38,7 +45,14 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 		tt = Bukkit.getScheduler().runTaskAsynchronously(PluginMain.Instance, () -> {
 			synchronized (this) { //If a change occurs twice, then wait for it
 				try {
-					//System.out.println("Change: " + xOrigin + " " + yOrigin + " - " + width + " " + height);
+					if (!PluginMain.Instance.runEmbedded.get()) { //Running separately
+						this.width = (int) width;
+						this.height = (int) height;
+						if (screenImage == null || screenImage.length != width * height * 4)
+							screenImage = new byte[(int) (width * height * 4)];
+						updateScreen(screenImage);
+						return;
+					}
 					display.querySourceBitmap(0L, holder);
 					long[] ptr = new long[1], w = new long[1], h = new long[1], bpp = new long[1], bpl = new long[1], pf = new long[1];
 					COMUtils.queryBitmapInfo(holder.value, ptr, w, h, bpp, bpl, pf);
@@ -46,9 +60,6 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 						pointer = new Pointer(ptr[0]);
 						this.width = (int) w[0];
 						this.height = (int) h[0];
-						//System.out.println("Actual sizes: " + this.width + " " + this.height);
-						/*if (this.width > 1024 || this.height > 768)
-							return;*/
 						GPURenderer.update(pointer.getByteArray(0L, (int) (w[0] * h[0] * 4)), (int) w[0], (int) h[0], 0, 0, this.width, this.height);
 					} else {
 						PluginMain.allpixels = new Pointer(ptr[0]).getByteBuffer(0L, width * height * 4);
@@ -65,9 +76,7 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 					e.printStackTrace();
 				} catch (Throwable t) {
 					t.printStackTrace();
-				} /*finally {
-					System.out.println("Change finished");
-				}*/
+				}
 			}
 		});
 	}
@@ -87,6 +96,13 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 	@Override
 	public void notifyUpdateImage(long x, long y, long width, long height, byte[] image) {
 		System.out.println("Update image!");
+		if (this.width == 0 || this.height == 0) {
+			PluginMain.Instance.getLogger().warning("Received screen image before resolution change!");
+			return;
+		}
+		for (int i = 0; i < height; i++) //Copy lines of the screen in a fast way
+			System.arraycopy(image, (int) (i * width * 4), screenImage, (int) (x + y * this.width * 4), (int) width * 4);
+		updateScreen(image);
 	}
 
 	public void start() {
@@ -105,19 +121,20 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 							continue;
 						}
 						if (!running) return;
-						//System.out.println("Update: " + x + " " + y + " - " + width + " " + height);
-						Timing t = new Timing(); //TODO: Add support for only sending changed fragments
-						GPURenderer.update(pointer.getByteArray(0L, this.width * this.height * 4), this.width, this.height, (int) 0, (int) 0, (int) width, (int) height);
-						if (t.elapsedMS() > 60) //Typically 1ms max
-							System.out.println("Update took " + t.elapsedMS() + "ms");
+						updateScreen(pointer.getByteArray(0L, this.width * this.height * 4));
 						shouldUpdate.set(false);
-				/*else
-					System.out.println("Update finished");*/
 					}
 				}
 			} catch (InterruptedException ignored) {
 			}
 		});
+	}
+
+	private void updateScreen(byte[] pixels) {
+		Timing t = new Timing(); //TODO: Add support for only sending changed fragments
+		GPURenderer.update(pixels, this.width, this.height, (int) 0, (int) 0, (int) width, (int) height);
+		if (t.elapsedMS() > 60) //Typically 1ms max
+			PluginMain.Instance.getLogger().warning("Update took " + t.elapsedMS() + "ms");
 	}
 
 	public void stop() {

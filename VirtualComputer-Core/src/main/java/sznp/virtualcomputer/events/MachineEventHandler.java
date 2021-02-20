@@ -40,14 +40,15 @@ public class MachineEventHandler extends EventHandlerBase {
 					sender.sendMessage("§cFailed to start computer! See the console for more details.");
 					starting = false;
 					Bukkit.getScheduler().runTaskAsynchronously(PluginMain.Instance, () -> {
+						if (progress == null) return;
 						progress.waitForCompletion(-1);
-						if (progress != null && progress.getCompleted() && progress.getResultCode() != 0) {
+						if (progress.getCompleted() && progress.getResultCode() != 0) {
 							Logger l = PluginMain.Instance.getLogger();
 							l.warning("Result code: " + Integer.toHexString(progress.getResultCode()));
 							for (var info = progress.getErrorInfo(); info != null; info = info.getNext()) {
 								l.warning("----------------");
 								if (info.getResultCode() == 0x80004005 && info.getResultDetail() == 0xFFFFF88B)
-									l.warning("The server cannot access the VirtualBox driver, run it with sudo. Make sure to only run plugins you trust.");
+									l.warning("The server cannot access the VirtualBox driver. Either run it as root or disable the 'runEmbedded' config option. Make sure to only run plugins you trust as root.");
 								else {
 									l.warning("VBox: " + info.getText());
 									l.warning("Component: " + info.getComponent());

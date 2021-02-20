@@ -224,6 +224,7 @@ public class ComputerCommand extends ICommand2MC {
 		switch (enableDisable) {
 			case "enable":
 				sender.sendMessage("§bEnabling plugin...");
+				PluginMain.Instance.reloadConfig();
 				PluginMain.Instance.pluginEnableInternal();
 				sender.sendMessage("§bPlugin enabled! More info on console.");
 				break;

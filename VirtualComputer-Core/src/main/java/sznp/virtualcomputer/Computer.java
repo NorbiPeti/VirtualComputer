@@ -17,6 +17,7 @@ import sznp.virtualcomputer.util.Scancode;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public final class Computer {
@@ -60,9 +61,11 @@ public final class Computer {
 				}
 				session.setName("minecraft");
 				VBoxEventHandler.getInstance().setup(machine.getId(), sender); //TODO: Sometimes null
-				// machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); - This creates a *process*, we don't want that anymore
 				synchronized (session) {
-					machine.lockMachine(session, LockType.VM); // We want the machine inside *our* process <-- Need the VM type to have console access
+					if (plugin.runEmbedded.get())
+						machine.lockMachine(session, LockType.VM); //Run in our process <-- Need the VM type to have console access
+					else
+						machine.launchVMProcess(session, "headless", Collections.emptyList()); //Run in a separate process
 				}
 			} catch (VBoxException e) {
 				if (e.getResultCode() == 0x80070005) { //lockMachine: "The object functionality is limited"
@@ -70,9 +73,6 @@ public final class Computer {
 					sendMessage(sender, "§6Make sure that the server is running as root (sudo)");
 					//TODO: If we have VirtualBox open, it won't close the server's port
 					//TODO: "The object in question already exists." on second start
-					//machine.launchVMProcess(session, "headless", "").waitForCompletion(10000); //No privileges, start the 'old' way
-					//session.getConsole().getDisplay().attachFramebuffer(0L, new IFramebuffer(new COMFrameBuffer(session.getConsole().getDisplay(), false)));
-					//sendMessage(sender, "§6Computer started with slower screen. Run as root to use a faster method.");
 				} else {
 					sendMessage(sender, "§cFailed to start computer: " + e.getMessage());
 				}
@@ -108,7 +108,8 @@ public final class Computer {
 		handler.setProgress(progress);
 		handler.registerTo(progress.getEventSource()); //TODO: Show progress bar some way?
 		val fb = new MCFrameBuffer(console.getDisplay());
-		fb.start();
+		if (plugin.runEmbedded.get())
+			fb.start();
 		String fbid = console.getDisplay().attachFramebuffer(0L,
 				COMUtils.gimmeAFramebuffer(fb));
 		fb.setId(fbid);
