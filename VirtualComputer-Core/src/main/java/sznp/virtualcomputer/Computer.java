@@ -33,13 +33,15 @@ public final class Computer {
 	private final VirtualBoxManager manager;
 	private MCFrameBuffer framebuffer;
 	private final boolean direct;
+	private final boolean embedded;
 
-	public Computer(PluginMain plugin, VirtualBoxManager manager, IVirtualBox vbox, boolean direct) {
+	public Computer(PluginMain plugin, VirtualBoxManager manager, IVirtualBox vbox, boolean direct, boolean embedded) {
 		this.plugin = plugin;
 		this.manager = manager;
 		session = manager.getSessionObject();
 		this.vbox = vbox;
 		this.direct = direct;
+		this.embedded = embedded;
 		if (instance != null) throw new IllegalStateException("A computer already exists!");
 		instance = this;
 	}
@@ -63,8 +65,8 @@ public final class Computer {
 				}
 				session.setName("minecraft");
 				VBoxEventHandler.getInstance().setup(machine.getId(), sender); //TODO: Sometimes null
-				synchronized (session) {
-					if (plugin.runEmbedded.get())
+				synchronized (this) {
+					if (embedded)
 						machine.lockMachine(session, LockType.VM); //Run in our process <-- Need the VM type to have console access
 					else {
 						val progress = machine.launchVMProcess(session, "headless", Collections.emptyList()); //Run in a separate process
@@ -105,7 +107,7 @@ public final class Computer {
 		System.out.println("A");
 		machine = session.getMachine(); // This is the Machine object we can work with
 		final IConsole console = session.getConsole();
-		if (plugin.runEmbedded.get()) { //Otherwise it's set while starting the VM
+		if (embedded) { //Otherwise it's set while starting the VM
 			IProgress progress = console.powerUp(); // https://marc.info/?l=vbox-dev&m=142780789819967&w=2
 			onStartSetProgress(progress, sender);
 		}
@@ -113,9 +115,9 @@ public final class Computer {
 		System.out.println("State: " + console.getState());
 		listener = handler.registerTo(console.getEventSource());
 		System.out.println("State: " + console.getState());
-		val fb = new MCFrameBuffer(console.getDisplay(), plugin, direct);
+		val fb = new MCFrameBuffer(console.getDisplay(), plugin, embedded, direct);
 		System.out.println("C");
-		if (plugin.runEmbedded.get())
+		if (embedded)
 			fb.startEmbedded();
 		String fbid = console.getDisplay().attachFramebuffer(0L,
 				COMUtils.gimmeAFramebuffer(fb));
@@ -148,7 +150,7 @@ public final class Computer {
 			return;
 		}
 		sendMessage(sender, "§eStopping computer...");
-		synchronized (session) {
+		synchronized (this) {
 			session.getConsole().powerDown();
 		}
 	}
@@ -159,7 +161,7 @@ public final class Computer {
 			if (session.getState() != SessionState.Locked || session.getMachine() == null) {
 				Start(sender, index);
 			} else {
-				synchronized (session) {
+				synchronized (this) {
 					session.getConsole().powerButton();
 				}
 				sendMessage(sender, "§ePowerbutton pressed.");
@@ -171,7 +173,7 @@ public final class Computer {
 		if (checkMachineNotRunning(sender))
 			return;
 		sendMessage(sender, "§eResetting computer...");
-		synchronized (session) {
+		synchronized (this) {
 			session.getConsole().reset();
 		}
 		sendMessage(sender, "§eComputer reset.");
@@ -181,7 +183,7 @@ public final class Computer {
 		if (checkMachineNotRunning(sender))
 			return;
 		sendMessage(sender, "§eSaving computer state...");
-		synchronized (session) {
+		synchronized (this) {
 			session.getMachine().saveState();
 		}
 	}
@@ -195,11 +197,11 @@ public final class Computer {
 		}
 		sendMessage(sender, "§eFixing screen...");
 		try {
-			synchronized (session) {
+			synchronized (this) {
 				session.getConsole().getDisplay().setVideoModeHint(0L, true, false, 0, 0, 640L, 480L, 32L, false);
 			} //Last param: notify - send PnP notification - stops updates but not changes for some reason
 			Bukkit.getScheduler().runTaskLaterAsynchronously(PluginMain.Instance, () -> {
-				synchronized (session) {
+				synchronized (this) {
 					session.getConsole().getMouse().putMouseEventAbsolute(-1, -1, 0, 0, 0);
 					session.getConsole().getMouse().putMouseEvent(0, 0, 0, 0, 0); //Switch to relative mode
 					sendMessage(sender, "§eScreen fixed.");
@@ -210,7 +212,7 @@ public final class Computer {
 		}
 	}
 
-	public boolean checkMachineNotRunning(@Nullable CommandSender sender) {
+	private boolean checkMachineNotRunning(@Nullable CommandSender sender) {
 		if (session.getState() != SessionState.Locked || machine.getState() != MachineState.Running) {
 			if (sender != null)
 				sender.sendMessage("§cMachine isn't running.");
@@ -238,7 +240,7 @@ public final class Computer {
 		}
 		// Release key scan code concept taken from VirtualBox source code (KeyboardImpl.cpp:putCAD())
 		// +128
-		synchronized (session) {
+		synchronized (this) {
 			if (durationorstate != -2)
 				session.getConsole().getKeyboard().putScancode(code);
 			Runnable sendrelease = () -> session.getConsole().getKeyboard().putScancodes(Lists.newArrayList(code + 128,
@@ -258,7 +260,7 @@ public final class Computer {
 		if (mbs.length() > 0 && down)
 			state = Arrays.stream(MouseButtonState.values()).filter(mousebs -> mousebs.name().equalsIgnoreCase(mbs))
 					.findAny().orElseThrow(() -> new Exception("Unknown mouse button")).value();
-		synchronized (session) {
+		synchronized (this) {
 			session.getConsole().getMouse().putMouseEvent(x, y, z, w, state);
 		}
 	}
@@ -347,7 +349,7 @@ public final class Computer {
 	public void onMachineStop(CommandSender sender) {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			if (session.getState() == SessionState.Locked) {
-				synchronized (session) {
+				synchronized (this) {
 					session.unlockMachine(); //Needs to be outside of the event handler
 				}
 				handler = null;
@@ -363,7 +365,7 @@ public final class Computer {
 			framebuffer.stop();
 	}
 
-	public void stopEvents() {
+	private void stopEvents() {
         /*if(session!=null && listener!=null)
             session.getConsole().getEventSource().unregisterListener(listener);*/
 		if (listener != null)

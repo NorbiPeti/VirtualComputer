@@ -131,7 +131,7 @@ public class PluginMain extends ButtonPlugin {
 				setupBukkitRendering(ccs);
 				direct = false;
 			}
-			new Computer(this, manager, vbox, direct); //Saves itself
+			new Computer(this, manager, vbox, direct, runEmbedded.get()); //Saves itself
 			ccs.sendMessage("§bLoaded!");
 			val mlpl = new MouseLockerPlayerListener();
 			mousetask = getServer().getScheduler().runTaskTimer(this, mlpl, 0, 0);

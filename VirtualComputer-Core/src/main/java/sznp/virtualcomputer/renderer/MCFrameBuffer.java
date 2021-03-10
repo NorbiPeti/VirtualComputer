@@ -62,11 +62,11 @@ public class MCFrameBuffer implements IMCFrameBuffer {
 	 * @param plugin  The plugin
 	 * @param direct  Whether the GPU rendering is used
 	 */
-	public MCFrameBuffer(IDisplay display, PluginMain plugin, boolean direct) {
+	public MCFrameBuffer(IDisplay display, PluginMain plugin, boolean embedded, boolean direct) {
 		this.display = display;
 		this.plugin = plugin;
 		this.logger = plugin.getLogger();
-		this.embedded = plugin.runEmbedded.get(); //Don't change even if the config got updated while running
+		this.embedded = embedded; //Don't change even if the config got updated while running
 		this.direct = direct;
 	}
 
