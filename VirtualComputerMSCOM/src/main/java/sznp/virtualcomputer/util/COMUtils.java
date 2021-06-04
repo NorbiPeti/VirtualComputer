@@ -16,12 +16,7 @@ public final class COMUtils {
 	}
 
 	public static IEventListener registerListener(IEventSource source, IEventHandler listener, List<VBoxEventType> types) {
-		var variant = new Variant();
-		COMConverter.SetVariantAddress(variant, Exports.GetEventHandler(listener, COMConverter.GetVariantAddress(variant)));
-		System.out.println("Variant as int: "+variant.toInt());
-		var ret = new IEventListener(variant.changeType((short) 9).getDispatch()); //Object variant to dispatch variant
-		source.registerListener(ret, types, true);
-		return ret;
+		source.registerListener(, types, true);
 	}
 
 	@SneakyThrows

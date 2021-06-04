@@ -1,10 +1,9 @@
 package sznp.virtualcomputer.util;
 
-import com.jacob.com.Dispatch;
 import lombok.var;
 import org.virtualbox_6_1.IEvent;
 
-public interface IEventHandler extends virtualcomputerwindows.IEventHandler {
+public interface IEventHandler {
 	void handleEvent(IEvent iEvent);
 
 	@Override

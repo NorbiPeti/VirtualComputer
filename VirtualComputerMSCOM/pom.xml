@@ -14,13 +14,13 @@
     </parent>
 
     <dependencies>
-        <dependency>
+        <!-- <dependency>
             <groupId>org.virtualbox</groupId>
             <artifactId>VirtualBox-MSCOM</artifactId>
             <version>6.1</version>
             <optional>true
-            </optional> <!-- https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html -->
-        </dependency>
+            </optional> <!- https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html ->
+        </dependency> -->
         <dependency>
             <groupId>net.sf.jni4net</groupId>
             <artifactId>clr</artifactId>
@@ -32,9 +32,15 @@
             <version>3.0</version>
         </dependency>
         <dependency>
-            <groupId>net.sf.jacob-project</groupId>
-            <artifactId>jacob</artifactId>
-            <version>1.19</version>
+            <groupId>org.virtualbox</groupId>
+            <artifactId>VirtualBox-JWS</artifactId>
+            <version>6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
