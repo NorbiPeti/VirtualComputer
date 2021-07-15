@@ -105,6 +105,10 @@ public final class Computer {
 	 */
 	public void onLock(CommandSender sender) {
 		System.out.println("A");
+		if (session.getState() != SessionState.Locked) {
+			sendMessage(sender, "§cFailed to start computer! Failed to lock session");
+			return;
+		}
 		machine = session.getMachine(); // This is the Machine object we can work with
 		final IConsole console = session.getConsole();
 		if (embedded) { //Otherwise it's set while starting the VM
